@@ -13,3 +13,24 @@ Key Features:
     - Provides methods to update movie details and retrieve actor information.
 ----------------------------------------------------------------------------
 */
+
+#pragma once
+#include <string>
+#include <iostream>
+#include "List.h"
+
+using namespace std;
+
+class Actor {
+    private:
+        string name;
+        int yearOfBirth;
+
+    public:
+        Actor();
+        Actor(string, int);
+        void setName(string);
+        string getName();
+        void setYearOfBirth(int);
+        int getYearOfBirth();
+};
