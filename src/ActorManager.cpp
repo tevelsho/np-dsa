@@ -5,7 +5,7 @@
 using namespace std;
 
 void ActorManager::createNewActor() {
-    List<Actor> actorList;
+    List<Actor*> actorList;
 
     string name;
     int yearOfBirth;
