@@ -18,11 +18,11 @@ class List {
     public:
         List();
         ~List();
-        bool add(T newItem);
-        bool add(int index, T newItem);
+        bool add(const T& newItem);
+        bool add(int index, const T& newItem);
         void remove(int index);
-        ItemType get(int index); 
-        int getLength();
-        bool isEmpty(); 
-        void print();
+        T get(int index) const; 
+        int getLength() const;
+        bool isEmpty() const; 
+        void print() const;
 };

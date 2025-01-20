@@ -24,7 +24,7 @@ Actor::Actor() {
 }
 
 Actor::Actor(string n, int y) : name(n), yearOfBirth(y) {
-
+    
 }
 
 void Actor::setName(string n) {
