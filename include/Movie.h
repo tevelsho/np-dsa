@@ -29,15 +29,10 @@ public:
     void displayCast() const;
 
 private:
-    // Node structure for the linked list of actors
     int id;
     std::string title;
     int year;
-    List<Actor*> cast; // Head of the linked list
-
-    // Disable copy constructor and assignment operator to prevent shallow copies
-    Movie(const Movie& other);
-    Movie& operator=(const Movie& other);
+    List<Actor*> cast; 
 };
 
 #endif // MOVIE_H

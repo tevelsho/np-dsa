@@ -18,13 +18,14 @@ Key Features:
 #include <string>
 #include <iostream>
 #include "List.h"
-
+#include "Movie.h"
 using namespace std;
 
 class Actor {
     private:
         string name;
         int yearOfBirth;
+        List<Movie*> movies; 
 
     public:
         Actor();

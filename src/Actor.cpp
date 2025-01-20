@@ -23,7 +23,7 @@ Actor::Actor() {
 
 }
 
-Actor::Actor(string n, int y) : name(n), yearOfBirth(y) {
+Actor::Actor(string n, int y) : name(n), yearOfBirth(y), movies() {
     
 }
 
