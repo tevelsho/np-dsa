@@ -25,3 +25,8 @@
 2. **Heap Integration:** Use heaps for rating-based recommendations.
 
 This balanced approach ensures both simplicity and optimal performance for all core features while meeting assignment requirements.
+
+# Compiling
+```bash
+g++ src/*.cpp -Iinclude -o MovieApp.exe
+```
