@@ -29,6 +29,8 @@ bool authenticateAdmin();
 void adminMenu();
 void userMenu();
 void readActorsCSV();
+void readCSV();
+bool addNewActor();
 
 /*----------------------------------------------------------------------------
 Main function of the program.
@@ -232,23 +234,41 @@ void userMenu() {
 }
 
 /*----------------------------------------------------------------------------
-Reads data from actors.csv
+Reads and processes a CSV file based on its type.
+
+@param fileName (string): The name of the CSV file to read. Supported file names:
+    - "actors.csv": Contains actor information with columns (id, name, birth).
+    - "cast.csv": Contains cast information with columns (person_id, movie_id).
+    - "movies.csv": Contains movie information with columns (id, title, year).
 
 @return void
 
 Description:
-    - Opens the file `actors.csv` in read mode.
-    - Skips the header line and processes each subsequent line of the CSV.
-    - Splits each line into columns: `id`, `name`, and `birth`.
-    - Removes quotes from the `name` field if present.
-    - Outputs the parsed `id`, `name`, and `birth` to the console.
+    - Opens the specified CSV file and checks for successful access.
+    - Skips the header line and processes data line by line.
+    - Dynamically handles file-specific data structures:
+        - For "actors.csv", reads ID, Name, and Birth Year.
+        - For "cast.csv", reads Person ID and Movie ID.
+        - For "movies.csv", reads ID, Title, and Year.
+    - Converts numeric data (e.g., IDs, years) from string to integer using `stoi`.
+    - Outputs the parsed data directly to the console.
+    - Handles unsupported file names with an error message.
+
+Error Handling:
+    - If the file cannot be opened, an error message is displayed, and the function exits.
+    - If an unsupported file name is provided, an appropriate error message is shown.
+
+Example Usage:
+    - readCSV("actors.csv"); // Reads and prints actor information
+    - readCSV("cast.csv");   // Reads and prints cast information
+    - readCSV("movies.csv"); // Reads and prints movie information
 -----------------------------------------------------------------------------*/
-void readActorsCSV() {
+void readCSV(string fileName) {
     // File pointer
     fstream fin;
 
     // Open actors.csv
-    fin.open("actors.csv", ios::in);
+    fin.open(fileName, ios::in);
 
     // Check if the file is opened
     if (!fin.is_open()) {
@@ -261,24 +281,88 @@ void readActorsCSV() {
     // Skip the header line
     getline(fin, line);
 
-    // Read data line by line
-    while (getline(fin, line)) {
-        stringstream s(line);
+    if (fileName == "actors.csv") {
+        // Read data line by line
+        while (getline(fin, line)) {
+            stringstream s(line);
 
-        // Read and parse each column
-        string id, name, birth;
-        getline(s, id, ',');
-        getline(s, name, ',');
-        getline(s, birth, ',');
+            // Read and parse each column as string and convert to int
+            string name, temp;
+            int id, birth;
 
-        // Remove quotes from name, if present
-        if (!name.empty() && name[0] == '"' && name[name.size() - 1] == '"') {
-            name = name.substr(1, name.size() - 2);
+            getline(s, temp, ',');
+            id = stoi(temp);
+
+            getline(s, name, ',');
+
+            getline(s, temp, ','); 
+            birth = stoi(temp);  
+
+            // Output the parsed data
+            cout << "ID: " << id << ", Name: " << name << ", Birth Year: " << birth << endl;
         }
 
-        // Output the parsed data
-        cout << "ID: " << id << ", Name: " << name << ", Birth Year: " << birth << endl;
-    }
+        fin.close();
 
-    fin.close();
+    } else if (fileName == "cast.csv") {
+        // Read data line by line
+        while (getline(fin, line)) {
+            stringstream s(line);
+
+            // Read and parse each column as string and convert to int
+            string temp;
+            int personID, movieID;
+
+            getline(s, temp, ',');
+            personID = stoi(temp);
+
+            getline(s, temp, ','); 
+            movieID = stoi(temp);  
+
+            // Output the parsed data
+            cout << "Person ID: " << personID << ", Movie ID: " << movieID << endl;
+        }
+
+        fin.close();
+
+    } else if (fileName == "movies.csv") {
+                // Read data line by line
+        while (getline(fin, line)) {
+            stringstream s(line);
+
+            // Read and parse each column as string and convert to int
+            string title, temp;
+            int id, year;
+
+            getline(s, temp, ',');
+            id = stoi(temp);
+
+            getline(s, title, ',');
+
+            getline(s, temp, ','); 
+            year = stoi(temp);  
+
+            // Output the parsed data
+            cout << "ID: " << id << ", Title: " << title << ", Year: " << year << endl;
+        }
+
+        fin.close();
+    } else {
+        cout << "Error: Unsupported file name \"" << fileName << "\". Please provide a valid file name." << endl;
+        fin.close();
+    }
+}
+
+bool addNewActor() {
+    int id, birth;
+    string name;
+
+    // Prompt user for id, name, and birth for new actor
+    cout << "Enter new actor's ID: ";
+    cin >> id;
+    cout << "Enter new actor's name: ";
+    getline(cin, name);
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    cout << "Enter new actor's year of birth: ";
+    cin >> birth;
 }
