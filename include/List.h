@@ -25,4 +25,5 @@ class List {
         int getLength() const;
         bool isEmpty() const; 
         void print() const;
+        Node* getHead() const;
 };

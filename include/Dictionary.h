@@ -1,56 +1,93 @@
-// Dictionary.h - - Specification of Dictionary ADT
+#ifndef DICTIONARY_H
+#define DICTIONARY_H
 
-#include<string>
-#include<iostream>
-#include "Actor.h"
-using namespace std;
+#include <string>
+#include <iostream>
 
-const int MAX_SIZE = 3221; //Prime number
-typedef Actor* ItemType;
-typedef int KeyType;
+// Define a prime number for hash table size
+const int MAX_SIZE = 3221; // Prime number
 
-struct Node
-{
-	KeyType  key;   // search key
-	ItemType item;	// data item
-	Node* next;	// pointer pointing to next item
+// Forward declaration of Node
+template <typename K, typename V>
+struct Node;
+
+// Hash Function Helper Struct
+template <typename K>
+struct Hash;
+
+// Specialization of Hash for int
+template <>
+struct Hash<int> {
+    static int compute(int key) {
+        return key % MAX_SIZE;
+    }
 };
 
+// Specialization of Hash for std::string
+template <>
+struct Hash<std::string> {
+    static int compute(const std::string& key) {
+        int hash = 0;
+        for (char c : key) {
+            // Convert to lowercase if uppercase
+            if (c >= 'A' && c <= 'Z') {
+                c = c - 'A' + 'a';
+            }
+            // Map 'a' to 0, 'b' to 1, ..., 'z' to 25
+            int letter = c - 'a';
+            hash = (hash * 26 + letter) % MAX_SIZE;
+        }
+        return hash;
+    }
+};
+
+// Template Dictionary Class
+template <typename K, typename V>
+struct Node {
+    K key;      // Search key
+    V value;    // Data item
+    Node* next; // Pointer to the next node
+
+    Node() : next(nullptr) {}
+    Node(K newKey, V newValue) : key(newKey), value(newValue), next(nullptr) {}
+};
+
+template <typename K, typename V>
 class Dictionary
 {
 private:
-	Node* items[MAX_SIZE];
-	int  size;			// number of items in the Dictionary
+    Node<K, V>* items[MAX_SIZE];
+    int size; // Number of items in the Dictionary
 
 public:
-	// constructor
-	Dictionary();
+    // Constructor
+    Dictionary();
 
-	// destructor
-	~Dictionary();
+    // Destructor
+    ~Dictionary();
 
-	int hash(KeyType key);
+    // Hash function
+    int hashFunction(K key);
 
-	// add a new item with the specified key to the Dictionary
-	bool add(KeyType newKey, ItemType newItem);
+    // Add a new item with the specified key to the Dictionary
+    bool add(K newKey, V newValue);
 
-	// remove an item with the specified key in the Dictionary
-	void remove(KeyType key);
+    // Remove an item with the specified key from the Dictionary
+    void remove(K key);
 
-	// get an item with the specified key in the Dictionary (retrieve)
-	ItemType get(KeyType key);
+    // Get an item with the specified key from the Dictionary
+    V get(K key);
 
-	// check if a specified key is in the Dictionary
-	bool contains(KeyType key);
+    // Check if a specified key is in the Dictionary
+    bool contains(K key);
 
-	// check if the Dictionary is empty
-	bool isEmpty();
+    // Check if the Dictionary is empty
+    bool isEmpty();
 
-	// check the size of the Dictionary
-	int getLength();
+    // Get the number of items in the Dictionary
+    int getLength();
 
-	//------------------- Other useful functions -----------------
-
-	// display the items in the Dictionary
-	void print();
+    // Display the items in the Dictionary
+    void print();
 };
+#endif // DICTIONARY_H

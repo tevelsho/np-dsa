@@ -11,7 +11,10 @@ DATA STRUCTURES & ALGORITHMS ASSIGNMENT
 #include <limits>
 #include <fstream>
 #include <sstream>
-
+#include "Dictionary.h"
+#include "List.h"
+#include "Actor.h"
+#include "Movie.h"
 
 using namespace std;
 
@@ -70,6 +73,14 @@ void displayMenu() {
 }
 
 int main() {
+    Dictionary<int, Actor*> idToActorDict;
+    Dictionary<string, int> nameToActorIdDict;
+
+    Dictionary<int, Movie*> idToMovieDict;
+    Dictionary<string, int> nameToMovieIdDict;
+    //AVL TREE FOR YEAR TO ACTOR 
+    //AVL TREE FOR YEAR TO MOVIE
+
     int option;
 
     displayMenu();

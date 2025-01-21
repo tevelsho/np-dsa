@@ -24,7 +24,7 @@ using namespace std;
 class Actor {
     private:
         string name;
-        int yearOfBirth;
+        int year;
         List<Movie*> movies; 
 
     public:

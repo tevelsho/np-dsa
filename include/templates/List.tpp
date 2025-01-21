@@ -127,3 +127,8 @@ void List<T>::print() const {
     }
     cout << "nullptr" << endl;
 }
+
+template <typename T>
+List<T>::Node* List<T>::getHead() const {
+    return firstNode;
+}

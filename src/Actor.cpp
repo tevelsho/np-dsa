@@ -23,7 +23,7 @@ Actor::Actor() {
 
 }
 
-Actor::Actor(string n, int y) : name(n), yearOfBirth(y), movies() {
+Actor::Actor(string n, int y) : name(n), year(y), movies() {
     
 }
 
@@ -36,9 +36,9 @@ string Actor::getName() {
 }
 
 void Actor::setYearOfBirth(int y) {
-    yearOfBirth = y;
+    year = y;
 }
 
 int Actor::getYearOfBirth() {
-    return yearOfBirth;
+    return year;
 }
