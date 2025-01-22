@@ -1,19 +1,22 @@
 /*----------------------------------------------------------------------------
-💻 Class: Actor (Actor.h)
-Description: Represents a movie with its details and the actors involved.
- 
+💻 Class: List (List.h)
+Description: A generic singly linked list implementation.
+
 Team Information:
     - Member 1: [Name], [Student ID], [Group Name]
     - Member 2: [Name], [Student ID], [Group Name]
 
 Key Features:
-    - Stores details about the movie (title, plot, release year).
-    - Maintains a list of actors who starred in the movie.
-    - Provides methods to update movie details and retrieve actor information.
+    - Constructor and destructor for initializing and cleaning up the list.
+    - Add elements to the list at the end or a specific index.
+    - Remove elements from the list by index.
+    - Retrieve elements by index.
+    - Get the size of the list or check if it is empty.
+    - Print the contents of the list.
+    - Retrieve the head of the list for iteration.
 ----------------------------------------------------------------------------*/
 #pragma once
 #include <string>
-#include <iostream>
 using namespace std;
 
 template <typename T>

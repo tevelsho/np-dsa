@@ -1,15 +1,15 @@
 /*----------------------------------------------------------------------------
 💻 Class: Actor (Actor.h)
-Description: Represents a movie with its details and the actors involved.
- 
+Description: Represents an actor with personal details and associated movies.
+
 Team Information:
     - Member 1: [Name], [Student ID], [Group Name]
     - Member 2: [Name], [Student ID], [Group Name]
 
 Key Features:
-    - Stores details about the movie (title, plot, release year).
-    - Maintains a list of actors who starred in the movie.
-    - Provides methods to update movie details and retrieve actor information.
+    - Default and parameterized constructors for creating actor objects.
+    - Setters and getters for `id`, `name`, and `year of birth`.
+    - Retrieve the list of associated movies.
 ----------------------------------------------------------------------------*/
 #pragma once
 #include <string>
@@ -20,15 +20,23 @@ using namespace std;
 
 class Actor {
     private:
+        int id;
         string name;
         int year;
         List<Movie*> movies; 
 
     public:
         Actor();
-        Actor(string, int);
+        Actor(int, string, int);
+
+        void setID(int);
+        int getID();
+
         void setName(string);
         string getName();
+
         void setYearOfBirth(int);
         int getYearOfBirth();
+
+        // Other functions
 };

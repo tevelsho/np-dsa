@@ -1,50 +1,48 @@
 /*----------------------------------------------------------------------------
-💻 Class: Actor (Actor.h)
-Description: Represents a movie with its details and the actors involved.
- 
+💻 Class: Movie (Movie.h)
+Description: Represents a movie with its details and associated cast.
+
 Team Information:
     - Member 1: [Name], [Student ID], [Group Name]
     - Member 2: [Name], [Student ID], [Group Name]
 
 Key Features:
-    - Stores details about the movie (title, plot, release year).
-    - Maintains a list of actors who starred in the movie.
-    - Provides methods to update movie details and retrieve actor information.
+    - Default and parameterized constructors for creating movie objects.
+    - Setters and getters for `id`, `title`, and `year of release`.
+    - Add actors to the cast.
+    - Display the list of associated actors (cast).
 ----------------------------------------------------------------------------*/
-#ifndef MOVIE_H
-#define MOVIE_H
+#pragma once
 
 #include <string>
-#include "Actor.h" // Ensure Actor.h is correctly included
-#include "List.h" 
-// Forward declaration of Actor class
-// If Actor.h is already included above, this is optional
-// class Actor;
-/**/
+#include <iostream>
+#include "List.h"
+#include "Actor.h"
+
+using namespace std;
+
 class Movie {
-public:
-    // Constructor
-    Movie(int id, const std::string& title, int year);
+    private:
+        int id;
+        string title;
+        int year;
+        List<Actor*> cast;
 
-    // Destructor
-    ~Movie();
+    public:
+        Movie();
+        Movie(int, string, int);
 
-    // Getters
-    int getId() const;
-    std::string getTitle() const;
-    int getYear() const;
+        void setID(int);
+        int getID() const;
 
-    // Adds an Actor to the cast
-    void addActor(Actor* actor);
+        void setTitle(string);
+        string getTitle() const;
 
-    // Displays the cast
-    void displayCast() const;
+        void setYear(int);
+        int getYear() const;
 
-private:
-    int id;
-    std::string title;
-    int year;
-    List<Actor*> cast; 
+        // Other functions
+        void addActor(Actor* actor);
+        void displayCast() const;
 };
 
-#endif // MOVIE_H
