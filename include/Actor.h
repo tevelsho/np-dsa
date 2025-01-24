@@ -15,7 +15,8 @@ Key Features:
 #include <string>
 #include <iostream>
 #include "List.h"
-#include "Movie.h"
+
+class Movie;
 using namespace std;
 
 class Actor {
@@ -23,9 +24,11 @@ class Actor {
         int id;
         string name;
         int year;
-        List<Movie*> movies; 
 
     public:
+        List<Movie*> movies; 
+
+
         Actor();
         Actor(int, string, int);
 
@@ -39,4 +42,8 @@ class Actor {
         int getYearOfBirth();
 
         // Other functions
+        void addMovie(Movie* movie);
+        void displayMovies() const;
 };
+
+#include "templates/Actor.cpp"

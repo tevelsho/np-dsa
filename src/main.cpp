@@ -14,6 +14,8 @@ Team Information:
 #include "List.h"
 #include "Actor.h"
 #include "Movie.h"
+#include "AVLTree.h"
+#include "DynamicArray.h"
 
 using namespace std;
 
@@ -26,20 +28,22 @@ char adminPassword[MAX_ADMINS][20] = {"password"};
 
 // Function prototypes
 bool authenticateAdmin();
-void adminMenu();
-void userMenu();
-void readActorsCSV();
-void readCSV(string filename);
-bool addNewActor(List<Actor>& actorList); 
-bool addNewMovie(List<Movie>& movieList); 
-bool addActorToMovie(List<Actor> actorList, List<Movie> movieList, Dictionary<int, List<Actor>>& movieToActors); 
-void updateActorDetails(List<Actor>& actorList); 
-void updateMovieDetails(List<Movie>& movieList); 
-void displayActorsByAgeRange(); 
-void displayRecentMovies(); 
+Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorName, Dictionary<int, Actor*>& actorIdToActorMap);
+Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieName, Dictionary<int, Movie*>& movieIdToMovieMap);
+void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
+void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
+void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie);
+bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor);
+bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
+bool addActorToMovie(Actor* actor, Movie* movie);
+void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor);
+void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
+void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor);
+void displayRecentMovies(AVLTree<Movie*>& yearToMovie);
 void displayMoviesByActor(); 
 void displayActorsByMovie(); 
-void displayActorsKnownBy(); 
+void displayActorsKnownBy(Actor* actor);
+void displayActorsKnownByHelper(Actor* actor, DynamicArray& actors_known);
 void setActorRating();
 void setMovieRating();
 void recommendMoviesByRating();
@@ -56,10 +60,10 @@ Description:
     - Redirects user to either adminMenu() or userMenu() accordingly.
 ----------------------------------------------------------------------------*/
 int main() {
-    List<Actor> actorList;
-    List<Movie> movieList;
+    // List<Actor> actorList;
+    // List<Movie> movieList;
 
-    Dictionary<int, List<Actor>> movieToActor;
+    // Dictionary<int, List<Actor>> movieToActor;
 
     Dictionary<int, Actor*> actorIdToActorMap;
     Dictionary<string, int> actorNameToIdMap;
@@ -67,18 +71,18 @@ int main() {
     Dictionary<int, Movie*> movieIdToMovieMap;
     Dictionary<string, int> movieNameToIdMap;
 
-    char isAdmin[5];
-    cout << "Are you an administrator? (yes/no): ";
+    //AVL TREE FOR YEAR TO ACTOR 
+    AVLTree<Actor*> yearToActor;
+    //AVL TREE FOR YEAR TO MOVIE
+    AVLTree<Movie*> yearToMovie;
+
+
+
+    char isAdmin;
+    cout << "Are you an administrator? (y/n): ";
     cin >> isAdmin;
     
-    // Convert input to lowercase
-    for (int i = 0; isAdmin[i] != '\0'; i++) {
-        if (isAdmin[i] >= 'A' && isAdmin[i] <= 'Z') {
-            isAdmin[i] += ('a' - 'A'); 
-        }
-    }
-
-    if (isAdmin[0] == 'y' && isAdmin[1] == 'e' && isAdmin[2] == 's' && isAdmin[3] == '\0') {
+    if (isAdmin == 'y' || isAdmin == 'Y') {
         bool isAdminAuthenticated = false;
 
         for (int attempts = 0; attempts < 3; attempts++) {
@@ -92,14 +96,14 @@ int main() {
 
         if (isAdminAuthenticated) {
             cout << "Welcome, Admin!\n";
-            adminMenu();
+            adminMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);
         } else {
-            cout << "Failed all attempts! You will no be logged in as a normal user.\n";
-            userMenu();
+            cout << "Failed all attempts! You will be logged in as a normal user.\n";
+            userMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);  
         }
     } else {
         cout << "Welcome, User!\n";
-        userMenu();
+        userMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);  
     }
 
     return 0;
@@ -116,6 +120,7 @@ Description:
     - Grants admin access if the credentials are correct.
 ----------------------------------------------------------------------------*/
 bool authenticateAdmin() {
+    return true; //Temporary
     char username[20], password[20];
 
     // Prompt user to enter in credentials
@@ -150,6 +155,17 @@ bool authenticateAdmin() {
             return true;
         }
     }
+    return false;
+}
+
+Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorName, Dictionary<int, Actor*>& actorIdToActorMap) {
+    int actorID = actorNameToIdMap.get(actorName);
+    return actorIdToActorMap.get(actorID);
+}
+
+Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieName, Dictionary<int, Movie*>& movieIdToMovieMap) {
+    int movieID = movieNameToIdMap.get(movieName);
+    return movieIdToMovieMap.get(movieID);
 }
 
 /*----------------------------------------------------------------------------
@@ -162,7 +178,7 @@ Description:
       adding movies, updating details, and exiting the application.
     - Continues to prompt the admin until they choose to exit.
 ----------------------------------------------------------------------------*/
-void adminMenu() {
+void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie) {
     int option;
 
     do {
@@ -177,77 +193,100 @@ void adminMenu() {
         cout << " [0]  ➤ Exit Application\n";
         cout << "=============================================\n";
         cout << "Please select an option by entering the number: ";
-
+        cin >> option;
         switch (option) {
-            case 0:
+            case 0: {
                 cout << " Thank you for visiting Silver Village! Hope to see you next time!";
                 break;
-            case 1:
+            }
+            case 1: {
+                cout << "Adding a new actor...\n";
+                int actor_id, actor_birth;
+                string actor_name;
+
+                // Prompt user for id, name, and birth for new actor
+                cout << "Enter new actor's ID: ";
+                cin >> actor_id;
+
+                cout << "Enter new actor's name: ";
+                getline(cin, actor_name);
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                cout << "Enter new actor's year of birth: ";
+                cin >> actor_birth;
+
+                addNewActor(actor_id, actor_birth, actor_name, actorIdToActorMap, actorNameToIdMap, yearToActor);
                 break;
-            case 2:
+            }
+            case 2:{
+                int movie_id, movie_year;
+                string movie_name;
+
+                // Prompt user for id, movie, and year for new movie
+                cout << "Enter new movie's ID: ";
+                cin >> movie_id;
+
+                cout << "Enter new movie's name: ";
+                getline(cin, movie_name);
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                cout << "Enter new movie's release year: ";
+                cin >> movie_year;
+
+                addNewMovie(movie_id, movie_year, movie_name, movieIdToMovieMap, movieNameToIdMap, yearToMovie);
                 break;
-            case 3:
+            }
+            case 3:{
+                string actor_name, movie_name;
+                cout << "Enter the actor's name: ";
+                cin >> actor_name;
+
+                cout << "Enter the movie's name: ";
+                cin >> movie_name;
+
+                Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
+                if (actor != nullptr && movie != nullptr) {
+                    addActorToMovie(actor, movie);
+                } else {
+                    cout << "Error: Actor or Movie not found. Please ensure the Name is correct.\n";
+                }
                 break;
-            case 4:
+            }
+            case 4:{
+                string actorName;
+                // Prompt user for actor name to update actor's details
+                cout << "Enter the actor's name to update: ";
+                cin >> actorName;
+                Actor* actorToUpdate = findActorByName(actorNameToIdMap, actorName, actorIdToActorMap);
+
+                if (actorToUpdate != nullptr) {
+                    updateActorDetails(actorToUpdate, actorNameToIdMap, yearToActor);
+                }
                 break;
-            case 5:
+            }
+            case 5: {
+                string movieName;
+
+                cout << "Enter the movie's name to update: ";
+                cin >> movieName;
+                Movie* movieToUpdate = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+
+                if (movieToUpdate != nullptr) {
+                    updateMovieDetails(movieToUpdate, movieNameToIdMap, yearToMovie);
+                }
                 break;
+            }
             default:
                 cout << "Invalid choice! Try again.\n"; 
 
         }
 
-    } while (option != 5);
+    } while (option != 0);
 }
 
 
-/*----------------------------------------------------------------------------
-Displays the user menu and handles user operations.
 
-@return void
-
-Description:
-    - Allows the user to perform various actions such as 
-      viewing actors and movies based on specific criteria.
-    - Continues to prompt the user until they choose to exit.
------------------------------------------------------------------------------*/
-void userMenu() {
-    int option;
-
-    do {
-        cout << "\n=============================================\n";
-        cout << "       🎬 Silver Village User Menu               \n";
-        cout << "=============================================\n";
-        cout << " [1]  ➤ Display Actors by Age Range\n";
-        cout << " [2]  ➤ Show Movies from the Last 3 Years\n";
-        cout << " [3]  ➤ List Movies an Actor Starred In\n";
-        cout << " [4]  ➤ List Actors in a Specific Movie\n";
-        cout << " [5]  ➤ Find All Actors an Actor Knows\n";
-        cout << " [0]  ➤ Exit Application\n";
-        cout << "=============================================\n";
-        cout << "Please select an option by entering the number: ";
-
-        switch (option) {
-            case 0:
-                cout << " Thank you for visiting Silver Village! Hope to see you next time!";
-                break;
-            case 1:
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            default:
-                cout << "Invalid choice! Try again.\n"; 
-
-        }
-
-    } while (option != 5);
-}
 
 /*----------------------------------------------------------------------------
 Reads and processes a CSV file based on its type.
@@ -274,7 +313,7 @@ Error Handling:
     - If the file cannot be opened, an error message is displayed, and the function exits.
     - If an unsupported file name is provided, an appropriate error message is shown.
 -----------------------------------------------------------------------------*/
-void readCSV(string fileName) {
+void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie) {
     // File pointer
     fstream fin;
 
@@ -312,11 +351,14 @@ void readCSV(string fileName) {
             // Create an actor object
             Actor* actor = new Actor(id, name, birth);
 
-            // Map the ID to the Actor object
-            actorIdToActorMap.put(id, actor);
+            // Map the ID to the Actor pointer
+            actorIdToActorMap.add(id, actor);
 
             // Map the Name to the ID
-            actorNameToIdMap.put(name, id);
+            actorNameToIdMap.add(name, id);
+
+            // Add actor to the AVL tree
+            yearToActor.insertItem(birth, actor);
         }
 
         fin.close();
@@ -337,7 +379,10 @@ void readCSV(string fileName) {
             movieID = stoi(temp);  
 
             // Output the parsed data
-            cout << "Person ID: " << personID << ", Movie ID: " << movieID << endl;
+            Actor* actor = actorIdToActorMap.get(personID);
+            Movie* movie = movieIdToMovieMap.get(movieID);
+            actor->addMovie(movie);
+            movie->addActor(actor);
         }
 
         fin.close();
@@ -359,8 +404,17 @@ void readCSV(string fileName) {
             getline(s, temp, ','); 
             year = stoi(temp);  
 
-            // Output the parsed data
-            cout << "ID: " << id << ", Title: " << title << ", Year: " << year << endl;
+            // Create an actor object
+            Movie* movie = new Movie(id, title, year);
+
+            // Map the ID to the Movie pointer
+            movieIdToMovieMap.add(id, movie);
+
+            // Map the Title to the ID
+            movieNameToIdMap.add(title, id);
+
+            // Add Movie to the AVL tree
+            yearToMovie.insertItem(year, movie);
         }
 
         fin.close();
@@ -390,24 +444,20 @@ Error Handling:
     - Input validation ensures the correct data types are entered for each field.
     - If invalid input is detected, the program may exhibit undefined behavior (additional validation can be added).
 -----------------------------------------------------------------------------*/
-bool addNewActor(List<Actor>& actorList) {
-    int id, birth;
-    string name;
+bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor) {
+    // Create a new actor object
+    Actor* actor = new Actor(id, name, birth);
 
-    // Prompt user for id, name, and birth for new actor
-    cout << "Enter new actor's ID: ";
-    cin >> id;
+    // Map the ID to the Actor pointer
+    actorIdToActorMap.add(id, actor);
 
-    cout << "Enter new actor's name: ";
-    getline(cin, name);
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // Map the Name to the ID
+    actorNameToIdMap.add(name, id);
 
-    cout << "Enter new actor's year of birth: ";
-    cin >> birth;
+    // Add actor to the AVL tree
+    yearToActor.insertItem(birth, actor);
 
-    // Create a new actor object and add it to the list
-    Actor newActor(id, name, birth);
-    return actorList.add(newActor);
+    return true;
 }
 
 /*----------------------------------------------------------------------------
@@ -428,24 +478,20 @@ Description:
 Error Handling:
     - If invalid input is detected (e.g., non-integer for `id` or `year`), the program may exhibit undefined behavior.
 -----------------------------------------------------------------------------*/
-bool addNewMovie(List<Movie>& movieList) {
-    int id, year;
-    string movie;
+bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie) {
+    // Create a new movie object
+    Movie* movie = new Movie(id, name, year);
 
-    // Prompt user for id, movie, and year for new movie
-    cout << "Enter new movie's ID: ";
-    cin >> id;
+    // Map the ID to the Movie pointer
+    movieIdToMovieMap.add(id, movie);
 
-    cout << "Enter new movie's name: ";
-    getline(cin, movie);
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    // Map the Title to the ID
+    movieNameToIdMap.add(name, id);
 
-    cout << "Enter new movie's release year: ";
-    cin >> year;
+    // Add Movie to the AVL tree
+    yearToMovie.insertItem(year, movie);
 
-    // Create a new movie object and add it to the list
-    Movie newMovie(id, movie, year);
-    return movieList.add(newMovie);
+    return true;
 }
 
 /*----------------------------------------------------------------------------
@@ -467,58 +513,9 @@ Error Handling:
     - If the actor or movie ID does not exist, an error message is displayed, and the function returns false.
     - Ensures that actor and movie lists are dynamically managed.
 -----------------------------------------------------------------------------*/
-bool addActorToMovie(List<Actor> actorList, List<Movie> movieList, Dictionary<int, List<Actor>>& movieToActors) {
-    int actorID, movieID;
-
-    // Prompt user to select an actor by ID
-    cout << "Enter the actor's ID: ";
-    cin >> actorID;
-
-    // Search for actor in actor list
-    Actor* selectedActor = nullptr;
-    for (int i = 0; i < actorList.getLength(); i++) {
-        if (actorList.get(i).getID() == actorID) {
-            selectedActor = &actorList.get(i);
-            break;
-        }
-    }
-
-    // Actor not founded
-    if (selectedActor == nullptr) {
-        cout << "Error: Actor not found. Please ensure the ID is correct.\n";
-        return false;
-    }
-
-    // Prompt user to select a movie by ID
-    cout << "Enter the movie's ID: ";
-    cin >> movieID;
-
-    // Search for movie in movie list
-    Movie* selectedMovie = nullptr;
-    for (int i = 0; i < movieList.getLength(); i ++) {
-        if (movieList.get(i).getID() == movieID) {
-            selectedMovie = &movieList.get(i);
-            break;
-        }
-    }
-    
-    // Movie not founded
-    if (selectedMovie == nullptr) {
-        cout << "Error: Movie not found. Please ensure the ID is correct.\n";
-        return false;
-    }
-
-    // Check if movie has already an associated list of actors
-    if (!movieToActors.contains(movieID)) {
-        // Create a new list of actors associated to the movie
-        List<Actor> newActorList;
-        newActorList.add(*selectedActor);
-        movieToActors.put(movieID, newActorList);
-    } else {
-        // Add the actor to the existing list of actors for the movie
-        movieToActors.get(movieID).add(*selectedActor);
-    }
-
+bool addActorToMovie(Actor* actor, Movie* movie) {
+    actor->addMovie(movie);
+    movie->addActor(actor);
     cout << "Actor successfully added to the movie!\n";
     return true;
 }
@@ -543,27 +540,8 @@ Error Handling:
     - If the actor ID does not exist, an error message is displayed, and the function exits.
     - Input validation ensures the current details are retained for invalid or empty input.
 -----------------------------------------------------------------------------*/
-void updateActorDetails(List<Actor>& actorList) {
-    int actorID;
-
-    // Prompt user for actor ID to update actor's details
-    cout << "Enter the actor's ID to update: ";
-    cin >> actorID;
-
-    // Search actor by ID
-    Actor* actorToUpdate = nullptr;
-    for (int i = 0; i < actorList.getLength(); i++) {
-        if (actorList.get(i).getID() == actorID) {
-        actorToUpdate = &actorList.get(i);
-        break;
-    }
-
-    // Actor not founded
-    if (actorToUpdate == nullptr) {
-        cout << "Error: Actor not found. Please ensure the ID is correct.\n";
-        return;
-    }
-
+void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor) {
+    
     // Display current details of the actor
     cout << "Current Details:\n";
     cout << "ID: " << actorToUpdate->getID() << "\n";
@@ -583,10 +561,14 @@ void updateActorDetails(List<Actor>& actorList) {
 
     // Update the details
     if (!newName.empty()) {
+        actorNameToIdMap.remove(actorToUpdate->getName());
         actorToUpdate->setName(newName);
+        actorNameToIdMap.add(newName, actorToUpdate->getID());
     }
     if (newYear != -1) {
+        yearToActor.removeItem(actorToUpdate->getYearOfBirth(), actorToUpdate);
         actorToUpdate->setYearOfBirth(newYear);
+        yearToActor.insertItem(newYear, actorToUpdate);
     }
 
     cout << "Actor details updated successfully!\n";
@@ -612,35 +594,16 @@ Error Handling:
     - If the movie ID does not exist, an error message is displayed, and the function exits.
     - Input validation ensures the current details are retained for invalid or empty input.
 -----------------------------------------------------------------------------*/
-void updateMovieDetails(List<Movie>& movieList) {
-    int movieID;
+void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie) {
+    
 
-    // Prompt user for movie ID to update movie's details
-    cout << "Enter the movie's ID to update: ";
-    cin >> movieID;
-
-    // Search movie by ID
-    Movie* movieToUpdate = nullptr;
-    for (int i = 0; i < movieList.getLength(); ++i) {
-        if (movieList.get(i).getID() == movieID) {
-            movieToUpdate = &movieList.get(i);
-            break;
-        }
-    }
-
-    // Movie not founded
-    if (movieToUpdate == nullptr) {
-        cout << "Movie with ID " << movieID << " not found.\n";
-        return;
-    }
-
-    // Display the current details of the movie
+    // Display current details of the movie
     cout << "Current Details:\n";
     cout << "ID: " << movieToUpdate->getID() << "\n";
-    cout << "Title: " << movieToUpdate->getTitle() << "\n";
+    cout << "Title: " << movieToUpdate->getName() << "\n";
     cout << "Year of Release: " << movieToUpdate->getYear() << "\n";
 
-    // Prompt user for new details
+    // Prompt user for new details 
     string newTitle;
     int newYear;
 
@@ -653,11 +616,133 @@ void updateMovieDetails(List<Movie>& movieList) {
 
     // Update the details
     if (!newTitle.empty()) {
-        movieToUpdate->setTitle(newTitle);
+        movieNameToIdMap.remove(movieToUpdate->getName());
+        movieToUpdate->setName(newTitle);
+        movieNameToIdMap.add(newTitle, movieToUpdate->getID());
     }
     if (newYear != -1) {
+        yearToMovie.removeItem(movieToUpdate->getYear(), movieToUpdate);
         movieToUpdate->setYear(newYear);
+        yearToMovie.insertItem(newYear, movieToUpdate);
     }
 
     cout << "Movie details updated successfully!\n";
 }
+
+/*----------------------------------------------------------------------------
+Displays the user menu and handles user operations.
+
+@return void
+
+Description:
+    - Allows the user to perform various actions such as 
+      viewing actors and movies based on specific criteria.
+    - Continues to prompt the user until they choose to exit.
+-----------------------------------------------------------------------------*/
+void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie) {
+    int option;
+
+    do {
+        cout << "\n=============================================\n";
+        cout << "       🎬 Silver Village User Menu               \n";
+        cout << "=============================================\n";
+        cout << " [1]  ➤ Display Actors by Age Range\n";
+        cout << " [2]  ➤ Show Movies from the Last 3 Years\n";
+        cout << " [3]  ➤ List Movies an Actor Starred In\n";
+        cout << " [4]  ➤ List Actors in a Specific Movie\n";
+        cout << " [5]  ➤ Find All Actors an Actor Knows\n";
+        cout << " [0]  ➤ Exit Application\n";
+        cout << "=============================================\n";
+        cout << "Please select an option by entering the number: ";
+
+        switch (option) {
+            case 0: {
+                cout << " Thank you for visiting Silver Village! Hope to see you next time!";
+                break;
+            }
+            case 1: {
+                int x, y;
+                cout << "Enter the age range (x, y): ";
+                cin >> x >> y;
+                displayActorsByAgeRange(x, y, yearToActor);
+                break;
+            }
+            case 2:{
+                displayRecentMovies(yearToMovie);
+                break;
+            }
+            case 3:{
+                //Display all movies an actor starred in (in alphabetical order)
+                break;
+            }
+
+            case 4:{
+                //Display all the actors in a particular movie (in alphabetical order)
+                break;
+
+            }
+            case 5:
+                {
+                    //Display all the actors an actor knows
+                    string actorName;
+                    cout << "Enter the actor's name: ";
+                    cin >> actorName;
+
+                    Actor* actor = findActorByName(actorNameToIdMap, actorName, actorIdToActorMap);
+                    displayActorsKnownBy(actor);
+                    break;  
+                }
+                
+            default:
+                cout << "Invalid choice! Try again.\n"; 
+
+        }
+
+    } while (option != 5);
+}
+
+void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
+    cout << "Actors between " << x << " and " << y << " years old:\n";
+    int currentYear = 2025;
+    x = currentYear - x; //last year to include
+    y = currentYear - y; //first year to include
+    yearToActor.DisplayActors(y, x);
+}; 
+
+void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
+    cout << "Movies from the last 3 years:\n";
+    yearToMovie.DisplayMovies();
+};
+
+void displayMoviesByActor(); 
+void displayActorsByMovie(); 
+
+void displayActorsKnownByHelper(Actor* actor, DynamicArray& actors_known){
+    for (int i = 0; i < actor->movies.getLength(); i++){
+        //get cast of all movies actor was in
+        List<Actor*> cast = actor->movies.get(i)->cast;
+
+        for (int j = 0; j < cast.getLength(); j++){
+            if (cast.get(j) != actor){
+                actors_known.add(cast.get(j));
+            }
+        }
+    }
+};
+
+void displayActorsKnownBy(Actor* actor){
+    DynamicArray actors_known;
+    displayActorsKnownByHelper(actor, actors_known);
+    for (int i = 0; i < actors_known.getSize(); i++){
+        displayActorsKnownByHelper(actors_known.get(i), actors_known);
+    }
+    cout << "Actors known by " << actor->getName() << ":\n";
+    for (int i = 0; i < actors_known.getSize(); i++){
+        cout << actors_known.get(i)->getName() << "\n";
+    }
+};
+
+void setActorRating();
+void setMovieRating();
+void recommendMoviesByRating();
+void recommendActorsByRating();

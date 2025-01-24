@@ -1,16 +1,17 @@
-#include "Movie.h"
+#pragma once
+#include "Actor.h"
 #include <iostream>
 #include <string>
 
 using namespace std;
 
 // Default Constructor
-Movie::Movie() : id(0), title(""), year(0), cast() {
+Movie::Movie() : id(0), name(""), year(0), cast() {
 }
 
 // Parameterized Constructor
-Movie::Movie(int id, string title, int year) 
-    : id(id), title(title), year(year), cast() {
+Movie::Movie(int id, string name, int year) 
+    : id(id), name(name), year(year), cast() {
 }
 
 // Sets the ID of the movie
@@ -23,14 +24,14 @@ int Movie::getID() const {
     return id;
 }
 
-// Sets the title of the movie
-void Movie::setTitle(string title) {
-    this->title = title;
+// Sets the name of the movie
+void Movie::setName(string name) {
+    this->name = name;
 }
 
-// Gets the title of the movie
-string Movie::getTitle() const {
-    return title;
+// Gets the name of the movie
+string Movie::getName() const {
+    return name;
 }
 
 // Sets the release year of the movie
@@ -55,7 +56,7 @@ void Movie::addActor(Actor* actor) {
 
 // Displays the cast
 void Movie::displayCast() const {
-    cout << "Cast of \"" << title << "\" (" << year << "):" << endl;
+    cout << "Cast of \"" << name << "\" (" << year << "):" << endl;
 
     if (cast.isEmpty()) {
         cout << "No actors in the cast." << endl;
@@ -63,13 +64,8 @@ void Movie::displayCast() const {
     }
 
     // Iterate through the cast and display each actor's details
-    auto currentNode = cast.getHead();
-    while (currentNode != nullptr) {
-        Actor* actor = currentNode->item;
-        if (actor != nullptr) {
-            cout << " - " << actor->getName() << " (ID: " << actor->getID() 
-                 << ", Year of Birth: " << actor->getYearOfBirth() << ")" << endl;
-        }
-        currentNode = currentNode->next;
+    for (int i = 0; i < cast.getLength(); i++) {
+        Actor* actor = cast.get(i);
+        cout << "ID: " << actor->getID() << ", Name: " << actor->getName() << endl;
     }
 }

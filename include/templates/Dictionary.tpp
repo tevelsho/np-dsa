@@ -1,10 +1,5 @@
 // Dictionary.tpp - Template Implementation without Standard Library Hash
 
-#ifndef DICTIONARY_TPP
-#define DICTIONARY_TPP
-
-#include "../Dictionary.h"
-
 // Constructor
 template <typename K, typename V>
 Dictionary<K, V>::Dictionary()
@@ -92,7 +87,7 @@ V Dictionary<K, V>::get(K key) {
         }
         current = current->next;
     }
-    return nullptr; // Return nullptr if key not found (Assuming V can be nullptr)
+    return 0; // Return NULL if key not found
 }
 
 // Check if a specified key is in the Dictionary
@@ -136,5 +131,3 @@ void Dictionary<K, V>::print() {
         }
     }
 }
-
-#endif // DICTIONARY_TPP

@@ -1,10 +1,7 @@
+#pragma once
 #include <iostream>
 #include <string>
-#include "../List.h"
-#include "../AVLTree.h"
 using namespace std;
-
-template <class T>
 
 int custom_max(const int& a, const int& b) {
     return (a > b) ? a : b;
@@ -75,12 +72,12 @@ AVLNode<T>* AVLTree<T>::leftRotate(AVLNode<T>* x) {
 
 //Inserting an Item
 template<class T>
-void AVLTree<T>::insertItem(int key, T* item) {
+void AVLTree<T>::insertItem(int key, T item) {
     root = insertItem(root, key, item);
 }
 
 template<class T>
-AVLNode<T>* AVLTree<T>::insertItem(AVLNode<T>* node, int key, T* item) {
+AVLNode<T>* AVLTree<T>::insertItem(AVLNode<T>* node, int key, T item) {
     if (!node)
         return new AVLNode<T>(key, item);
     if (key < node->key)
@@ -89,8 +86,8 @@ AVLNode<T>* AVLTree<T>::insertItem(AVLNode<T>* node, int key, T* item) {
         node->right = insertItem(node->right, key, item);
     else {
         // Key already exists, append actor to the list
-        if (node->list)
-            node->actors->append(item);
+        if (!node->list.isEmpty())
+            node->list.add(item);
         return node;
     }
     
@@ -128,79 +125,26 @@ AVLNode<T>* AVLTree<T>::minValueNode(AVLNode<T>* node) const{
     return current;
 }
 
-// AVLNode* deleteNode(AVLNode* root, int key) {
-//     // 1. Perform standard BST delete
-//     if (!root)
-//         return root;
-    
-//     if (key < root->key)
-//         root->left = deleteNode(root->left, key);
-//     else if (key > root->key)
-//         root->right = deleteNode(root->right, key);
-//     else {
-//         // Node with only one child or no child
-//         if ((root->left == nullptr) || (root->right == nullptr)) {
-//             AVLNode* temp = root->left ? root->left : root->right;
-            
-//             // No child case
-//             if (temp == nullptr) {
-//                 temp = root;
-//                 root = nullptr;
-//             }
-//             else { // One child case
-//                 *root = *temp; // Copy the contents
-//             }
-            
-//             delete temp;
-//         }
-//         else {
-//             // Node with two children
-//             AVLNode* temp = minValueNode(root->right);
-//             root->key = temp->key;
-            
-//             if (root->list && temp->list) {
-//                 // Clear current actors list
-//                 delete root->list;
-//                 root->list = new LinkedList<T*>();
-                
-//             }
-//             root->right = deleteNode(root->right, temp->key);
-//         }
-//     }
-    
-//     // If the tree had only one node
-//     if (root == nullptr)
-//         return root;
-    
-//     // 2. Update height
-//     root->height = 1 + custom_max(height(root->left), height(root->right));
-    
-//     // 3. Get balance factor
-//     int balance = getBalance(root);
-    
-//     // 4. Balance the tree
-//     // Left Left Case
-//     if (balance > 1 && getBalance(root->left) >= 0)
-//         return rightRotate(root);
-    
-//     // Left Right Case
-//     if (balance > 1 && getBalance(root->left) < 0) {
-//         root->left = leftRotate(root->left);
-//         return rightRotate(root);
-//     }
-    
-//     // Right Right Case
-//     if (balance < -1 && getBalance(root->right) <= 0)
-//         return leftRotate(root);
-    
-//     // Right Left Case
-//     if (balance < -1 && getBalance(root->right) > 0) {
-//         root->right = rightRotate(root->right);
-//         return leftRotate(root);
-//     }
-    
-//     return root;
-// }
+template<class T>
+AVLNode<T>* AVLTree<T>::find(int key) {
+    AVLNode<T>* current = root;
+    while (current != nullptr) {
+        if (key < current->key)
+            current = current->left;
+        else if (key > current->key)
+            current = current->right;
+        else
+            return current; // Key found
+    }
+    return nullptr; // Key not found
+}
+
+template<class T>
+bool AVLTree<T>::removeItem(int key, T item) {
+    AVLNode<T>* node = find(key);
+    node->list.remove(item);
+    return false;
+}
 
 // BETWEEN X AND Y
 template<class T>
@@ -226,11 +170,9 @@ void AVLTree<T>::inOrderTraversalRangeAge(AVLNode<T>* node, int x, int y) const 
     if (node->key < y)
         inOrderTraversalRange(node->right, x, y);
 
-    // If the current node is within range, display the items in the list
     if (node->key >= x && node->key <= y) {
-        Node<T>* next = list.getHead();
-        while (next != nullptr){
-            cout << "Age: " << currentYear - Node<T>.item.year <<  " Name: " << Node<T>.item.name << endl;
+        for (int i = 0; i < node->list.getLength(); i++) {
+            cout << "Age: " << currentYear - node->key <<  " Name: " << node->list.get(i)->getName() << endl;
         }
         cout << endl;
     }
@@ -252,10 +194,8 @@ void AVLTree<T>::inOrderTraversalRange(AVLNode<T>* node, int x, int y) const {
 
     // If the current node is within range, display the items in the list
     if (node->key >= x && node->key <= y) {
-        cout << "Year: " << node->key << ", Item: ";
-        Node<T>* next = list.getHead();
-        while (next != nullptr){
-            cout << "Year: " << Node<T>.item.year <<  " Name: " << Node<T>.item.name << endl;
+        for (int i = 0; i < node->list.getLength(); i++) {
+            cout << "Year: " << node->key << " Name: " << node->list.get(i)->getName() << endl;
         }
         cout << endl;
     }

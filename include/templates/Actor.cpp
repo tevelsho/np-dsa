@@ -1,6 +1,7 @@
+#pragma once
 #include <string>
 #include <iostream>
-#include "Actor.h"
+#include "Movie.h"
 
 // Default Constructor
 Actor::Actor() : id(0), name(""), year(0), movies() {
@@ -39,4 +40,12 @@ void Actor::setYearOfBirth(int year) {
 // Gets the year of birth of the actor
 int Actor::getYearOfBirth() {
     return year;
+}
+
+void Actor::addMovie(Movie* movie) {
+    movies.add(movie);
+}
+
+void Actor::displayMovies() const {
+    movies.print();
 }

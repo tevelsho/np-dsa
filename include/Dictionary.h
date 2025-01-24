@@ -11,18 +11,12 @@ Key Features:
     - Maintains a list of actors who starred in the movie.
     - Provides methods to update movie details and retrieve actor information.
 ----------------------------------------------------------------------------*/
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
-
+#pragma once
 #include <string>
 #include <iostream>
 
 // Define a prime number for hash table size
 const int MAX_SIZE = 3221; // Prime number
-
-// Forward declaration of Node
-template <typename K, typename V>
-struct Node;
 
 // Hash Function Helper Struct
 template <typename K>
@@ -103,4 +97,4 @@ public:
     // Display the items in the Dictionary
     void print();
 };
-#endif // DICTIONARY_H
+#include "templates/Dictionary.tpp"

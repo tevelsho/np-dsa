@@ -17,26 +17,27 @@ Key Features:
 #include <string>
 #include <iostream>
 #include "List.h"
-#include "Actor.h"
-
+class Actor;
 using namespace std;
 
 class Movie {
     private:
         int id;
-        string title;
+        string name;
         int year;
-        List<Actor*> cast;
 
     public:
+        List<Actor*> cast;
+
+
         Movie();
         Movie(int, string, int);
 
         void setID(int);
         int getID() const;
 
-        void setTitle(string);
-        string getTitle() const;
+        void setName(string);
+        string getName() const;
 
         void setYear(int);
         int getYear() const;
@@ -46,3 +47,4 @@ class Movie {
         void displayCast() const;
 };
 
+#include "templates/Movie.cpp"

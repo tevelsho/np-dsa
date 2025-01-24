@@ -1,4 +1,3 @@
-#include "../List.h"
 
 // Constructor
 template <typename T>
@@ -85,6 +84,27 @@ void List<T>::remove(int index) {
     size--;
 }
 
+template <typename T>
+void List<T>::remove(const T& item) {
+    Node* current = firstNode;
+    Node* previous = nullptr;
+
+    while (current != nullptr) {
+        if (current->item == item) {
+            if (previous == nullptr) {
+                firstNode = current->next;
+            } else {
+                previous->next = current->next;
+            }
+            delete current;
+            size--;
+            return;
+        }
+        previous = current;
+        current = current->next;
+    }
+}
+
 // Get item at a specific index
 template <typename T>
 T List<T>::get(int index) const {
@@ -126,9 +146,4 @@ void List<T>::print() const {
         current = current->next;
     }
     cout << "nullptr" << endl;
-}
-
-template <typename T>
-List<T>::Node* List<T>::getHead() const {
-    return firstNode;
 }
