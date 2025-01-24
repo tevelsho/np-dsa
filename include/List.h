@@ -17,16 +17,16 @@ Key Features:
 ----------------------------------------------------------------------------*/
 #pragma once
 #include <string>
+#include <stdexcept>
 using namespace std;
 
 template <typename T>
-
 class List {
-    private:
-        struct Node {
-            T item; 
-            Node* next; 
-        };
+private:
+    struct Node {
+        T item;
+        Node* next;
+    };
 
         Node* firstNode; 
         int size;	

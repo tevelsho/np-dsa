@@ -65,3 +65,5 @@ public:
 };
 
 #include "templates/AVLTree.tpp"
+
+#include "templates/AVLTree.tpp"

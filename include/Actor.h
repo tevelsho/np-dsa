@@ -19,19 +19,24 @@ Key Features:
 class Movie;
 using namespace std;
 
+class Movie;
 class Actor {
     private:
         int id;
         string name;
         int year;
 
+        // List of movies the actor is associated with
+
     public:
         List<Movie*> movies; 
 
 
+        // Constructors
         Actor();
         Actor(int, string, int);
 
+        // Setters and Getters
         void setID(int);
         int getID();
 

@@ -10,8 +10,8 @@ Team Information:
 #include <limits>
 #include <fstream>
 #include <sstream>
-#include "Dictionary.h"
 #include "List.h"
+#include "Dictionary.h"
 #include "Actor.h"
 #include "Movie.h"
 #include "AVLTree.h"
@@ -126,13 +126,13 @@ bool authenticateAdmin() {
     // Prompt user to enter in credentials
     cout << "Enter admin username: ";
     cin >> username;
-    cout << "Enter admin password";
+    cout << "Enter admin password: ";
     cin >> password;
 
     // Check against stored credentials
     for (int i = 0; i < MAX_ADMINS; i++) {
         bool usernameMatch = true;
-        bool passwordMatch = false;
+        bool passwordMatch = true;
 
         // Compare username
         for (int j = 0; username[j] != '\0' || adminUsername[i][j] != '\0'; j++) {
@@ -183,17 +183,33 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
     do {
         cout << "\n=============================================\n";
-        cout << "       🎬 Silver Village Admin Menu               \n";
+        cout << "          Silver Village Admin Menu               \n";
         cout << "=============================================\n";
-        cout << " [1]  ➤ Add a New Actor\n";
-        cout << " [2]  ➤ Add a New Movie\n";
-        cout << " [3]  ➤ Assign an Actor to a Movie\n";
-        cout << " [4]  ➤ Update Actor Details\n";
-        cout << " [5]  ➤ Update Movie Details\n";
-        cout << " [0]  ➤ Exit Application\n";
+        cout << " [1] Add a New Actor\n";
+        cout << " [2] Add a New Movie\n";
+        cout << " [3] Assign an Actor to a Movie\n";
+        cout << " [4] Update Actor Details\n";
+        cout << " [5] Update Movie Details\n";
+        cout << " [0] Exit Application\n";
         cout << "=============================================\n";
+        
+        // Prompt user for input
         cout << "Please select an option by entering the number: ";
-        cin >> option;
+        cin >> option;        cin >> option;
+
+        // Check for invalid input (non-integer or out-of-range)
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            continue; 
+        }
+
+        if (option < 0 || option > 5) {
+            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            continue; 
+        }
+
         switch (option) {
             case 0: {
                 cout << " Thank you for visiting Silver Village! Hope to see you next time!";
@@ -278,7 +294,8 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 break;
             }
             default:
-                cout << "Invalid choice! Try again.\n"; 
+                cout << "Error: Unexpected error occurred.\n";
+                break;
 
         }
 

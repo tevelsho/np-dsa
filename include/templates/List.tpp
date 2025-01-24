@@ -1,4 +1,3 @@
-
 // Constructor
 template <typename T>
 List<T>::List() : firstNode(nullptr), size(0) {}
@@ -29,7 +28,7 @@ bool List<T>::add(const T& newItem) {
         current->next = newNode;
     }
 
-    size++;
+    ++size;
     return true;
 }
 
@@ -47,14 +46,14 @@ bool List<T>::add(int index, const T& newItem) {
         firstNode = newNode;
     } else {
         Node* current = firstNode;
-        for (int i = 0; i < index - 1; i++) {
+        for (int i = 0; i < index - 1; ++i) {
             current = current->next;
         }
         newNode->next = current->next;
         current->next = newNode;
     }
 
-    size++;
+    ++size;
     return true;
 }
 
@@ -62,8 +61,7 @@ bool List<T>::add(int index, const T& newItem) {
 template <typename T>
 void List<T>::remove(int index) {
     if (index < 0 || index >= size) {
-        cout << "Index out of range" << endl;
-        return;
+        throw out_of_range("Index out of range");
     }
 
     Node* temp;
@@ -73,7 +71,7 @@ void List<T>::remove(int index) {
         firstNode = firstNode->next;
     } else {
         Node* current = firstNode;
-        for (int i = 0; i < index - 1; i++) {
+        for (int i = 0; i < index - 1; ++i) {
             current = current->next;
         }
         temp = current->next;
@@ -81,7 +79,28 @@ void List<T>::remove(int index) {
     }
 
     delete temp;
-    size--;
+    --size;
+}
+
+template <typename T>
+void List<T>::remove(const T& item) {
+    Node* current = firstNode;
+    Node* previous = nullptr;
+
+    while (current != nullptr) {
+        if (current->item == item) {
+            if (previous == nullptr) {
+                firstNode = current->next;
+            } else {
+                previous->next = current->next;
+            }
+            delete current;
+            size--;
+            return;
+        }
+        previous = current;
+        current = current->next;
+    }
 }
 
 template <typename T>
@@ -107,13 +126,13 @@ void List<T>::remove(const T& item) {
 
 // Get item at a specific index
 template <typename T>
-T List<T>::get(int index) const {
+T& List<T>::get(int index) const {
     if (index < 0 || index >= size) {
         throw out_of_range("Index out of range");
     }
 
     Node* current = firstNode;
-    for (int i = 0; i < index; i++) {
+    for (int i = 0; i < index; ++i) {
         current = current->next;
     }
     return current->item;

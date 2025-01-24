@@ -20,6 +20,7 @@ Key Features:
 class Actor;
 using namespace std;
 
+class Actor;
 class Movie {
     private:
         int id;
@@ -33,6 +34,7 @@ class Movie {
         Movie();
         Movie(int, string, int);
 
+        // Setters and Getters
         void setID(int);
         int getID() const;
 
