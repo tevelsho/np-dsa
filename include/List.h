@@ -33,10 +33,10 @@ private:
     public:
         List();
         ~List();
-        bool add(const T& newItem);
-        bool add(int index, const T& newItem);
+        bool add(const T newItem);
+        bool add(int index, const T newItem);
         void remove(int index);
-        void remove (const T& item);
+        void remove(const T item);
         T get(int index) const; 
         int getLength() const;
         bool isEmpty() const; 
