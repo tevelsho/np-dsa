@@ -91,14 +91,14 @@ int main() {
         }
 
         if (isAdminAuthenticated) {
-            cout << "Welcome, Admin!\n";
+            cout << "\nWelcome, Admin!\n";
             adminMenu();
         } else {
             cout << "Failed all attempts! You will no be logged in as a normal user.\n";
             userMenu();
         }
     } else {
-        cout << "Welcome, User!\n";
+        cout << "\nWelcome, User!\n";
         userMenu();
     }
 
@@ -121,13 +121,13 @@ bool authenticateAdmin() {
     // Prompt user to enter in credentials
     cout << "Enter admin username: ";
     cin >> username;
-    cout << "Enter admin password";
+    cout << "Enter admin password: ";
     cin >> password;
 
     // Check against stored credentials
     for (int i = 0; i < MAX_ADMINS; i++) {
         bool usernameMatch = true;
-        bool passwordMatch = false;
+        bool passwordMatch = true;
 
         // Compare username
         for (int j = 0; username[j] != '\0' || adminUsername[i][j] != '\0'; j++) {
@@ -167,21 +167,37 @@ void adminMenu() {
 
     do {
         cout << "\n=============================================\n";
-        cout << "       🎬 Silver Village Admin Menu               \n";
+        cout << "          Silver Village Admin Menu               \n";
         cout << "=============================================\n";
-        cout << " [1]  ➤ Add a New Actor\n";
-        cout << " [2]  ➤ Add a New Movie\n";
-        cout << " [3]  ➤ Assign an Actor to a Movie\n";
-        cout << " [4]  ➤ Update Actor Details\n";
-        cout << " [5]  ➤ Update Movie Details\n";
-        cout << " [0]  ➤ Exit Application\n";
+        cout << " [1] Add a New Actor\n";
+        cout << " [2] Add a New Movie\n";
+        cout << " [3] Assign an Actor to a Movie\n";
+        cout << " [4] Update Actor Details\n";
+        cout << " [5] Update Movie Details\n";
+        cout << " [0] Exit Application\n";
         cout << "=============================================\n";
+        
+        // Prompt user for input
         cout << "Please select an option by entering the number: ";
+        cin >> option;
+
+        // Check for invalid input (non-integer or out-of-range)
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            continue; 
+        }
+
+        if (option < 0 || option > 5) {
+            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            continue; 
+        }
 
         switch (option) {
             case 0:
-                cout << " Thank you for visiting Silver Village! Hope to see you next time!";
-                break;
+                cout << "\nThank you for visiting Silver Village! Hope to see you next time!";
+                return;
             case 1:
                 break;
             case 2:
@@ -193,11 +209,12 @@ void adminMenu() {
             case 5:
                 break;
             default:
-                cout << "Invalid choice! Try again.\n"; 
+                cout << "Error: Unexpected error occurred.\n";
+                break;
 
         }
 
-    } while (option != 5);
+    } while (true);
 }
 
 
@@ -216,21 +233,37 @@ void userMenu() {
 
     do {
         cout << "\n=============================================\n";
-        cout << "       🎬 Silver Village User Menu               \n";
+        cout << "          Silver Village User Menu               \n";
         cout << "=============================================\n";
-        cout << " [1]  ➤ Display Actors by Age Range\n";
-        cout << " [2]  ➤ Show Movies from the Last 3 Years\n";
-        cout << " [3]  ➤ List Movies an Actor Starred In\n";
-        cout << " [4]  ➤ List Actors in a Specific Movie\n";
-        cout << " [5]  ➤ Find All Actors an Actor Knows\n";
-        cout << " [0]  ➤ Exit Application\n";
+        cout << " [1] Display Actors by Age Range\n";
+        cout << " [2] Show Movies from the Last 3 Years\n";
+        cout << " [3] List Movies an Actor Starred In\n";
+        cout << " [4] List Actors in a Specific Movie\n";
+        cout << " [5] Find All Actors an Actor Knows\n";
+        cout << " [0] Exit Application\n";
         cout << "=============================================\n";
+
+        // Prompt user for input
         cout << "Please select an option by entering the number: ";
+        cin >> option;
+
+        // Check for invalid input (non-integer or out-of-range)
+        if (cin.fail()) {
+            cin.clear(); // Clear the error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            continue; 
+        }
+
+        if (option < 0 || option > 5) {
+            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            continue; 
+        }
 
         switch (option) {
             case 0:
-                cout << " Thank you for visiting Silver Village! Hope to see you next time!";
-                break;
+                cout << "Thank you for visiting Silver Village! Hope to see you next time!";
+                return;
             case 1:
                 break;
             case 2:
@@ -242,11 +275,12 @@ void userMenu() {
             case 5:
                 break;
             default:
-                cout << "Invalid choice! Try again.\n"; 
+                cout << "Error: Unexpected error occurred.\n";
+                break;
 
         }
 
-    } while (option != 5);
+    } while (true);
 }
 
 /*----------------------------------------------------------------------------
