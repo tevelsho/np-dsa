@@ -11,24 +11,31 @@ Key Features:
     - Maintains a list of actors who starred in the movie.
     - Provides methods to update movie details and retrieve actor information.
 ----------------------------------------------------------------------------*/
-#ifndef DICTIONARY_H
-#define DICTIONARY_H
-
+#pragma once
 #include <string>
-#include <iostream>
+using namespace std;
 
 // Define a prime number for hash table size
-const int MAX_SIZE = 3221; // Prime number
+const int MAX_SIZE = 3221; // Prime number for hashing
 
-// Forward declaration of Node
+// Template node structure for Dictionary
 template <typename K, typename V>
-struct Node;
+struct Node {
+    K key;       // Search key
+    V value;     // Associated value
+    Node* next;  // Pointer to the next node
 
-// Hash Function Helper Struct
+    Node() : next(nullptr) {}
+    Node(K newKey, V newValue) : key(newKey), value(newValue), next(nullptr) {}
+};
+
+// Hash Function Helper
 template <typename K>
-struct Hash;
+struct Hash {
+    static int compute(const K& key);
+};
 
-// Specialization of Hash for int
+// Specialization of Hash for `int`
 template <>
 struct Hash<int> {
     static int compute(int key) {
@@ -36,19 +43,14 @@ struct Hash<int> {
     }
 };
 
-// Specialization of Hash for std::string
+// Specialization of Hash for `std::string`
 template <>
 struct Hash<std::string> {
     static int compute(const std::string& key) {
         int hash = 0;
         for (char c : key) {
-            // Convert to lowercase if uppercase
-            if (c >= 'A' && c <= 'Z') {
-                c = c - 'A' + 'a';
-            }
-            // Map 'a' to 0, 'b' to 1, ..., 'z' to 25
-            int letter = c - 'a';
-            hash = (hash * 26 + letter) % MAX_SIZE;
+            if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a'; // Convert to lowercase
+            hash = (hash * 26 + (c - 'a')) % MAX_SIZE;
         }
         return hash;
     }
@@ -56,21 +58,10 @@ struct Hash<std::string> {
 
 // Template Dictionary Class
 template <typename K, typename V>
-struct Node {
-    K key;      // Search key
-    V value;    // Data item
-    Node* next; // Pointer to the next node
-
-    Node() : next(nullptr) {}
-    Node(K newKey, V newValue) : key(newKey), value(newValue), next(nullptr) {}
-};
-
-template <typename K, typename V>
-class Dictionary
-{
+class Dictionary {
 private:
-    Node<K, V>* items[MAX_SIZE];
-    int size; // Number of items in the Dictionary
+    Node<K, V>* items[MAX_SIZE]; // Array of linked lists (chaining for collision handling)
+    int size;                    // Number of items in the Dictionary
 
 public:
     // Constructor
@@ -79,28 +70,26 @@ public:
     // Destructor
     ~Dictionary();
 
-    // Hash function
-    int hashFunction(K key);
+    // Add a key-value pair to the Dictionary
+    bool add(const K& key, const V& value);
 
-    // Add a new item with the specified key to the Dictionary
-    bool add(K newKey, V newValue);
+    // Remove a key-value pair by key
+    void remove(const K& key);
 
-    // Remove an item with the specified key from the Dictionary
-    void remove(K key);
+    // Get the value associated with a key
+    V get(const K& key) const;
 
-    // Get an item with the specified key from the Dictionary
-    V get(K key);
-
-    // Check if a specified key is in the Dictionary
-    bool contains(K key);
+    // Check if the Dictionary contains a specific key
+    bool contains(const K& key) const;
 
     // Check if the Dictionary is empty
-    bool isEmpty();
+    bool isEmpty() const;
 
     // Get the number of items in the Dictionary
-    int getLength();
+    int getLength() const;
 
-    // Display the items in the Dictionary
-    void print();
+    // Print all key-value pairs in the Dictionary
+    void print() const;
 };
-#endif // DICTIONARY_H
+
+#include "templates/Dictionary.tpp"

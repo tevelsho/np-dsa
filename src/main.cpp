@@ -10,8 +10,8 @@ Team Information:
 #include <limits>
 #include <fstream>
 #include <sstream>
-#include "Dictionary.h"
 #include "List.h"
+#include "Dictionary.h"
 #include "Actor.h"
 #include "Movie.h"
 
@@ -59,7 +59,7 @@ int main() {
     List<Actor> actorList;
     List<Movie> movieList;
 
-    Dictionary<int, List<Actor>> movieToActor;
+    Dictionary<int, List<Actor>> movieToActors;
 
     Dictionary<int, Actor*> actorIdToActorMap;
     Dictionary<string, int> actorNameToIdMap;
@@ -313,10 +313,10 @@ void readCSV(string fileName) {
             Actor* actor = new Actor(id, name, birth);
 
             // Map the ID to the Actor object
-            actorIdToActorMap.put(id, actor);
+            //actorIdToActorMap.put(id, actor);
 
             // Map the Name to the ID
-            actorNameToIdMap.put(name, id);
+            //actorNameToIdMap.put(name, id);
         }
 
         fin.close();
@@ -483,7 +483,7 @@ bool addActorToMovie(List<Actor> actorList, List<Movie> movieList, Dictionary<in
         }
     }
 
-    // Actor not founded
+    // Actor not found
     if (selectedActor == nullptr) {
         cout << "Error: Actor not found. Please ensure the ID is correct.\n";
         return false;
@@ -502,7 +502,7 @@ bool addActorToMovie(List<Actor> actorList, List<Movie> movieList, Dictionary<in
         }
     }
     
-    // Movie not founded
+    // Movie not found
     if (selectedMovie == nullptr) {
         cout << "Error: Movie not found. Please ensure the ID is correct.\n";
         return false;
@@ -513,7 +513,7 @@ bool addActorToMovie(List<Actor> actorList, List<Movie> movieList, Dictionary<in
         // Create a new list of actors associated to the movie
         List<Actor> newActorList;
         newActorList.add(*selectedActor);
-        movieToActors.put(movieID, newActorList);
+        movieToActors.add(movieID, newActorList);
     } else {
         // Add the actor to the existing list of actors for the movie
         movieToActors.get(movieID).add(*selectedActor);
@@ -554,8 +554,9 @@ void updateActorDetails(List<Actor>& actorList) {
     Actor* actorToUpdate = nullptr;
     for (int i = 0; i < actorList.getLength(); i++) {
         if (actorList.get(i).getID() == actorID) {
-        actorToUpdate = &actorList.get(i);
-        break;
+            actorToUpdate = &actorList.get(i);
+            break;
+        }
     }
 
     // Actor not founded

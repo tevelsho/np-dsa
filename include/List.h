@@ -17,29 +17,34 @@ Key Features:
 ----------------------------------------------------------------------------*/
 #pragma once
 #include <string>
+#include <stdexcept>
 using namespace std;
 
 template <typename T>
-
 class List {
-    private:
-        struct Node {
-            T item; 
-            Node* next; 
-        };
+private:
+    struct Node {
+        T item;
+        Node* next;
+    };
 
-        Node* firstNode; 
-        int size;	
+    Node* firstNode;
+    int size;
 
-    public:
-        List();
-        ~List();
-        bool add(const T& newItem);
-        bool add(int index, const T& newItem);
-        void remove(int index);
-        T get(int index) const; 
-        int getLength() const;
-        bool isEmpty() const; 
-        void print() const;
-        Node* getHead() const;
+public:
+    // Constructor and Destructor
+    List();
+    ~List();
+
+    // Member Functions
+    bool add(const T& newItem);
+    bool add(int index, const T& newItem);
+    void remove(int index);
+    T& get(int index) const;
+    int getLength() const;
+    bool isEmpty() const;
+    void print() const;
+    Node* getHead() const;
 };
+
+#include "templates/List.tpp"

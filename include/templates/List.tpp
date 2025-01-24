@@ -1,5 +1,3 @@
-#include "../List.h"
-
 // Constructor
 template <typename T>
 List<T>::List() : firstNode(nullptr), size(0) {}
@@ -30,7 +28,7 @@ bool List<T>::add(const T& newItem) {
         current->next = newNode;
     }
 
-    size++;
+    ++size;
     return true;
 }
 
@@ -48,14 +46,14 @@ bool List<T>::add(int index, const T& newItem) {
         firstNode = newNode;
     } else {
         Node* current = firstNode;
-        for (int i = 0; i < index - 1; i++) {
+        for (int i = 0; i < index - 1; ++i) {
             current = current->next;
         }
         newNode->next = current->next;
         current->next = newNode;
     }
 
-    size++;
+    ++size;
     return true;
 }
 
@@ -63,8 +61,7 @@ bool List<T>::add(int index, const T& newItem) {
 template <typename T>
 void List<T>::remove(int index) {
     if (index < 0 || index >= size) {
-        cout << "Index out of range" << endl;
-        return;
+        throw out_of_range("Index out of range");
     }
 
     Node* temp;
@@ -74,7 +71,7 @@ void List<T>::remove(int index) {
         firstNode = firstNode->next;
     } else {
         Node* current = firstNode;
-        for (int i = 0; i < index - 1; i++) {
+        for (int i = 0; i < index - 1; ++i) {
             current = current->next;
         }
         temp = current->next;
@@ -82,18 +79,18 @@ void List<T>::remove(int index) {
     }
 
     delete temp;
-    size--;
+    --size;
 }
 
 // Get item at a specific index
 template <typename T>
-T List<T>::get(int index) const {
+T& List<T>::get(int index) const {
     if (index < 0 || index >= size) {
         throw out_of_range("Index out of range");
     }
 
     Node* current = firstNode;
-    for (int i = 0; i < index; i++) {
+    for (int i = 0; i < index; ++i) {
         current = current->next;
     }
     return current->item;
@@ -128,7 +125,8 @@ void List<T>::print() const {
     cout << "nullptr" << endl;
 }
 
+// Get the head of the list
 template <typename T>
-List<T>::Node* List<T>::getHead() const {
+typename List<T>::Node* List<T>::getHead() const {
     return firstNode;
 }

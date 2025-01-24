@@ -21,17 +21,22 @@ Key Features:
 
 using namespace std;
 
+class Actor;
 class Movie {
     private:
         int id;
         string title;
         int year;
+
+        // List of actors associated with the movie
         List<Actor*> cast;
 
     public:
+        // Constructors
         Movie();
         Movie(int, string, int);
 
+        // Setters and Getters
         void setID(int);
         int getID() const;
 
@@ -45,4 +50,3 @@ class Movie {
         void addActor(Actor* actor);
         void displayCast() const;
 };
-

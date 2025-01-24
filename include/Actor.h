@@ -18,17 +18,22 @@ Key Features:
 #include "Movie.h"
 using namespace std;
 
+class Movie;
 class Actor {
     private:
         int id;
         string name;
         int year;
+
+        // List of movies the actor is associated with
         List<Movie*> movies; 
 
     public:
+        // Constructors
         Actor();
         Actor(int, string, int);
 
+        // Setters and Getters
         void setID(int);
         int getID();
 

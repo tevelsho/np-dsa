@@ -72,3 +72,5 @@ public:
     void inOrderTraversalRange(AVLNode<T>* node, int x, int y) const;
 
 };
+
+#include "templates/AVLTree.tpp"
