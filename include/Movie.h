@@ -46,6 +46,7 @@ class Movie {
         int getYear() const;
 
         List<Actor*> getCast() const;
+        double castAverageRating() const;
 
         // Other functions
         void addActor(Actor* actor);
@@ -58,6 +59,7 @@ class Movie {
 
         // Get the number of ratings for the actor
         int getNumRatings() const;
+
 };
 
 #include "templates/Movie.cpp"

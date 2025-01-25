@@ -58,6 +58,26 @@ List<Actor*> Movie::getCast() const {
     return cast;
 }
 
+double Movie::castAverageRating() const {
+    if (cast.isEmpty()) {
+        return 0.0;
+    }
+    int count = 0;
+    double totalRating = 0.0;
+    for (int i = 0; i < cast.getLength(); i++) {
+        if (cast.get(i)->getRating() == 0){
+            //dont count non rated actors
+            continue;
+        }
+        totalRating += cast.get(i)->getRating();
+        count++;
+    }
+    if (count == 0){
+        return 0.0;
+    }
+    return totalRating / count;
+}
+
 // Displays the cast
 void Movie::displayCast() const {
     cout << "Cast of \"" << name << "\" (" << year << "):" << endl;
