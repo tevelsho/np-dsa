@@ -73,3 +73,17 @@ void Movie::displayCast() const {
         cout << "ID: " << actor->getID() << ", Name: " << actor->getName() << endl;
     }
 }
+
+void Movie::addRating(double newRating) {
+    ratingSystem.addRating(newRating);
+}
+
+// Get the current rating
+double Movie::getRating() const {
+    return ratingSystem.getRating();
+}
+
+// Get the number of ratings
+int Movie::getNumRatings() const {
+    return ratingSystem.getNumRatings();
+}

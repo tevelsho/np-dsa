@@ -58,6 +58,19 @@ void Actor::displayMovies() const {
     }
 }
 
+void Actor::addRating(double newRating) {
+    ratingSystem.addRating(newRating);
+}
+
+// Get the current rating
+double Actor::getRating() const {
+    return ratingSystem.getRating();
+}
+
+// Get the number of ratings
+int Actor::getNumRatings() const {
+    return ratingSystem.getNumRatings();
+}
 // void Actor::actorsKnownBy(List<Actor*>& actors_known){
 //     try{
 //         cout << "RUNNING?";

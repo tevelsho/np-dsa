@@ -16,6 +16,7 @@ Team Information:
 #include "Movie.h"
 #include "AVLTree.h"
 #include "DynamicArray.h"
+#include <cmath> // Include cmath for the floor function
 
 using namespace std;
 
@@ -44,10 +45,14 @@ void displayMoviesByActor(Actor* actor);
 void displayActorsByMovie(Movie* movie); 
 void displayActorsKnownBy(Actor* actor);
 void displayActorsKnownByHelper(Actor* actor, DynamicArray& actors_known);
-void setActorRating();
-void setMovieRating();
+void setActorRating(Actor* actor, double rating);
+void setMovieRating(Movie* movie, double rating);  
 void recommendMoviesByRating();
 void recommendActorsByRating();
+
+double roundToOneDecimal(double value) {
+    return std::floor(value * 10 + 0.5) / 10;
+}
 
 /*----------------------------------------------------------------------------
 Main function of the program.
@@ -683,6 +688,10 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
         cout << " [3] List Movies an Actor Starred In\n";
         cout << " [4] List Actors in a Specific Movie\n";
         cout << " [5] Find All Actors an Actor Knows\n";
+        cout << " [6] Rate an Actor\n";
+        cout << " [7] Rate a Movie\n";
+        cout << " [8] Recommend Movies by Rating\n";
+        cout << " [9] Recommend Actors by Rating\n";
         cout << " [0] Log Out of User\n";
         cout << "=============================================\n";
         cout << "Please select an option by entering the number: ";
@@ -749,7 +758,60 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                     }
                     break;  
                 }
-                
+            case 6: {
+                //Rate an actor
+                string actor_name;
+                double rating;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Enter the actor's name: ";
+                getline(cin, actor_name);
+                Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                while (true) {
+                    cout << "Actor's current rating: " << roundToOneDecimal(actor->getRating()) << endl;
+                    cout << "Enter a rating (e.g., 1.5, 4.9): ";
+                    cin >> rating;
+
+                    if (cin.fail() || rating < 0 || rating > 5) {
+                        cin.clear(); // Clear the error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                        cout << "Invalid input. Please enter a number between 1 and 5." << endl;
+                    } else {
+                        break; // Exit the loop if input is valid
+                    }
+                }
+                setActorRating(actor, rating);
+                break;
+            }
+            case 7: {
+                //Rate a movie
+                string movie_name;
+                double rating;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Enter the movie's name: ";
+                getline(cin, movie_name);
+                Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
+                while (true) {
+                    cout << "Movie's current rating: " << roundToOneDecimal(movie->getRating()) << endl;
+                    cout << "Enter a rating (e.g., 1.5, 4.9): ";
+                    cin >> rating;
+
+                    if (cin.fail() || rating < 0 || rating > 5) {
+                        cin.clear(); // Clear the error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                        cout << "Invalid input. Please enter a number between 1 and 5." << endl;
+                    } else {
+                        break; // Exit the loop if input is valid
+                    }
+                }
+                setMovieRating(movie, rating);
+                break;
+            }
+            case 8: {
+                break;
+            }
+            case 9: {
+                break;
+            }
             default:
                 cout << "Invalid choice! Try again.\n"; 
 
@@ -829,7 +891,11 @@ void displayActorsKnownBy(Actor* targetActor){
 
 };
 
-void setActorRating();
-void setMovieRating();
+void setActorRating(Actor* actor, double rating){
+    actor->addRating(rating);
+};
+void setMovieRating(Movie* movie, double rating){
+    movie->addRating(rating);
+};
 void recommendMoviesByRating();
 void recommendActorsByRating();
