@@ -44,6 +44,8 @@ class Movie {
         void setYear(int);
         int getYear() const;
 
+        List<Actor*> getCast() const;
+
         // Other functions
         void addActor(Actor* actor);
         void displayCast() const;

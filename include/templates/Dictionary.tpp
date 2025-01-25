@@ -1,4 +1,5 @@
 // Dictionary.tpp - Template Implementation without Standard Library Hash
+#include <type_traits> // For std::is_pointer
 
 // Constructor
 template <typename K, typename V>
@@ -73,8 +74,11 @@ V Dictionary<K, V>::get(const K& key) const {
         if (current->key == key) return current->value;
         current = current->next;
     }
-    return 0; // Return NULL if key not found
-    //throw std::out_of_range("Key not found");
+    if constexpr (std::is_pointer<V>::value) {
+        return nullptr; // Return NULL if V is a pointer type
+    } else {
+        return 0; // Return 0 if V is a non-pointer type (e.g., int)
+    }
 }
 
 template <typename K, typename V>

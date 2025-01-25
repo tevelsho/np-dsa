@@ -54,6 +54,10 @@ void Movie::addActor(Actor* actor) {
     cast.add(actor);
 }
 
+List<Actor*> Movie::getCast() const {
+    return cast;
+}
+
 // Displays the cast
 void Movie::displayCast() const {
     cout << "Cast of \"" << name << "\" (" << year << "):" << endl;

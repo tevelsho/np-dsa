@@ -13,18 +13,40 @@ List<T>::~List() {
     }
 }
 
-// Add item to the end of the list
+template <typename T>
+bool List<T>::contains(const T item) const {
+    Node* current = firstNode;
+    while (current != nullptr) {
+        if (current->item == item) {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
+}
+
 template <typename T>
 bool List<T>::add(const T newItem) {
     Node* newNode = new Node{newItem, nullptr};
 
+    // If the list is empty, insert the new node as the first node
     if (isEmpty()) {
         firstNode = newNode;
-    } else {
+    }
+    // If the new item should be inserted at the beginning of the list
+    else if (newItem < firstNode->item) {
+        newNode->next = firstNode;
+        firstNode = newNode;
+    }
+    // Otherwise, find the correct position to insert the new node
+    else {
         Node* current = firstNode;
-        while (current->next != nullptr) {
+        // Traverse the list to find the insertion point
+        while (current->next != nullptr && current->next->item < newItem) {
             current = current->next;
         }
+        // Insert the new node after the current node
+        newNode->next = current->next;
         current->next = newNode;
     }
 

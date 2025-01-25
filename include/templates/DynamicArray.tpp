@@ -7,6 +7,20 @@ DynamicArray::~DynamicArray() {
     delete[] actors;
 }
 
+void DynamicArray::removeDuplicates() {
+    for (int i = 0; i < size; ++i) {
+        for (int j = i + 1; j < size; ++j) {
+            if (actors[i]->getName() == actors[j]->getName()) {
+                for (int k = j; k < size - 1; ++k) {
+                    actors[k] = actors[k + 1];
+                }
+                size--;
+                j--;
+            }
+        }
+    }
+}
+
 void DynamicArray::resize() {
     int newCapacity = capacity * 2;
     Actor** newArray = new Actor*[newCapacity];

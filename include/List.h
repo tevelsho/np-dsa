@@ -37,6 +37,7 @@ private:
         bool add(int index, const T newItem);
         void remove(int index);
         void remove(const T item);
+        bool contains(const T item) const;
         T get(int index) const; 
         int getLength() const;
         bool isEmpty() const; 
