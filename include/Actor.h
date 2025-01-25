@@ -46,9 +46,12 @@ class Actor {
         void setYearOfBirth(int);
         int getYearOfBirth();
 
+        List<Movie*> getMovies() const;
         // Other functions
         void addMovie(Movie* movie);
         void displayMovies() const;
+
+        //void actorsKnownBy(List<Actor*>& actors_known);
 };
 
 #include "templates/Actor.cpp"

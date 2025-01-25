@@ -45,16 +45,28 @@ struct Hash<int> {
     }
 };
 
+int charvalue(char c)
+{
+	if (isalpha(c))
+	{
+		if (isupper(c))
+			return (int)c - (int)'A';
+		else
+			return (int)c - (int)'a' + 26;
+	}
+	else
+		return -1;
+}
+
 // Specialization of Hash for `std::string`
 template <>
 struct Hash<std::string> {
     static int compute(const std::string& key) {
-        int hash = 0;
+        int hashValue = 0;
         for (char c : key) {
-            if (c >= 'A' && c <= 'Z') c = c - 'A' + 'a'; // Convert to lowercase
-            hash = (hash * 26 + (c - 'a')) % MAX_SIZE;
+            hashValue += charvalue(c);
         }
-        return hash;
+        return hashValue % MAX_SIZE;
     }
 };
 
@@ -93,6 +105,4 @@ public:
     // Print all key-value pairs in the Dictionary
     void print() const;
 };
-#include "templates/Dictionary.tpp"
-
 #include "templates/Dictionary.tpp"

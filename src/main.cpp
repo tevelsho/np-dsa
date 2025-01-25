@@ -40,8 +40,8 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor);
 void displayRecentMovies(AVLTree<Movie*>& yearToMovie);
-void displayMoviesByActor(); 
-void displayActorsByMovie(); 
+void displayMoviesByActor(Actor* actor); 
+void displayActorsByMovie(Movie* movie); 
 void displayActorsKnownBy(Actor* actor);
 void displayActorsKnownByHelper(Actor* actor, DynamicArray& actors_known);
 void setActorRating();
@@ -76,36 +76,44 @@ int main() {
     //AVL TREE FOR YEAR TO MOVIE
     AVLTree<Movie*> yearToMovie;
 
-
+    readCSV("actors.csv", actorIdToActorMap, actorNameToIdMap, movieIdToMovieMap, movieNameToIdMap, yearToActor, yearToMovie);
+    readCSV("movies.csv", actorIdToActorMap, actorNameToIdMap, movieIdToMovieMap, movieNameToIdMap, yearToActor, yearToMovie);
+    readCSV("cast.csv", actorIdToActorMap, actorNameToIdMap, movieIdToMovieMap, movieNameToIdMap, yearToActor, yearToMovie);
 
     char isAdmin;
-    cout << "Are you an administrator? (y/n): ";
-    cin >> isAdmin;
-    
-    if (isAdmin == 'y' || isAdmin == 'Y') {
-        bool isAdminAuthenticated = false;
+    while (true) {
+        cout << "Are you an administrator? (y/n, q to quit): ";
+        cin >> isAdmin;
+        if (isAdmin == 'y' || isAdmin == 'Y') {
+            bool isAdminAuthenticated = false;
 
-        for (int attempts = 0; attempts < 3; attempts++) {
-            if (authenticateAdmin()) {
-                isAdminAuthenticated = true;
-                break;
-            } else {
-                cout << "Invalid credentials! Try again (" << (2 - attempts) << " attempts remaining).\n";
+            for (int attempts = 0; attempts < 3; attempts++) {
+                if (authenticateAdmin()) {
+                    isAdminAuthenticated = true;
+                    break;
+                } else {
+                    cout << "Invalid credentials! Try again (" << (2 - attempts) << " attempts remaining).\n";
+                }
             }
-        }
 
-        if (isAdminAuthenticated) {
-            cout << "Welcome, Admin!\n";
-            adminMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);
-        } else {
-            cout << "Failed all attempts! You will be logged in as a normal user.\n";
+            if (isAdminAuthenticated) {
+                cout << "Welcome, Admin!\n";
+                adminMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);
+            } else {
+                cout << "Failed all attempts! You will be logged in as a normal user.\n";
+                userMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);  
+            }
+        } else if (isAdmin == 'n' || isAdmin == 'N') {
+            cout << "Welcome, User!\n";
             userMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);  
-        }
-    } else {
-        cout << "Welcome, User!\n";
-        userMenu(actorIdToActorMap, actorNameToIdMap, yearToActor, movieIdToMovieMap, movieNameToIdMap, yearToMovie);  
-    }
+        } else if (isAdmin == 'q' || isAdmin == 'Q') {
+            cout << "Thank you for visiting Silver Village! Hope to see you next time!\n";
+            break;
+        } else {
+            cout << "Invalid input! Please enter 'y' for yes, 'n' for no, or 'q' to quit: ";
 
+        }
+    }
     return 0;
 }
 
@@ -120,7 +128,6 @@ Description:
     - Grants admin access if the credentials are correct.
 ----------------------------------------------------------------------------*/
 bool authenticateAdmin() {
-    return true; //Temporary
     char username[20], password[20];
 
     // Prompt user to enter in credentials
@@ -190,12 +197,12 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
         cout << " [3] Assign an Actor to a Movie\n";
         cout << " [4] Update Actor Details\n";
         cout << " [5] Update Movie Details\n";
-        cout << " [0] Exit Application\n";
+        cout << " [0] Log Out of Admin\n";
         cout << "=============================================\n";
         
         // Prompt user for input
         cout << "Please select an option by entering the number: ";
-        cin >> option;        cin >> option;
+        cin >> option;
 
         // Check for invalid input (non-integer or out-of-range)
         if (cin.fail()) {
@@ -212,7 +219,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
         switch (option) {
             case 0: {
-                cout << " Thank you for visiting Silver Village! Hope to see you next time!";
+                cout << "Logged out from Admin\n";
                 break;
             }
             case 1: {
@@ -223,15 +230,16 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 // Prompt user for id, name, and birth for new actor
                 cout << "Enter new actor's ID: ";
                 cin >> actor_id;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the newline left by cin >>
 
                 cout << "Enter new actor's name: ";
                 getline(cin, actor_name);
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 cout << "Enter new actor's year of birth: ";
                 cin >> actor_birth;
-
+                
                 addNewActor(actor_id, actor_birth, actor_name, actorIdToActorMap, actorNameToIdMap, yearToActor);
+                cout << "Actor successfully added!\n";
                 break;
             }
             case 2:{
@@ -241,10 +249,10 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 // Prompt user for id, movie, and year for new movie
                 cout << "Enter new movie's ID: ";
                 cin >> movie_id;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 cout << "Enter new movie's name: ";
                 getline(cin, movie_name);
-                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 cout << "Enter new movie's release year: ";
                 cin >> movie_year;
@@ -253,12 +261,15 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 break;
             }
             case 3:{
+
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
                 string actor_name, movie_name;
                 cout << "Enter the actor's name: ";
-                cin >> actor_name;
+                getline(cin, actor_name);
 
                 cout << "Enter the movie's name: ";
-                cin >> movie_name;
+                getline(cin, movie_name);
 
                 Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
                 Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
@@ -270,40 +281,43 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 break;
             }
             case 4:{
-                string actorName;
+                string actor_name;
                 // Prompt user for actor name to update actor's details
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
                 cout << "Enter the actor's name to update: ";
-                cin >> actorName;
-                Actor* actorToUpdate = findActorByName(actorNameToIdMap, actorName, actorIdToActorMap);
+                getline(cin, actor_name);
+                Actor* actorToUpdate = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
 
                 if (actorToUpdate != nullptr) {
                     updateActorDetails(actorToUpdate, actorNameToIdMap, yearToActor);
+                } else {
+                    cout << "Error: Actor not found. Please ensure the Name is correct.\n";
                 }
                 break;
             }
             case 5: {
-                string movieName;
+                string movie_name;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 cout << "Enter the movie's name to update: ";
-                cin >> movieName;
-                Movie* movieToUpdate = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+                getline(cin, movie_name);
+                Movie* movieToUpdate = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
 
                 if (movieToUpdate != nullptr) {
                     updateMovieDetails(movieToUpdate, movieNameToIdMap, yearToMovie);
+                } else {
+                    cout << "Error: Movie not found. Please ensure the Name is correct.\n";
                 }
                 break;
             }
             default:
                 cout << "Error: Unexpected error occurred.\n";
                 break;
-
         }
 
     } while (option != 0);
 }
-
-
-
 
 /*----------------------------------------------------------------------------
 Reads and processes a CSV file based on its type.
@@ -333,9 +347,10 @@ Error Handling:
 void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie) {
     // File pointer
     fstream fin;
+    string filePath = "./data/" + fileName;
 
-    // Open actors.csv
-    fin.open(fileName, ios::in);
+    // Open csv
+    fin.open(filePath, ios::in);
 
     // Check if the file is opened
     if (!fin.is_open()) {
@@ -360,14 +375,15 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
             getline(s, temp, ',');
             id = stoi(temp);
 
-            getline(s, name, ',');
+            getline(s, temp, '"');
+            getline(s, name, '"');
+            s.ignore(1);
 
             getline(s, temp, ','); 
             birth = stoi(temp);  
 
             // Create an actor object
             Actor* actor = new Actor(id, name, birth);
-
             // Map the ID to the Actor pointer
             actorIdToActorMap.add(id, actor);
 
@@ -405,7 +421,7 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
         fin.close();
 
     } else if (fileName == "movies.csv") {
-                // Read data line by line
+        // Read data line by line
         while (getline(fin, line)) {
             stringstream s(line);
 
@@ -416,7 +432,9 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
             getline(s, temp, ',');
             id = stoi(temp);
 
-            getline(s, title, ',');
+            getline(s, temp, '"');
+            getline(s, title, '"');
+            s.ignore(1);
 
             getline(s, temp, ','); 
             year = stoi(temp);  
@@ -571,7 +589,6 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
 
     cout << "Enter the new name (leave blank to keep current): ";
     getline(cin, newName);
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     cout << "Enter the new year of birth (enter -1 to keep current): ";
     cin >> newYear;
@@ -623,10 +640,8 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     // Prompt user for new details 
     string newTitle;
     int newYear;
-
     cout << "Enter the new title (leave blank to keep current): ";
     getline(cin, newTitle);
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
     cout << "Enter the new year of release (enter -1 to keep current): ";
     cin >> newYear;
@@ -661,20 +676,20 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
 
     do {
         cout << "\n=============================================\n";
-        cout << "       🎬 Silver Village User Menu               \n";
+        cout << "         Silver Village User Menu               \n";
         cout << "=============================================\n";
-        cout << " [1]  ➤ Display Actors by Age Range\n";
-        cout << " [2]  ➤ Show Movies from the Last 3 Years\n";
-        cout << " [3]  ➤ List Movies an Actor Starred In\n";
-        cout << " [4]  ➤ List Actors in a Specific Movie\n";
-        cout << " [5]  ➤ Find All Actors an Actor Knows\n";
-        cout << " [0]  ➤ Exit Application\n";
+        cout << " [1] Display Actors by Age Range\n";
+        cout << " [2] Show Movies from the Last 3 Years\n";
+        cout << " [3] List Movies an Actor Starred In\n";
+        cout << " [4] List Actors in a Specific Movie\n";
+        cout << " [5] Find All Actors an Actor Knows\n";
+        cout << " [0] Log Out of User\n";
         cout << "=============================================\n";
         cout << "Please select an option by entering the number: ";
-
+        cin >> option;
         switch (option) {
             case 0: {
-                cout << " Thank you for visiting Silver Village! Hope to see you next time!";
+                cout << "Logged out from User\n";
                 break;
             }
             case 1: {
@@ -690,23 +705,48 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
             }
             case 3:{
                 //Display all movies an actor starred in (in alphabetical order)
+                string actor_name;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Enter the actor's name: ";
+                getline(cin, actor_name);
+                Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                if (actor != nullptr){
+                    displayMoviesByActor(actor);
+                } else {
+                    cout << "Actor not found.\n";
+                }
                 break;
             }
 
             case 4:{
                 //Display all the actors in a particular movie (in alphabetical order)
+                string movie_name;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                cout << "Enter the movie's name: ";
+                getline(cin, movie_name);
+                Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
+                if (movie != nullptr){
+                    displayActorsByMovie(movie);
+                } else {
+                    cout << "Movie not found.\n";
+                }
                 break;
 
             }
             case 5:
                 {
                     //Display all the actors an actor knows
-                    string actorName;
-                    cout << "Enter the actor's name: ";
-                    cin >> actorName;
+                    string actor_name;
 
-                    Actor* actor = findActorByName(actorNameToIdMap, actorName, actorIdToActorMap);
-                    displayActorsKnownBy(actor);
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Enter the actor's name: ";
+                    getline(cin, actor_name);
+                    Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                    if (actor != nullptr){
+                        displayActorsKnownBy(actor);
+                    } else{
+                        cout << "Actor not found.\n";
+                    }
                     break;  
                 }
                 
@@ -715,7 +755,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
 
         }
 
-    } while (option != 5);
+    } while (option != 0);
 }
 
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
@@ -731,32 +771,62 @@ void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
     yearToMovie.DisplayMovies();
 };
 
-void displayMoviesByActor(); 
-void displayActorsByMovie(); 
+void displayMoviesByActor(Actor* actor){
+    //Display all movies an actor starred in (in alphabetical order)
+    cout << "Movies " << actor->getName() << " starred in:\n";
+    List<Movie*> *movies = &actor->movies;
+    for (int i = 0; i < movies->getLength(); i++){
+        cout << movies->get(i)->getName() << " (" << movies->get(i)->getYear() << ")\n";
+    }
+}; 
+void displayActorsByMovie(Movie* movie){
+    //Display all the actors in a particular movie (in alphabetical order)
+    cout << "Actors in " << movie->getName() << ":\n";
+    for (int i = 0; i < movie->cast.getLength(); i++){
+        cout << movie->cast.get(i)->getName() << "\n";
+    }
+}; 
 
-void displayActorsKnownByHelper(Actor* actor, DynamicArray& actors_known){
-    for (int i = 0; i < actor->movies.getLength(); i++){
-        //get cast of all movies actor was in
-        List<Actor*> cast = actor->movies.get(i)->cast;
-
-        for (int j = 0; j < cast.getLength(); j++){
-            if (cast.get(j) != actor){
-                actors_known.add(cast.get(j));
+void displayActorsKnownByHelper(Actor* targetActor, DynamicArray& actors_known, Actor* originalActor){
+    if (targetActor == nullptr){
+        cout << "Actor not found.\n";
+        return;
+    }
+    List<Movie*> *movies = &targetActor->movies;
+    //go through each movie of the actor
+    for (int i = 0; i < movies->getLength(); i++){
+        //go through each actor in the movie 
+        Movie* movie = movies->get(i);
+        for (int j = 0; j < movie->cast.getLength(); j++){
+            if (movie->cast.get(j) != targetActor && movie->cast.get(j) != originalActor){
+                actors_known.add(movie->cast.get(j));
             }
         }
     }
 };
 
-void displayActorsKnownBy(Actor* actor){
+void displayActorsKnownBy(Actor* targetActor){
     DynamicArray actors_known;
-    displayActorsKnownByHelper(actor, actors_known);
+    // Step 1: Add direct connections
+    displayActorsKnownByHelper(targetActor, actors_known, targetActor);
+
+    // Step 2: Add indirect connections (one more level)
+    DynamicArray actors_known_indirect;
     for (int i = 0; i < actors_known.getSize(); i++){
-        displayActorsKnownByHelper(actors_known.get(i), actors_known);
+        displayActorsKnownByHelper(actors_known.get(i), actors_known_indirect, targetActor);
     }
-    cout << "Actors known by " << actor->getName() << ":\n";
+    
+    // Combine direct and indirect connections (code is working)
+    for (int i = 0; i < actors_known_indirect.getSize(); i++){
+        actors_known.add(actors_known_indirect.get(i));
+    }
+
+    cout << "Actors known by " << targetActor->getName() << ":\n";
     for (int i = 0; i < actors_known.getSize(); i++){
         cout << actors_known.get(i)->getName() << "\n";
     }
+    cout << "Total: " << actors_known.getSize() << "\n";
+
 };
 
 void setActorRating();

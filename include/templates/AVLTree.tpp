@@ -168,21 +168,20 @@ void AVLTree<T>::inOrderTraversalRangeAge(AVLNode<T>* node, int x, int y) const 
 
     // Since it's in-order, first traverse the left subtree if needed
     if (node->key < y)
-        inOrderTraversalRange(node->right, x, y);
+        inOrderTraversalRangeAge(node->right, x, y);
 
     if (node->key >= x && node->key <= y) {
         for (int i = 0; i < node->list.getLength(); i++) {
             cout << "Age: " << currentYear - node->key <<  " Name: " << node->list.get(i)->getName() << endl;
         }
-        cout << endl;
     }
 
     // Then traverse the right subtree if needed
     if (node->key > x)
-        inOrderTraversalRange(node->left, x, y);
+        inOrderTraversalRangeAge(node->left, x, y);
 }
 
-// For Actors
+// For Movies
 template<class T>
 void AVLTree<T>::inOrderTraversalRange(AVLNode<T>* node, int x, int y) const {
     if (node == nullptr)
@@ -195,9 +194,8 @@ void AVLTree<T>::inOrderTraversalRange(AVLNode<T>* node, int x, int y) const {
     // If the current node is within range, display the items in the list
     if (node->key >= x && node->key <= y) {
         for (int i = 0; i < node->list.getLength(); i++) {
-            cout << "Year: " << node->key << " Name: " << node->list.get(i)->getName() << endl;
+            cout << "Year: " << node->key << " Title: " << node->list.get(i)->getName() << endl;
         }
-        cout << endl;
     }
 
     // Then traverse the right subtree if needed
