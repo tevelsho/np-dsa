@@ -15,6 +15,7 @@ Key Features:
 #include <string>
 #include <iostream>
 #include "List.h"
+#include "RatingSystem.h"
 
 class Movie;
 using namespace std;
@@ -26,9 +27,11 @@ class Actor {
         string name;
         int year;
 
-        // List of movies the actor is associated with
+        //Rating System
+        RatingSystem ratingSystem;
 
     public:
+        // List of movies the actor is associated with
         List<Movie*> movies; 
 
 
@@ -50,6 +53,14 @@ class Actor {
         // Other functions
         void addMovie(Movie* movie);
         void displayMovies() const;
+
+        void addRating(double newRating);
+
+        // Get the actor's overall rating
+        double getRating() const;
+
+        // Get the number of ratings for the actor
+        int getNumRatings() const;
 
         //void actorsKnownBy(List<Actor*>& actors_known);
 };

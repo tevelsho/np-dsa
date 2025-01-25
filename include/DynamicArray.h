@@ -1,22 +1,24 @@
 #pragma once
-#include "Actor.h"
 
+template <typename T>
 class DynamicArray {
 private:
-    Actor** actors;  // Array of pointers to Actor
-    int capacity;
-    int size;    
+    T* data;       // Array of type T
+    int capacity;  // Maximum capacity of the array
+    int size;      // Current number of elements in the array
+    void mergeSort(int left, int right);
+    void merge(int left, int mid, int right);
 
 public:
     DynamicArray();          // Constructor
     ~DynamicArray();         // Destructor
 
-    void add(Actor* actor);  // Method to add an actor without duplicates
-    Actor* get(int index);     // Method to get an actor at a specific index
+    void add(const T& item); // Method to add an item without duplicates
+    T get(int index) const;  // Method to get an item at a specific index
     int getSize() const;     // Getter for the size of the array
-    void resize();
-    void removeDuplicates();
-
+    void resize();           // Resize the array when full
+    void removeDuplicates(); // Remove duplicate items from the array
+    void sortByRating();     // Sort the array by rating
 };
 
 #include "templates/DynamicArray.tpp"
