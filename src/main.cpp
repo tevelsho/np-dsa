@@ -35,6 +35,8 @@ Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieNa
 void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
 void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
 void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
+void castAddLine(int personId, int movieId);
+void addLine(const string& filename, int id, const string& name, int year);
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
 bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
@@ -46,19 +48,13 @@ void displayMoviesByActor(Actor* actor);
 void displayActorsByMovie(Movie* movie); 
 void displayActorsKnownBy(Actor* actor);
 void displayActorsKnownByHelper(Actor* actor, DynamicArray<Actor*>& actors_known);
+string roundToOneDecimal(double value);
 void setActorRating(Actor* actor, double rating);
 void setMovieRating(Movie* movie, double rating);  
 void recommendMoviesByRating(DynamicArray<Movie*>& allMovies);
 void recommendActorsByRating(DynamicArray<Actor*>& allActors);
 
-std::string roundToOneDecimal(double value) {
-    if (value == 0) {
-        return "nul";
-    }
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(1) << std::floor(value * 10 + 0.5) / 10;
-    return oss.str();
-}
+
 /*----------------------------------------------------------------------------
 Main function of the program.
 
@@ -243,15 +239,27 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 // Prompt user for id, name, and birth for new actor
                 cout << "Enter new actor's ID: ";
                 cin >> actor_id;
+
+                if (actorIdToActorMap.contains(actor_id)) {
+                    cout << "Error: Actor ID already exists. Please choose a different ID.\n";
+                    break;
+                }
+
                 cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear the newline left by cin >>
 
                 cout << "Enter new actor's name: ";
                 getline(cin, actor_name);
 
+                if (actorNameToIdMap.contains(actor_name)) {
+                    cout << "Error: Actor name already exists. Please choose a different name.\n";
+                    break;
+                }
+
                 cout << "Enter new actor's year of birth: ";
                 cin >> actor_birth;
                 
                 addNewActor(actor_id, actor_birth, actor_name, actorIdToActorMap, actorNameToIdMap, yearToActor, allActors);
+                addLine("actors.csv", actor_id, actor_name, actor_birth);
                 cout << "Actor successfully added!\n";
                 break;
             }
@@ -262,15 +270,27 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 // Prompt user for id, movie, and year for new movie
                 cout << "Enter new movie's ID: ";
                 cin >> movie_id;
+
+                if (movieIdToMovieMap.contains(movie_id)) {
+                    cout << "Error: Movie ID already exists. Please choose a different ID.\n";
+                    break;
+                }
+
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 cout << "Enter new movie's name: ";
                 getline(cin, movie_name);
 
+                if (movieNameToIdMap.contains(movie_name)) {
+                    cout << "Error: Movie name already exists. Please choose a different name.\n";
+                    break;
+                }
+
                 cout << "Enter new movie's release year: ";
                 cin >> movie_year;
 
                 addNewMovie(movie_id, movie_year, movie_name, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
+                addLine("movies.csv", movie_id, movie_name, movie_year);
                 break;
             }
             case 3:{
@@ -288,6 +308,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
                 if (actor != nullptr && movie != nullptr) {
                     addActorToMovie(actor, movie);
+                    castAddLine(actor->getID(), movie->getID());
                 } else {
                     cout << "Error: Actor or Movie not found. Please ensure the Name is correct.\n";
                 }
@@ -450,6 +471,41 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
         cout << "Error: Unsupported file name \"" << fileName << "\". Please provide a valid file name." << endl;
         fin.close();
     }
+}
+
+void addLine(const string& filename, int id, const string& name, int year) {
+    // Open the file in append mode
+    string filePath = "./data/" + filename;
+
+    ofstream file(filePath, ios::app);
+
+    if (!file.is_open()) {
+        cerr << "Error: Could not open file " << filePath << " for writing." << endl;
+        return;
+    }
+
+    // Write the new line in the format: id,"name",year
+    file << id << ",\"" << name << "\"," << year << "\n";
+
+    // Close the file
+    file.close();
+
+}
+
+void castAddLine(int personId, int movieId) {
+    // Open the file in append mode
+    ofstream file("./data/cast.csv", ios::app);
+
+    if (!file.is_open()) {
+        cerr << "Error: Could not open file cast.csv for writing." << endl;
+        return;
+    }
+
+    // Write the new line in the format: id,"name",year
+    file << personId << ",\"" << movieId << "\n";
+
+    // Close the file
+    file.close();
 }
 
 /*----------------------------------------------------------------------------
@@ -893,6 +949,15 @@ void displayActorsKnownBy(Actor* targetActor){
     cout << "Total: " << actors_known.getSize() << "\n";
 
 };
+
+string roundToOneDecimal(double value) {
+    if (value == 0) {
+        return "nul";
+    }
+    ostringstream oss;
+    oss << fixed << setprecision(1) << floor(value * 10 + 0.5) / 10;
+    return oss.str();
+}
 
 void setActorRating(Actor* actor, double rating){
     actor->addRating(rating);
