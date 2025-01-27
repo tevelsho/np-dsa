@@ -174,6 +174,9 @@ bool authenticateAdmin() {
 
 Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorName, Dictionary<int, Actor*>& actorIdToActorMap) {
     int actorID = actorNameToIdMap.get(actorName);
+    if (actorID == 0) {
+        return nullptr;
+    }
     return actorIdToActorMap.get(actorID);
 }
 
