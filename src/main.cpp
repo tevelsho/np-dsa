@@ -936,7 +936,7 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies){
     cout << "Rating - Cast Rating - Movie Name\n";
     for (int i = 0; i < 5; i++){
         Movie* movie = allMovies.get(i);
-        cout << roundToOneDecimal(movie->getRating()) << "⭐  - " << roundToOneDecimal(movie->castAverageRating()) << "⭐       - " << movie->getName() << " (" << movie->getYear() << ")\n";
+        cout << roundToOneDecimal(movie->getRating()) << "p   - " << roundToOneDecimal(movie->castAverageRating()) << "p        - " << movie->getName() << " (" << movie->getYear() << ")\n";
     };
 };
 void recommendActorsByRating(DynamicArray<Actor*>& allActors){
@@ -944,6 +944,6 @@ void recommendActorsByRating(DynamicArray<Actor*>& allActors){
     cout << "Top 5 Actors recommended by rating:\n";
     cout << "Rating - Actor Name\n";
     for (int i = 0; i < 5; i++){
-        cout << roundToOneDecimal(allActors.get(i)->getRating()) << "⭐  - "<< allActors.get(i)->getName() <<  "\n";
+        cout << roundToOneDecimal(allActors.get(i)->getRating()) << "p   - "<< allActors.get(i)->getName() <<  "\n";
     };
 };
