@@ -35,8 +35,6 @@ Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieNa
 void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
 void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
 void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
-void castAddLine(int personId, int movieId);
-void addLine(const string& filename, int id, const string& name, int year);
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
 bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
@@ -259,7 +257,6 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 cin >> actor_birth;
                 
                 addNewActor(actor_id, actor_birth, actor_name, actorIdToActorMap, actorNameToIdMap, yearToActor, allActors);
-                addLine("actors.csv", actor_id, actor_name, actor_birth);
                 cout << "Actor successfully added!\n";
                 break;
             }
@@ -290,7 +287,6 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 cin >> movie_year;
 
                 addNewMovie(movie_id, movie_year, movie_name, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
-                addLine("movies.csv", movie_id, movie_name, movie_year);
                 break;
             }
             case 3:{
@@ -308,7 +304,6 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
                 if (actor != nullptr && movie != nullptr) {
                     addActorToMovie(actor, movie);
-                    castAddLine(actor->getID(), movie->getID());
                 } else {
                     cout << "Error: Actor or Movie not found. Please ensure the Name is correct.\n";
                 }
@@ -473,40 +468,8 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
     }
 }
 
-void addLine(const string& filename, int id, const string& name, int year) {
-    // Open the file in append mode
-    string filePath = "./data/" + filename;
 
-    ofstream file(filePath, ios::app);
 
-    if (!file.is_open()) {
-        cerr << "Error: Could not open file " << filePath << " for writing." << endl;
-        return;
-    }
-
-    // Write the new line in the format: id,"name",year
-    file << id << ",\"" << name << "\"," << year << "\n";
-
-    // Close the file
-    file.close();
-
-}
-
-void castAddLine(int personId, int movieId) {
-    // Open the file in append mode
-    ofstream file("./data/cast.csv", ios::app);
-
-    if (!file.is_open()) {
-        cerr << "Error: Could not open file cast.csv for writing." << endl;
-        return;
-    }
-
-    // Write the new line in the format: id,"name",year
-    file << personId << ",\"" << movieId << "\n";
-
-    // Close the file
-    file.close();
-}
 
 /*----------------------------------------------------------------------------
 Adds a new actor to the linked list.
@@ -775,7 +738,6 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                 }
                 break;
             }
-
             case 4:{
                 //Display all the actors in a particular movie (in alphabetical order)
                 string movie_name;
