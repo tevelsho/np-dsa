@@ -18,38 +18,33 @@ Key Features:
 ----------------------------------------------------------------------------*/
 
 #pragma once
+#include <string>
 #include <stdexcept>
+using namespace std;
 
 template <typename T>
 class List {
     private:
         struct Node {
-            T item;      // Data stored in the node
-            Node* next;  // Pointer to the next node in the list
+            T item;
+            Node* next;
         };
 
-        Node* firstNode; // Pointer to the first node in the list
-        int size;        // Current number of elements in the list
-
+        Node* firstNode; 
+        int size;	
+        
     public:
-        // Constructor and Destructor
-        List();         // Default constructor
-        ~List();        // Destructor to clean up the list
-
-        // Core methods
-        bool add(const T newItem);        // Adds an item to the end of the list
-        bool add(int index, const T newItem); // Adds an item at a specific index
-        void remove(int index);           // Removes an item by index
-        void remove(const T item);        // Removes the first occurrence of a specific item
-        bool contains(const T item) const; // Checks if an item exists in the list
-
-        // Access methods
-        T get(int index) const;           // Retrieves an item by index
-        int getLength() const;            // Returns the number of elements in the list
-        bool isEmpty() const;             // Checks if the list is empty
-
-        // Utility method
-        void print() const;               // Prints the contents of the list
+        List();
+        ~List();
+        bool add(const T newItem);
+        bool add(int index, const T newItem);
+        void remove(int index);
+        void remove(const T item);
+        bool contains(const T item) const;
+        T get(int index) const; 
+        int getLength() const;
+        bool isEmpty() const; 
+        void print() const;
 };
 
 #include "templates/List.tpp"

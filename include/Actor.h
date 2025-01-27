@@ -14,49 +14,58 @@ Key Features:
     - Includes a rating system for actors with the ability to add, retrieve, 
       and manage ratings.
 ----------------------------------------------------------------------------*/
-
 #pragma once
 #include <string>
+#include <iostream>
 #include "List.h"
 #include "RatingSystem.h"
 
 class Movie;
+using namespace std;
 
+class Movie;
 class Actor {
     private:
-        int id;                   // Actor's unique ID
-        string name;              // Actor's full name
-        int year;                 // Actor's year of birth
-        RatingSystem ratingSystem; // Rating system for the actor
+        int id;
+        string name;
+        int year;
+
+        //Rating System
+        RatingSystem ratingSystem;
 
     public:
-        List<Movie*> movies;      // List of movies the actor is associated with
+        // List of movies the actor is associated with
+        List<Movie*> movies; 
+
 
         // Constructors
         Actor();
-        Actor(int id, string name, int year);
+        Actor(int, string, int);
 
         // Setters and Getters
-        void setID(int id);
-        int getID() const;
+        void setID(int);
+        int getID();
 
-        void setName(const string& name);
-        string getName() const;
+        void setName(string);
+        string getName();
 
-        void setYearOfBirth(int year);
-        int getYearOfBirth() const;
+        void setYearOfBirth(int);
+        int getYearOfBirth();
 
-        // Retrieve the list of associated movies
         List<Movie*> getMovies() const;
-
-        // Movie-related functions
+        
+        // Other functions
         void addMovie(Movie* movie);
         void displayMovies() const;
 
-        // Rating-related functions
         void addRating(double newRating);
-        double getRating() const;      // Retrieve the actor's overall rating
-        int getNumRatings() const;     // Retrieve the number of ratings
+
+        // Get the actor's overall rating
+        double getRating() const;
+
+        // Get the number of ratings for the actor
+        int getNumRatings() const;
+
 };
 
 #include "templates/Actor.cpp"

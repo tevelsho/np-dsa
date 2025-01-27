@@ -14,7 +14,6 @@ Key Features:
     - Efficient duplicate removal mechanism.
     - Provides access to individual elements and array metadata.
 ----------------------------------------------------------------------------*/
-
 #pragma once
 
 template <typename T>
@@ -23,25 +22,19 @@ class DynamicArray {
         T* data;       // Array of type T
         int capacity;  // Maximum capacity of the array
         int size;      // Current number of elements in the array
-
-        // Helper methods for merge sort
         void mergeSort(int left, int right);
         void merge(int left, int mid, int right);
 
     public:
-        // Constructor and Destructor
-        DynamicArray();          // Default constructor
+        DynamicArray();          // Constructor
         ~DynamicArray();         // Destructor
 
-        // Core methods
-        void add(const T& item); // Adds an item to the array (avoiding duplicates)
-        T get(int index) const;  // Retrieves an item at the specified index
-        int getSize() const;     // Returns the current size of the array
-
-        // Utility methods
-        void resize();           // Resizes the array when it reaches capacity
-        void removeDuplicates(); // Removes duplicate items from the array
-        void sortByRating();     // Sorts the array by rating
+        void add(const T& item); // Method to add an item without duplicates
+        T get(int index) const;  // Method to get an item at a specific index
+        int getSize() const;     // Getter for the size of the array
+        void resize();           // Resize the array when full
+        void removeDuplicates(); // Remove duplicate items from the array
+        void sortByRating();     // Sort the array by rating
 };
 
 #include "templates/DynamicArray.tpp"

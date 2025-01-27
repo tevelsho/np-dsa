@@ -17,46 +17,54 @@ Key Features:
 ----------------------------------------------------------------------------*/
 
 #pragma once
+
 #include <string>
+#include <iostream>
 #include "List.h"
 #include "RatingSystem.h"
+class Actor;
+using namespace std;
 
 class Actor;
 
 class Movie {
-    private:
-        int id;                   // Unique identifier for the movie
-        string name;         // Movie title
-        int year;                 // Year of release
-        RatingSystem ratingSystem; // Rating system for the movie
+  private:
+      int id;
+      string name;
+      int year;
+      RatingSystem ratingSystem;
 
-    public:
-        List<Actor*> cast;        // List of actors associated with the movie
+  public:
+      List<Actor*> cast;
 
-        // Constructors
-        Movie();                  // Default constructor
-        Movie(int id, string name, int year); // Parameterized constructor
+      Movie();
+      Movie(int, string, int);
 
-        // Setters and Getters
-        void setID(int id);       // Sets the movie ID
-        int getID() const;        // Retrieves the movie ID
+      // Setters and Getters
+      void setID(int);
+      int getID() const;
 
-        void setName(const string& name); // Sets the movie title
-        string getName() const;           // Retrieves the movie title
+      void setName(string);
+      string getName() const;
 
-        void setYear(int year);   // Sets the release year
-        int getYear() const;      // Retrieves the release year
+      void setYear(int);
+      int getYear() const;
 
-        // Cast-related functions
-        List<Actor*> getCast() const;         // Retrieves the list of associated actors
-        double castAverageRating() const;     // Calculates the average rating of the cast
-        void addActor(Actor* actor);          // Adds an actor to the cast
-        void displayCast() const;             // Displays the list of associated actors
+      List<Actor*> getCast() const;
+      double castAverageRating() const;
 
-        // Rating-related functions
-        void addRating(double newRating);     // Adds a rating to the movie
-        double getRating() const;             // Retrieves the movie's overall rating
-        int getNumRatings() const;            // Retrieves the number of ratings for the movie
+      // Other functions
+      void addActor(Actor* actor);
+      void displayCast() const;
+
+      void addRating(double newRating);
+
+      // Get the actor's overall rating
+      double getRating() const;
+
+      // Get the number of ratings for the actor
+      int getNumRatings() const;
+
 };
 
 #include "templates/Movie.cpp"
