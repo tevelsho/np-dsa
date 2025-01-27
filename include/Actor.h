@@ -1,68 +1,62 @@
 /*----------------------------------------------------------------------------
 💻 Class: Actor (Actor.h)
-Description: Represents an actor with personal details and associated movies.
+Description: Represents an actor with personal details, associated movies, 
+             and a rating system.
 
 Team Information:
     - Member 1: [Name], [Student ID], [Group Name]
     - Member 2: [Name], [Student ID], [Group Name]
 
 Key Features:
-    - Default and parameterized constructors for creating actor objects.
-    - Setters and getters for `id`, `name`, and `year of birth`.
-    - Retrieve the list of associated movies.
+    - Default and parameterized constructors for initializing actor objects.
+    - Comprehensive getters and setters for managing `id`, `name`, and `year of birth`.
+    - Maintains a list of associated movies with functionalities to add and display them.
+    - Includes a rating system for actors with the ability to add, retrieve, 
+      and manage ratings.
 ----------------------------------------------------------------------------*/
+
 #pragma once
 #include <string>
-#include <iostream>
 #include "List.h"
 #include "RatingSystem.h"
 
 class Movie;
-using namespace std;
 
-class Movie;
 class Actor {
     private:
-        int id;
-        string name;
-        int year;
-
-        //Rating System
-        RatingSystem ratingSystem;
+        int id;                   // Actor's unique ID
+        string name;              // Actor's full name
+        int year;                 // Actor's year of birth
+        RatingSystem ratingSystem; // Rating system for the actor
 
     public:
-        // List of movies the actor is associated with
-        List<Movie*> movies; 
-
+        List<Movie*> movies;      // List of movies the actor is associated with
 
         // Constructors
         Actor();
-        Actor(int, string, int);
+        Actor(int id, string name, int year);
 
         // Setters and Getters
-        void setID(int);
-        int getID();
+        void setID(int id);
+        int getID() const;
 
-        void setName(string);
-        string getName();
+        void setName(const string& name);
+        string getName() const;
 
-        void setYearOfBirth(int);
-        int getYearOfBirth();
+        void setYearOfBirth(int year);
+        int getYearOfBirth() const;
 
+        // Retrieve the list of associated movies
         List<Movie*> getMovies() const;
-        // Other functions
+
+        // Movie-related functions
         void addMovie(Movie* movie);
         void displayMovies() const;
 
+        // Rating-related functions
         void addRating(double newRating);
-
-        // Get the actor's overall rating
-        double getRating() const;
-
-        // Get the number of ratings for the actor
-        int getNumRatings() const;
-
-        //void actorsKnownBy(List<Actor*>& actors_known);
+        double getRating() const;      // Retrieve the actor's overall rating
+        int getNumRatings() const;     // Retrieve the number of ratings
 };
 
 #include "templates/Actor.cpp"

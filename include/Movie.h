@@ -1,6 +1,6 @@
 /*----------------------------------------------------------------------------
 💻 Class: Movie (Movie.h)
-Description: Represents a movie with its details and associated cast.
+Description: Represents a movie with its details and the associated cast.
 
 Team Information:
     - Member 1: [Name], [Student ID], [Group Name]
@@ -8,58 +8,55 @@ Team Information:
 
 Key Features:
     - Default and parameterized constructors for creating movie objects.
-    - Setters and getters for `id`, `title`, and `year of release`.
-    - Add actors to the cast.
-    - Display the list of associated actors (cast).
+    - Comprehensive setters and getters for managing `id`, `title`, and `year of release`.
+    - Maintains a list of associated actors (cast) with functionalities to add 
+      and display them.
+    - Includes a rating system for movies with the ability to add, retrieve, 
+      and manage ratings.
+    - Calculates the average rating of the cast associated with the movie.
 ----------------------------------------------------------------------------*/
-#pragma once
 
+#pragma once
 #include <string>
-#include <iostream>
 #include "List.h"
 #include "RatingSystem.h"
-class Actor;
-using namespace std;
 
 class Actor;
+
 class Movie {
     private:
-        int id;
-        string name;
-        int year;
-        RatingSystem ratingSystem;
+        int id;                   // Unique identifier for the movie
+        std::string name;         // Movie title
+        int year;                 // Year of release
+        RatingSystem ratingSystem; // Rating system for the movie
+
     public:
-        List<Actor*> cast;
+        List<Actor*> cast;        // List of actors associated with the movie
 
-
-        Movie();
-        Movie(int, string, int);
+        // Constructors
+        Movie();                  // Default constructor
+        Movie(int id, std::string name, int year); // Parameterized constructor
 
         // Setters and Getters
-        void setID(int);
-        int getID() const;
+        void setID(int id);       // Sets the movie ID
+        int getID() const;        // Retrieves the movie ID
 
-        void setName(string);
-        string getName() const;
+        void setName(const std::string& name); // Sets the movie title
+        std::string getName() const;           // Retrieves the movie title
 
-        void setYear(int);
-        int getYear() const;
+        void setYear(int year);   // Sets the release year
+        int getYear() const;      // Retrieves the release year
 
-        List<Actor*> getCast() const;
-        double castAverageRating() const;
+        // Cast-related functions
+        List<Actor*> getCast() const;         // Retrieves the list of associated actors
+        double castAverageRating() const;     // Calculates the average rating of the cast
+        void addActor(Actor* actor);          // Adds an actor to the cast
+        void displayCast() const;             // Displays the list of associated actors
 
-        // Other functions
-        void addActor(Actor* actor);
-        void displayCast() const;
-
-        void addRating(double newRating);
-
-        // Get the actor's overall rating
-        double getRating() const;
-
-        // Get the number of ratings for the actor
-        int getNumRatings() const;
-
+        // Rating-related functions
+        void addRating(double newRating);     // Adds a rating to the movie
+        double getRating() const;             // Retrieves the movie's overall rating
+        int getNumRatings() const;            // Retrieves the number of ratings for the movie
 };
 
 #include "templates/Movie.cpp"
