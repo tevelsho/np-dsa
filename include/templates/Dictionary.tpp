@@ -74,11 +74,8 @@ V Dictionary<K, V>::get(const K& key) const {
         if (current->key == key) return current->value;
         current = current->next;
     }
-    if constexpr (std::is_pointer<V>::value) {
-        return nullptr; // Return NULL if V is a pointer type
-    } else {
-        return 0; // Return 0 if V is a non-pointer type (e.g., int)
-    }
+    return 0; 
+    
 }
 
 template <typename K, typename V>
