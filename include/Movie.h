@@ -26,7 +26,7 @@ class Actor;
 class Movie {
     private:
         int id;                   // Unique identifier for the movie
-        std::string name;         // Movie title
+        string name;         // Movie title
         int year;                 // Year of release
         RatingSystem ratingSystem; // Rating system for the movie
 
@@ -35,14 +35,14 @@ class Movie {
 
         // Constructors
         Movie();                  // Default constructor
-        Movie(int id, std::string name, int year); // Parameterized constructor
+        Movie(int id, string name, int year); // Parameterized constructor
 
         // Setters and Getters
         void setID(int id);       // Sets the movie ID
         int getID() const;        // Retrieves the movie ID
 
-        void setName(const std::string& name); // Sets the movie title
-        std::string getName() const;           // Retrieves the movie title
+        void setName(const string& name); // Sets the movie title
+        string getName() const;           // Retrieves the movie title
 
         void setYear(int year);   // Sets the release year
         int getYear() const;      // Retrieves the release year
