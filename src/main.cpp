@@ -11,30 +11,26 @@ Team Information:
 #include <fstream>
 #include <iomanip>
 #include <sstream>
+#include <cmath> 
 #include "List.h"
 #include "Dictionary.h"
 #include "Actor.h"
 #include "Movie.h"
 #include "AVLTree.h"
 #include "DynamicArray.h"
-#include <cmath> // Include cmath for the floor function
 
 using namespace std;
 
-// Maximum number of admin accounts
-const int MAX_ADMINS = 1;
-
-// Admin credentials (hardcoded, stored in array)
-char adminUsername[MAX_ADMINS][20] = {"admin"};
-char adminPassword[MAX_ADMINS][20] = {"password"};
-
-// Function prototypes
+// Function prototypes (Supporting)
 bool authenticateAdmin();
 Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorName, Dictionary<int, Actor*>& actorIdToActorMap);
 Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieName, Dictionary<int, Movie*>& movieIdToMovieMap);
 void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
 void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
 void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies);
+string roundToOneDecimal(double value);
+
+// Function prototypes (Basic)
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
 bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
@@ -46,12 +42,19 @@ void displayMoviesByActor(Actor* actor);
 void displayActorsByMovie(Movie* movie); 
 void displayActorsKnownBy(Actor* actor);
 void displayActorsKnownByHelper(Actor* actor, DynamicArray<Actor*>& actors_known);
-string roundToOneDecimal(double value);
+
+// Function prototypes (Advanced)
 void setActorRating(Actor* actor, double rating);
 void setMovieRating(Movie* movie, double rating);  
 void recommendMoviesByRating(DynamicArray<Movie*>& allMovies);
 void recommendActorsByRating(DynamicArray<Actor*>& allActors);
 
+// Maximum number of admin accounts
+const int MAX_ADMINS = 1;
+
+// Admin credentials (hardcoded, stored in array)
+char adminUsername[MAX_ADMINS][20] = {"admin"};
+char adminPassword[MAX_ADMINS][20] = {"password"};
 
 /*----------------------------------------------------------------------------
 Main function of the program.
@@ -59,18 +62,25 @@ Main function of the program.
 @return int: Returns 0 upon successful execution.
 
 Description:
-    - Initializes the program and determines if the user is an admin or a 
-      normal user based on input.
-    - Redirects user to either adminMenu() or userMenu() accordingly.
+    - Initializes key data structures to store and map actors and movies 
+      using dynamic arrays, dictionaries, and AVL trees.
+    - Reads data from "actors.csv", "movies.csv", and "cast.csv" to populate 
+      these data structures.
+    - Prompts the user to determine if they are an administrator or a normal 
+      user.
+        - If the user is an administrator, it provides up to three attempts 
+          for authentication and redirects to `adminMenu()` if successful. 
+          If authentication fails, the user is redirected to `userMenu()`.
+        - If the user is not an administrator, it redirects directly to 
+          `userMenu()`.
+        - If the user opts to quit, the program displays a farewell message 
+          and exits.
+    - Ensures robust input handling and appropriate redirection based on user 
+      responses.
 ----------------------------------------------------------------------------*/
 int main() {
-    // List<Actor> actorList;
-    // List<Movie> movieList;
-
-    // Dictionary<int, List<Actor>> movieToActor;
-
-    DynamicArray<Actor*> allActors; //Dynamic array with actors sorted by rating
-    DynamicArray<Movie*> allMovies; //Dynamic array with movies sorted by rating
+    DynamicArray<Actor*> allActors; 
+    DynamicArray<Movie*> allMovies; 
 
     Dictionary<int, Actor*> actorIdToActorMap;
     Dictionary<string, int> actorNameToIdMap;
@@ -78,9 +88,7 @@ int main() {
     Dictionary<int, Movie*> movieIdToMovieMap;
     Dictionary<string, int> movieNameToIdMap;
 
-    //AVL TREE FOR YEAR TO ACTOR 
     AVLTree<Actor*> yearToActor;
-    //AVL TREE FOR YEAR TO MOVIE
     AVLTree<Movie*> yearToMovie;
 
     readCSV("actors.csv", actorIdToActorMap, actorNameToIdMap, movieIdToMovieMap, movieNameToIdMap, yearToActor, yearToMovie, allActors, allMovies);
@@ -88,6 +96,7 @@ int main() {
     readCSV("cast.csv", actorIdToActorMap, actorNameToIdMap, movieIdToMovieMap, movieNameToIdMap, yearToActor, yearToMovie, allActors, allMovies);
 
     char isAdmin;
+
     while (true) {
         cout << "Are you an administrator? (y/n, q to quit): ";
         cin >> isAdmin;
@@ -125,14 +134,23 @@ int main() {
 }
 
 /*----------------------------------------------------------------------------
+[Coder - Tevel]
+
 Authenticates an admin user.
 
-@return bool: Returns true if the credentials match, otherwise false.
+@return bool: Returns true if the entered credentials match the stored admin 
+              credentials; otherwise, returns false.
 
 Description:
-    - Prompts the user to enter a username and password.
-    - Compares the entered credentials with the hardcoded admin credentials.
-    - Grants admin access if the credentials are correct.
+    - Prompts the user to enter an admin username and password.
+    - Compares the entered username and password with hardcoded admin credentials
+      stored in `adminUsername` and `adminPassword` arrays.
+    - Performs character-by-character comparison for both the username and password
+      to ensure exact matches.
+    - If a match is found for both the username and password, grants admin access 
+      by returning `true`.
+    - If no match is found after checking all stored admin credentials, denies access 
+      and returns `false`.
 ----------------------------------------------------------------------------*/
 bool authenticateAdmin() {
     char username[20], password[20];
@@ -172,28 +190,76 @@ bool authenticateAdmin() {
     return false;
 }
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Finds an actor by their name.
+
+@param actorNameToIdMap: Dictionary mapping actor names to their corresponding IDs.
+@param actorName: The name of the actor to search for.
+@param actorIdToActorMap: Dictionary mapping actor IDs to their corresponding Actor objects.
+@return Actor*: Returns a pointer to the Actor object if found, otherwise nullptr.
+
+Description:
+    - Looks up the actor's ID in `actorNameToIdMap` using the provided `actorName`.
+    - Uses the retrieved actor ID to fetch the corresponding Actor object from 
+      `actorIdToActorMap`.
+----------------------------------------------------------------------------*/
 Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorName, Dictionary<int, Actor*>& actorIdToActorMap) {
     int actorID = actorNameToIdMap.get(actorName);
-    if (actorID == 0) {
-        return nullptr;
-    }
     return actorIdToActorMap.get(actorID);
 }
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Finds a movie by its name.
+
+@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
+@param movieName: The name of the movie to search for.
+@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
+@return Movie*: Returns a pointer to the Movie object if found, otherwise nullptr.
+
+Description:
+    - Looks up the movie's ID in `movieNameToIdMap` using the provided `movieName`.
+    - Uses the retrieved movie ID to fetch the corresponding Movie object from 
+      `movieIdToMovieMap`.
+----------------------------------------------------------------------------*/
 Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieName, Dictionary<int, Movie*>& movieIdToMovieMap) {
     int movieID = movieNameToIdMap.get(movieName);
     return movieIdToMovieMap.get(movieID);
 }
 
 /*----------------------------------------------------------------------------
+[Coder - Tevel]
+
 Displays the admin menu and handles admin operations.
 
+@param actorIdToActorMap: Dictionary mapping actor IDs to their corresponding Actor objects.
+@param actorNameToIdMap: Dictionary mapping actor names to their corresponding IDs.
+@param yearToActor: AVLTree mapping actor birth years to Actor objects.
+@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
+@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
+@param allActors: Dynamic array containing all Actor objects.
+@param allMovies: Dynamic array containing all Movie objects.
 @return void
 
 Description:
-    - Allows the admin to perform various operations such as adding actors, 
-      adding movies, updating details, and exiting the application.
-    - Continues to prompt the admin until they choose to exit.
+    - Provides an interface for administrators to manage actors and movies.
+    - Allows the following operations:
+        1. Add a new actor.
+        2. Add a new movie.
+        3. Assign an actor to a movie.
+        4. Update actor details.
+        5. Update movie details.
+        0. Log out of the admin menu.
+    - Continuously prompts the admin to select an option until they choose to log out.
+    - Validates input to ensure the selection is within the allowed range (0–5).
+    - Displays appropriate error messages for invalid input or operations (e.g., 
+      duplicate IDs, missing actors or movies).
+    - Calls helper functions such as `addNewActor`, `addNewMovie`, `addActorToMovie`, 
+      `updateActorDetails`, and `updateMovieDetails` to perform specific tasks.
 ----------------------------------------------------------------------------*/
 void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies) {
     int option;
@@ -352,30 +418,39 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 }
 
 /*----------------------------------------------------------------------------
-Reads and processes a CSV file based on its type.
+[Coder - Tevel]
 
-@param fileName (string): The name of the CSV file to read. Supported file names:
+Reads and processes a CSV file based on its type and populates appropriate data structures.
+
+@param fileName: The name of the CSV file to read. Supported file names:
     - "actors.csv": Contains actor information with columns (id, name, birth).
     - "cast.csv": Contains cast information with columns (person_id, movie_id).
     - "movies.csv": Contains movie information with columns (id, title, year).
+@param actorIdToActorMap: Dictionary mapping actor IDs to their corresponding Actor objects.
+@param actorNameToIdMap: Dictionary mapping actor names to their corresponding IDs.
+@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
+@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
+@param yearToActor: AVLTree mapping actor birth years to Actor objects.
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
+@param allActors: Dynamic array containing all Actor objects.
+@param allMovies: Dynamic array containing all Movie objects.
 
 @return void
 
 Description:
-    - Opens the specified CSV file and checks for successful access.
-    - Skips the header line and processes data line by line.
-    - Dynamically handles file-specific data structures:
-        - For "actors.csv", reads ID, Name, and Birth Year.
-        - For "cast.csv", reads Person ID and Movie ID.
-        - For "movies.csv", reads ID, Title, and Year.
-    - Converts numeric data (e.g., IDs, years) from string to integer using `stoi`.
-    - Outputs the parsed data directly to the console.
-    - Handles unsupported file names with an error message.
+    - Opens the specified CSV file from the "./data/" directory.
+    - Validates if the file is successfully opened; otherwise, displays an error message and exits.
+    - Skips the header line and processes data line by line for the specified file type:
+        - **"actors.csv"**: Parses ID, Name, and Birth Year and calls `addNewActor` to populate data structures.
+        - **"cast.csv"**: Parses Person ID and Movie ID and calls `addActorToMovie` to assign actors to movies.
+        - **"movies.csv"**: Parses ID, Title, and Release Year and calls `addNewMovie` to populate data structures.
+    - Converts numeric data (IDs, years) from string to integer using `stoi`.
+    - Handles unsupported file names with an error message and exits gracefully.
 
 Error Handling:
-    - If the file cannot be opened, an error message is displayed, and the function exits.
-    - If an unsupported file name is provided, an appropriate error message is shown.
------------------------------------------------------------------------------*/
+    - Displays an error message if the file cannot be opened.
+    - Handles unsupported file names by showing an error message and closing the file.
+----------------------------------------------------------------------------*/
 void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Actor*>& yearToActor, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies) {
     // File pointer
     fstream fin;
@@ -471,29 +546,33 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
     }
 }
 
-
-
-
 /*----------------------------------------------------------------------------
-Adds a new actor to the linked list.
+[Coder - Brayden]
 
-@param actorList (List<Actor>&): Reference to the linked list of Actor objects.
+Adds a new actor to the system and updates relevant data structures.
 
-@return bool: Returns true if the actor is successfully added to the list, otherwise false.
+@param id: A unique integer identifier for the actor.
+@param birth: The year of birth of the actor.
+@param name: The full name of the actor.
+@param actorIdToActorMap: Dictionary mapping actor IDs to their corresponding Actor objects.
+@param actorNameToIdMap: Dictionary mapping actor names to their corresponding IDs.
+@param yearToActor: AVLTree mapping actor birth years to Actor objects.
+@param allActors: Dynamic array containing all Actor objects.
+@return bool: Returns true if the actor is successfully added to all data structures.
 
 Description:
-    - Prompts the user to input details for a new actor, including:
-        - `id` (integer): A unique identifier for the actor.
-        - `name` (string): The actor's full name.
-        - `birth` (integer): The year of birth for the actor.
-    - Creates a new `Actor` object with the provided details.
-    - Adds the newly created actor to the provided linked list (`actorList`).
-    - Ensures the list dynamically grows as new actors are added.
+    - Creates a new `Actor` object using the provided `id`, `name`, and `birth`.
+    - Adds the newly created `Actor` object to the following data structures:
+        - **`actorIdToActorMap`**: Maps the actor's unique ID to their `Actor` object.
+        - **`actorNameToIdMap`**: Maps the actor's name to their unique ID.
+        - **`allActors`**: A dynamic array containing all `Actor` objects for fast iteration.
+        - **`yearToActor`**: An AVL tree for efficiently grouping and searching actors by their birth year.
+    - Ensures the actor is fully integrated into all relevant data structures.
 
 Error Handling:
-    - Input validation ensures the correct data types are entered for each field.
-    - If invalid input is detected, the program may exhibit undefined behavior (additional validation can be added).
------------------------------------------------------------------------------*/
+    - Assumes that the provided `id` and `name` are unique. If duplicates exist, behavior is undefined.
+    - Does not validate the input parameters (e.g., negative birth year or empty name). Additional validation should be implemented as needed.
+----------------------------------------------------------------------------*/
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors) {
     // Create a new actor object
     Actor* actor = new Actor(id, name, birth);
@@ -514,23 +593,32 @@ bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorI
 }
 
 /*----------------------------------------------------------------------------
-Adds a new movie to the linked list.
+[Coder - Tevel]
 
-@param movieList (List<Movie>&): Reference to the linked list of Movie objects.
+Adds a new movie to the system and updates relevant data structures.
 
-@return bool: Returns true if the movie is successfully added to the list, otherwise false.
+@param id: A unique integer identifier for the movie.
+@param year: The release year of the movie.
+@param name: The name or title of the movie.
+@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
+@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
+@param allMovies: Dynamic array containing all Movie objects.
+@return bool: Returns true if the movie is successfully added to all data structures.
 
 Description:
-    - Prompts the user to input details for a new movie, including:
-        - `id` (integer): A unique identifier for the movie.
-        - `movie` (string): The movie's name/title.
-        - `year` (integer): The year of release for the movie.
-    - Creates a new `Movie` object with the provided details.
-    - Adds the newly created movie to the provided linked list (`movieList`).
+    - Creates a new `Movie` object using the provided `id`, `name`, and `year`.
+    - Adds the newly created `Movie` object to the following data structures:
+        - **`movieIdToMovieMap`**: Maps the movie's unique ID to its `Movie` object.
+        - **`movieNameToIdMap`**: Maps the movie's title to its unique ID.
+        - **`allMovies`**: A dynamic array containing all `Movie` objects for fast iteration.
+        - **`yearToMovie`**: An AVL tree for efficiently grouping and searching movies by their release year.
+    - Ensures the movie is fully integrated into all relevant data structures.
 
 Error Handling:
-    - If invalid input is detected (e.g., non-integer for `id` or `year`), the program may exhibit undefined behavior.
------------------------------------------------------------------------------*/
+    - Assumes that the provided `id` and `name` are unique. If duplicates exist, behavior is undefined.
+    - Does not validate the input parameters (e.g., invalid release year or empty name). Additional validation should be implemented as needed.
+----------------------------------------------------------------------------*/
 bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies) {
     // Create a new movie object
     Movie* movie = new Movie(id, name, year);
@@ -551,24 +639,23 @@ bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieId
 }
 
 /*----------------------------------------------------------------------------
-Assigns an actor to a specific movie.
+[Coder - Brayden]
+Assigns an actor to a specific movie and establishes a bidirectional relationship.
 
-@param actorList (List<Actor>): Reference to the linked list of Actor objects.
-@param movieList (List<Movie>): Reference to the linked list of Movie objects.
-@param movieToActors (Dictionary<int, List<Actor>>&): Dictionary mapping movie IDs to their associated list of actors.
-
-@return bool: Returns true if the actor is successfully added to the movie, otherwise false.
+@param actor: Pointer to the `Actor` object to be assigned to the movie.
+@param movie: Pointer to the `Movie` object to which the actor will be assigned.
+@return bool: Returns true if the actor is successfully added to the movie and vice versa.
 
 Description:
-    - Prompts the user to select an actor by ID and a movie by ID.
-    - Searches for the actor and movie in their respective lists.
-    - Associates the selected actor with the selected movie by updating the `movieToActors` dictionary.
-    - If the movie has no existing list of actors, a new list is created and added to the dictionary.
+    - Updates the `Actor` object by adding the `Movie` object to the actor's list of associated movies.
+    - Updates the `Movie` object by adding the `Actor` object to the movie's list of associated actors.
+    - Establishes a bidirectional relationship between the actor and the movie, ensuring data consistency.
+    - Assumes that both the `Actor` and `Movie` pointers are valid and properly initialized.
 
 Error Handling:
-    - If the actor or movie ID does not exist, an error message is displayed, and the function returns false.
-    - Ensures that actor and movie lists are dynamically managed.
------------------------------------------------------------------------------*/
+    - Does not validate the input pointers (`actor` and `movie`) for null or invalid values. Additional validation should be implemented if needed.
+    - Assumes that the `addMovie` and `addActor` methods handle duplicate entries internally.
+----------------------------------------------------------------------------*/
 bool addActorToMovie(Actor* actor, Movie* movie) {
     actor->addMovie(movie);
     movie->addActor(actor);
@@ -576,25 +663,30 @@ bool addActorToMovie(Actor* actor, Movie* movie) {
 }
 
 /*----------------------------------------------------------------------------
-Updates the details of an existing actor.
+[Coder - Tevel]
 
-@param actorList (List<Actor>&): Reference to the linked list of Actor objects.
+Updates the details of an existing actor in the system.
 
+@param actorToUpdate: Pointer to the `Actor` object whose details need to be updated.
+@param actorNameToIdMap: Dictionary mapping actor names to their corresponding IDs.
+@param yearToActor: AVLTree mapping actor birth years to Actor objects.
 @return void
 
 Description:
-    - Prompts the user to enter the ID of the actor to update.
-    - Searches for the actor in the provided list using the ID.
-    - Displays the current details of the actor.
-    - Allows the user to update the actor's name and year of birth:
-        - If the user provides empty input for the name, the current name is retained.
-        - If the user enters `-1` for the year of birth, the current year is retained.
-    - Updates the actor's details based on user input.
+    - Displays the current details of the specified actor, including their ID, name, and year of birth.
+    - Prompts the user to enter updated details:
+        - **Name**: If the input is empty, the actor's current name is retained.
+        - **Year of Birth**: If the input is `-1`, the actor's current year of birth is retained.
+    - Updates the `Actor` object with the new details based on user input.
+    - Ensures data consistency by updating relevant data structures:
+        - **`actorNameToIdMap`**: Updates the mapping of the actor's name to their ID.
+        - **`yearToActor`**: Updates the AVL tree mapping the actor's birth year to the actor object.
 
 Error Handling:
-    - If the actor ID does not exist, an error message is displayed, and the function exits.
-    - Input validation ensures the current details are retained for invalid or empty input.
------------------------------------------------------------------------------*/
+    - Assumes that the input `actorToUpdate` is valid and properly initialized.
+    - If the user provides invalid or empty input for the name or year, the current details are retained.
+    - Handles changes to the actor's name and year of birth by updating or maintaining consistency in the relevant data structures.
+----------------------------------------------------------------------------*/
 void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor) {
     
     // Display current details of the actor
@@ -629,28 +721,31 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
 }
 
 /*----------------------------------------------------------------------------
-Updates the details of an existing movie.
+[Coder - Tevel]
 
-@param movieList (List<Movie>&): Reference to the linked list of Movie objects.
+Updates the details of an existing movie in the system.
 
+@param movieToUpdate: Pointer to the `Movie` object whose details need to be updated.
+@param movieNameToIdMap: Dictionary mapping movie titles to their corresponding IDs.
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
 @return void
 
 Description:
-    - Prompts the user to enter the ID of the movie to update.
-    - Searches for the movie in the provided list using the ID.
-    - Displays the current details of the movie.
-    - Allows the user to update the movie's title and year of release:
-        - If the user provides empty input for the title, the current title is retained.
-        - If the user enters `-1` for the year of release, the current year is retained.
-    - Updates the movie's details based on user input.
+    - Displays the current details of the specified movie, including its ID, title, and year of release.
+    - Prompts the user to enter updated details:
+        - **Title**: If the input is empty, the movie's current title is retained.
+        - **Year of Release**: If the input is `-1`, the movie's current year of release is retained.
+    - Updates the `Movie` object with the new details based on user input.
+    - Ensures data consistency by updating relevant data structures:
+        - **`movieNameToIdMap`**: Updates the mapping of the movie's title to its ID.
+        - **`yearToMovie`**: Updates the AVL tree mapping the movie's release year to the movie object.
 
 Error Handling:
-    - If the movie ID does not exist, an error message is displayed, and the function exits.
-    - Input validation ensures the current details are retained for invalid or empty input.
------------------------------------------------------------------------------*/
+    - Assumes that the input `movieToUpdate` is valid and properly initialized.
+    - If the user provides invalid or empty input for the title or year, the current details are retained.
+    - Handles changes to the movie's title and year of release by updating or maintaining consistency in the relevant data structures.
+----------------------------------------------------------------------------*/
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie) {
-    
-
     // Display current details of the movie
     cout << "Current Details:\n";
     cout << "ID: " << movieToUpdate->getID() << "\n";
@@ -682,15 +777,38 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
 }
 
 /*----------------------------------------------------------------------------
+[Coder - Tevel]
+
 Displays the user menu and handles user operations.
 
+@param actorIdToActorMap: Dictionary mapping actor IDs to their corresponding Actor objects.
+@param actorNameToIdMap: Dictionary mapping actor names to their corresponding IDs.
+@param yearToActor: AVLTree mapping actor birth years to Actor objects.
+@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
+@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
+@param allActors: Dynamic array containing all Actor objects.
+@param allMovies: Dynamic array containing all Movie objects.
 @return void
 
 Description:
-    - Allows the user to perform various actions such as 
-      viewing actors and movies based on specific criteria.
-    - Continues to prompt the user until they choose to exit.
------------------------------------------------------------------------------*/
+    - Provides an interface for users to interact with the system and perform various operations, including:
+        1. Displaying actors by age range.
+        2. Viewing movies released in the last three years.
+        3. Listing movies an actor starred in (sorted alphabetically).
+        4. Listing actors in a specific movie (sorted alphabetically).
+        5. Finding all actors that an actor "knows."
+        6. Rating an actor (allows input validation for ratings between 0 and 5).
+        7. Rating a movie (allows input validation for ratings between 0 and 5).
+        8. Recommending movies based on their ratings.
+        9. Recommending actors based on their ratings.
+    - Continues to prompt the user to select an option until they choose to log out by entering `0`.
+
+Error Handling:
+    - Validates user input for menu selection to ensure it is within the allowed range (0–9).
+    - Handles invalid or empty input gracefully for operations requiring user input (e.g., names, ratings).
+    - Displays appropriate error messages if an actor or movie is not found in the system.
+----------------------------------------------------------------------------*/
 void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Actor*>& allActors, DynamicArray<Movie*>& allMovies) {
     int option;
 
@@ -741,6 +859,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                 }
                 break;
             }
+
             case 4:{
                 //Display all the actors in a particular movie (in alphabetical order)
                 string movie_name;
@@ -844,6 +963,29 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
     } while (option != 0);
 }
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Displays actors within a specified age range.
+
+@param x: The minimum age of actors to display (inclusive).
+@param y: The maximum age of actors to display (inclusive).
+@param yearToActor: AVLTree mapping actor birth years to Actor objects.
+@return void
+
+Description:
+    - Calculates the range of birth years corresponding to the specified age range.
+        - Converts the given ages (`x` and `y`) into birth years based on the current year (assumed to be 2025).
+        - The range of birth years is calculated as:
+            - `x`: The latest birth year to include (`2025 - x`).
+            - `y`: The earliest birth year to include (`2025 - y`).
+    - Uses the `DisplayActors` method of the AVLTree to display actors born within the calculated range.
+    - Outputs a list of actors between the specified ages.
+
+Error Handling:
+    - Assumes the input ages (`x` and `y`) are valid integers where `y` is less than or equal to `x`.
+    - If no actors exist in the specified range, the output depends on the behavior of the `DisplayActors` method.
+----------------------------------------------------------------------------*/
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
     cout << "Actors between " << x << " and " << y << " years old:\n";
     int currentYear = 2025;
@@ -852,11 +994,47 @@ void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
     yearToActor.DisplayActors(y, x);
 }; 
 
+/*----------------------------------------------------------------------------
+[Coder - Tevel]
+
+Displays movies released within the last three years.
+
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
+@return void
+
+Description:
+    - Outputs a list of movies that were released within the last three years.
+    - Uses the `DisplayMovies` method of the AVLTree to fetch and display movies.
+    - Assumes the AVLTree contains movies categorized by their release year.
+
+Error Handling:
+    - Assumes the `DisplayMovies` method of the AVLTree correctly filters and displays movies from the last three years.
+    - If no movies exist within the specified range, the behavior of the output depends on the `DisplayMovies` method implementation.
+----------------------------------------------------------------------------*/
 void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
     cout << "Movies from the last 3 years:\n";
     yearToMovie.DisplayMovies();
 };
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Displays all movies that a specific actor has starred in, sorted alphabetically.
+
+@param actor: Pointer to the `Actor` object whose movies are to be displayed.
+@return void
+
+Description:
+    - Outputs a list of movies that the specified actor has starred in, displaying:
+        - The movie's name (title).
+        - The year the movie was released.
+    - Iterates through the actor's `movies` list to retrieve and display each movie.
+    - Assumes that the `movies` list associated with the actor is sorted alphabetically.
+
+Error Handling:
+    - Assumes the input `actor` is a valid and properly initialized pointer.
+    - If the actor has no associated movies in their `movies` list, the function will not output any movie titles.
+----------------------------------------------------------------------------*/
 void displayMoviesByActor(Actor* actor){
     //Display all movies an actor starred in (in alphabetical order)
     cout << "Movies " << actor->getName() << " starred in:\n";
@@ -865,6 +1043,24 @@ void displayMoviesByActor(Actor* actor){
         cout << movies->get(i)->getName() << " (" << movies->get(i)->getYear() << ")\n";
     }
 }; 
+
+/*----------------------------------------------------------------------------
+[Coder - Tevel]
+
+Displays all actors who starred in a specific movie, sorted alphabetically.
+
+@param movie: Pointer to the `Movie` object whose cast (actors) are to be displayed.
+@return void
+
+Description:
+    - Outputs a list of actors who starred in the specified movie.
+    - Displays each actor's name retrieved from the movie's `cast` list.
+    - Assumes that the `cast` list in the `Movie` object is sorted alphabetically.
+
+Error Handling:
+    - Assumes the input `movie` is a valid and properly initialized pointer.
+    - If the movie has no associated actors in its `cast` list, the function will not output any actor names.
+----------------------------------------------------------------------------*/
 void displayActorsByMovie(Movie* movie){
     //Display all the actors in a particular movie (in alphabetical order)
     cout << "Actors in " << movie->getName() << ":\n";
@@ -873,6 +1069,28 @@ void displayActorsByMovie(Movie* movie){
     }
 }; 
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Identifies and adds actors known by a specific target actor through shared movies.
+
+@param targetActor: Pointer to the `Actor` object whose connections are being explored.
+@param actors_known: Reference to a dynamic array that stores the list of actors known by the target actor.
+@param originalActor: Pointer to the original `Actor` object initiating the search, used to avoid self-references.
+@return void
+
+Description:
+    - Traverses the movies associated with the `targetActor` to find all actors they worked with.
+    - Iterates through each movie in the `targetActor`'s `movies` list.
+    - For each movie, iterates through the cast and adds all actors to the `actors_known` dynamic array except:
+        - The `targetActor` themselves.
+        - The `originalActor` to avoid self-references in the results.
+    - Ensures all connections are stored in the `actors_known` dynamic array.
+
+Error Handling:
+    - If `targetActor` is `nullptr`, an error message is displayed, and the function exits without performing any operations.
+    - Assumes all pointers and references provided are valid and properly initialized.
+----------------------------------------------------------------------------*/
 void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors_known, Actor* originalActor){
     if (targetActor == nullptr){
         cout << "Actor not found.\n";
@@ -891,6 +1109,34 @@ void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors
     }
 };
 
+
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Displays all actors directly and indirectly known by a specific target actor.
+
+@param targetActor: Pointer to the `Actor` object whose network of known actors is to be displayed.
+@return void
+
+Description:
+    - Identifies and displays actors known by the `targetActor` through shared movies.
+    - **Direct Connections**: Calls `displayActorsKnownByHelper` to add all actors the `targetActor` worked with directly.
+    - **Indirect Connections**: Iterates through the direct connections and adds actors known by them to expand the network.
+    - Combines direct and indirect connections into a single list for display.
+    - Outputs the names of all actors in the combined list, along with the total count.
+
+Steps:
+    1. Direct connections are added to the `actors_known` dynamic array by calling `displayActorsKnownByHelper`.
+    2. Indirect connections are identified by iterating through `actors_known` and calling `displayActorsKnownByHelper` for each actor.
+    3. Direct and indirect connections are combined into a single array.
+    4. The combined list of actor names is displayed in the console.
+
+Error Handling:
+    - Assumes the `targetActor` pointer is valid and properly initialized.
+    - If `targetActor` is `nullptr`, the behavior depends on the implementation of the helper function and other called methods.
+    - No checks are performed for duplicate entries in the combined list; handling relies on the helper function.
+
+----------------------------------------------------------------------------*/
 void displayActorsKnownBy(Actor* targetActor){
     DynamicArray<Actor*> actors_known;
     // Step 1: Add direct connections
@@ -915,6 +1161,19 @@ void displayActorsKnownBy(Actor* targetActor){
 
 };
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Rounds a double value to one decimal place and converts it to a string.
+
+@param value: The double value to be rounded and converted to a string.
+@return string: Returns the rounded value as a string. If the value is 0, returns "nul".
+
+Description:
+    - Rounds the input value to one decimal place using `floor` and a precision adjustment.
+    - Converts the rounded value into a fixed-point string representation with one decimal place.
+    - Special case: If the value is 0, returns the string "nul".
+----------------------------------------------------------------------------*/
 string roundToOneDecimal(double value) {
     if (value == 0) {
         return "nul";
@@ -924,12 +1183,62 @@ string roundToOneDecimal(double value) {
     return oss.str();
 }
 
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Sets the rating for a specific actor.
+
+@param actor: Pointer to the `Actor` object whose rating is to be updated.
+@param rating: The new rating to be added to the actor.
+@return void
+
+Description:
+    - Calls the `addRating` method on the `Actor` object to update the actor's rating.
+    - Assumes the rating is a valid double value, typically between 0 and 5.
+    - Updates the actor's cumulative rating with the provided value.
+----------------------------------------------------------------------------*/
 void setActorRating(Actor* actor, double rating){
     actor->addRating(rating);
 };
+
+/*----------------------------------------------------------------------------
+[Coder - Brayden]
+
+Sets the rating for a specific movie.
+
+@param movie: Pointer to the `Movie` object whose rating is to be updated.
+@param rating: The new rating to be added to the movie.
+@return void
+
+Description:
+    - Calls the `addRating` method on the `Movie` object to update the movie's rating.
+    - Assumes the rating is a valid double value, typically between 0 and 5.
+    - Updates the movie's cumulative rating with the provided value.
+----------------------------------------------------------------------------*/
 void setMovieRating(Movie* movie, double rating){
     movie->addRating(rating);
 };
+
+/*----------------------------------------------------------------------------
+[Coder - Tevel]
+
+Recommends the top 5 highest-rated movies from the list.
+
+@param allMovies: Dynamic array containing all `Movie` objects.
+@return void
+
+Description:
+    - Sorts the `allMovies` dynamic array by movie ratings in descending order.
+    - Displays the top 5 movies, showing:
+        - Movie rating.
+        - Cast average rating (average rating of the actors in the cast).
+        - Movie name and release year.
+    - Uses the `roundToOneDecimal` function to format ratings to one decimal place.
+
+Error Handling:
+    - Assumes the `allMovies` dynamic array contains at least 5 movies.
+    - If fewer than 5 movies are present, behavior depends on the array's implementation (may result in an out-of-bounds error).
+----------------------------------------------------------------------------*/
 void recommendMoviesByRating(DynamicArray<Movie*>& allMovies){
     allMovies.sortByRating();
     cout << "Top highest rated movies:\n";
@@ -939,6 +1248,26 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies){
         cout << roundToOneDecimal(movie->getRating()) << "⭐  - " << roundToOneDecimal(movie->castAverageRating()) << "⭐       - " << movie->getName() << " (" << movie->getYear() << ")\n";
     };
 };
+
+/*----------------------------------------------------------------------------
+[Coder - Tevel]
+
+Recommends the top 5 highest-rated actors from the list.
+
+@param allActors: Dynamic array containing all `Actor` objects.
+@return void
+
+Description:
+    - Sorts the `allActors` dynamic array by actor ratings in descending order.
+    - Displays the top 5 actors, showing:
+        - Actor rating.
+        - Actor name.
+    - Uses the `roundToOneDecimal` function to format ratings to one decimal place.
+
+Error Handling:
+    - Assumes the `allActors` dynamic array contains at least 5 actors.
+    - If fewer than 5 actors are present, behavior depends on the array's implementation (may result in an out-of-bounds error).
+----------------------------------------------------------------------------*/
 void recommendActorsByRating(DynamicArray<Actor*>& allActors){
     allActors.sortByRating();
     cout << "Top 5 Actors recommended by rating:\n";
