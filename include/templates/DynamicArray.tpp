@@ -1,37 +1,37 @@
-#include <stdexcept> // For std::out_of_range
+#include <stdexcept> 
 
-// Constructor
+// Initializes an empty dynamic array with an initial capacity of 1.
 template <typename T>
 DynamicArray<T>::DynamicArray() : capacity(1), size(0) {
     data = new T[capacity];
 }
 
-// Destructor
+// Destroys the dynamic array by deallocating the allocated memory.
 template <typename T>
 DynamicArray<T>::~DynamicArray() {
     delete[] data;
 }
 
-// Add an item to the array (without duplicates)
+// Adds a new item to the array while avoiding duplicates.
 template <typename T>
 void DynamicArray<T>::add(const T& item) {
-    // Check for duplicates
+    // Check if the item already exists in the array
     for (int i = 0; i < size; ++i) {
         if (data[i] == item) {
-            return; // Item already present, do not add
+            return; // Duplicate found, do not add the item
         }
     }
 
-    // Resize if necessary
+    // Resize if the array is at full capacity
     if (size == capacity) {
         resize();
     }
 
-    // Add the item
+    // Insert the new item at the next available index
     data[size++] = item;
 }
 
-// Get an item at a specific index
+// Retrieves an item at a specific index with bounds checking.
 template <typename T>
 T DynamicArray<T>::get(int index) const {
     if (index < 0 || index >= size) {
@@ -40,53 +40,57 @@ T DynamicArray<T>::get(int index) const {
     return data[index];
 }
 
-// Get the size of the array
+// Returns the current number of elements in the array.
 template <typename T>
 int DynamicArray<T>::getSize() const {
     return size;
 }
 
-// Resize the array (double the capacity)
+// Resizes the array by doubling its capacity when full.
 template <typename T>
 void DynamicArray<T>::resize() {
     int newCapacity = capacity * 2;
     T* newArray = new T[newCapacity];
+
+    // Copy existing elements to the new array
     for (int i = 0; i < size; ++i) {
         newArray[i] = data[i];
     }
+
+    // Deallocate old array and update capacity
     delete[] data;
     data = newArray;
     capacity = newCapacity;
 }
 
-// Remove duplicate items from the array
+// Removes duplicate elements from the array while maintaining order.
 template <typename T>
 void DynamicArray<T>::removeDuplicates() {
     for (int i = 0; i < size; ++i) {
         for (int j = i + 1; j < size; ++j) {
             if (data[i] == data[j]) {
-                // Shift elements to the left
+                // Shift elements to the left to remove the duplicate
                 for (int k = j; k < size - 1; ++k) {
                     data[k] = data[k + 1];
                 }
-                size--; // Reduce the size
+                size--; // Reduce the array size
                 j--;    // Recheck the current index
             }
         }
     }
 }
 
-// Merge two sorted halves of the array
+// Merges two sorted halves of the array based on rating in descending order.
 template <typename T>
 void DynamicArray<T>::merge(int left, int mid, int right) {
-    int n1 = mid - left + 1; // Size of the left half
-    int n2 = right - mid;    // Size of the right half
+    int n1 = mid - left + 1; // Size of the left subarray
+    int n2 = right - mid;    // Size of the right subarray
 
-    // Create temporary arrays
+    // Create temporary arrays for merging
     T* leftArray = new T[n1];
     T* rightArray = new T[n2];
 
-    // Copy data to temporary arrays
+    // Copy data into temporary arrays
     for (int i = 0; i < n1; i++) {
         leftArray[i] = data[left + i];
     }
@@ -94,10 +98,10 @@ void DynamicArray<T>::merge(int left, int mid, int right) {
         rightArray[i] = data[mid + 1 + i];
     }
 
-    // Merge the temporary arrays back into data[left..right]
+    // Merge the two halves back into the original array
     int i = 0, j = 0, k = left;
     while (i < n1 && j < n2) {
-        if (leftArray[i]->getRating() >= rightArray[j]->getRating()) { // Sort by rating (descending)
+        if (leftArray[i]->getRating() >= rightArray[j]->getRating()) { // Sort in descending order
             data[k] = leftArray[i];
             i++;
         } else {
@@ -107,32 +111,32 @@ void DynamicArray<T>::merge(int left, int mid, int right) {
         k++;
     }
 
-    // Copy remaining elements of leftArray (if any)
+    // Copy any remaining elements from leftArray
     while (i < n1) {
         data[k] = leftArray[i];
         i++;
         k++;
     }
 
-    // Copy remaining elements of rightArray (if any)
+    // Copy any remaining elements from rightArray
     while (j < n2) {
         data[k] = rightArray[j];
         j++;
         k++;
     }
 
-    // Clean up temporary arrays
+    // Deallocate temporary arrays
     delete[] leftArray;
     delete[] rightArray;
 }
 
-// Recursive Merge Sort function
+// Recursively sorts the array using Merge Sort.
 template <typename T>
 void DynamicArray<T>::mergeSort(int left, int right) {
     if (left < right) {
         int mid = left + (right - left) / 2;
 
-        // Sort first and second halves
+        // Recursively sort the two halves
         mergeSort(left, mid);
         mergeSort(mid + 1, right);
 
@@ -141,7 +145,7 @@ void DynamicArray<T>::mergeSort(int left, int right) {
     }
 }
 
-// Public method to sort the array using Merge Sort
+// Sorts the dynamic array based on rating using Merge Sort.
 template <typename T>
 void DynamicArray<T>::sortByRating() {
     mergeSort(0, size - 1);

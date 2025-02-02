@@ -2,8 +2,8 @@
  * DATA STRUCTURES & ALGORITHMS ASSIGNMENT
  *
  * Team Information:
- *   Coder 1: Tevel Sho     | S10258591B | Group 4
- *   Coder 2: Brayden Saga  | S10258659C | Group 4
+ *   Author 1: Tevel Sho     | S10258591B | Group 4
+ *   Author 2: Brayden Saga  | S10258659C | Group 4
  *----------------------------------------------------------------------------*/
 #include <iostream>
 #include <string>
@@ -159,7 +159,7 @@ int main() {
 
 /*----------------------------------------------------------------------------
  * Function: authenticateAdmin
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Prompts the user to enter an admin username and password, then compares the 
@@ -217,7 +217,7 @@ bool authenticateAdmin() {
 
 /*----------------------------------------------------------------------------
  * Function: findActorByName
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Finds an actor by their name. The function first retrieves the actor's ID
@@ -243,7 +243,7 @@ Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorNa
 
 /*----------------------------------------------------------------------------
  * Function: findMovieByName
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Finds a movie by its name. The function first looks up the movie's ID in a 
@@ -269,7 +269,7 @@ Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieNa
 
 /*----------------------------------------------------------------------------
  * Function: adminMenu
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Displays the admin menu and handles administrator operations. The menu
@@ -524,7 +524,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
 /*----------------------------------------------------------------------------
  * Function: readCSV
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Reads and processes a CSV file based on its type and populates appropriate
@@ -662,7 +662,7 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
 
 /*----------------------------------------------------------------------------
  * Function: addNewActor
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Adds a new actor to the system and updates the relevant data structures.
@@ -707,7 +707,7 @@ bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorI
 
 /*----------------------------------------------------------------------------
  * Function: addNewMovie
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Adds a new movie to the system and updates the relevant data structures.
@@ -768,7 +768,7 @@ bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieId
 
 /*----------------------------------------------------------------------------
  * Function: addActorToMovie
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Assigns an actor to a specific movie and establishes a bidirectional relationship.
@@ -799,7 +799,7 @@ bool addActorToMovie(Actor* actor, Movie* movie) {
 
 /*----------------------------------------------------------------------------
  * Function: updateActorDetails
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Updates the details of an existing actor in the system. The function displays the
@@ -903,7 +903,7 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
 
 /*----------------------------------------------------------------------------
  * Function: updateMovieDetails
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Updates the details of an existing movie in the system. This function displays
@@ -1006,7 +1006,7 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
 
 /*----------------------------------------------------------------------------
  * Function: userMenu
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Displays the user menu and handles user operations. This function provides
@@ -1201,7 +1201,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
 
 /*----------------------------------------------------------------------------
  * Function: displayActorsByAgeRange
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Displays actors within a specified age range by converting the age range
@@ -1234,7 +1234,7 @@ void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
 
 /*----------------------------------------------------------------------------
  * Function: displayRecentMovies
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Displays movies released within the last three years. This function utilizes
@@ -1260,7 +1260,7 @@ void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
 
 /*----------------------------------------------------------------------------
  * Function: displayMoviesByActor
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Displays all movies that a specific actor has starred in, sorted alphabetically.
@@ -1304,7 +1304,7 @@ void displayMoviesByActor(Actor* actor){
 
 /*----------------------------------------------------------------------------
  * Function: displayActorsByMovie
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Displays all actors who starred in a specific movie, sorted alphabetically.
@@ -1342,7 +1342,7 @@ void displayActorsByMovie(Movie* movie){
 
 /*----------------------------------------------------------------------------
  * Function: displayActorsKnownByHelper
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Identifies and adds actors known by a specific target actor through shared movies.
@@ -1384,7 +1384,7 @@ void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors
 
 /*----------------------------------------------------------------------------
  * Function: displayActorsKnownBy
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Displays all actors directly and indirectly known by a specific target actor.
@@ -1429,7 +1429,7 @@ void displayActorsKnownBy(Actor* targetActor){
 
 /*----------------------------------------------------------------------------
  * Function: roundToOneDecimal
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Rounds a double value to one decimal place and converts it to a string.
@@ -1453,7 +1453,7 @@ string roundToOneDecimal(double value) {
 
 /*----------------------------------------------------------------------------
  * Function: setActorRating
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Sets the rating for a specific actor by updating the actor's cumulative rating.
@@ -1473,7 +1473,7 @@ void setActorRating(Actor* actor, double rating){
 
 /*----------------------------------------------------------------------------
  * Function: setMovieRating
- * Author: [Coder - Brayden]
+ * Author: Brayden
  *
  * Description:
  *   Sets the rating for a specific movie by updating the movie's cumulative rating.
@@ -1493,7 +1493,7 @@ void setMovieRating(Movie* movie, double rating){
 
 /*----------------------------------------------------------------------------
  * Function: recommendMoviesByRating
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Recommends the top 5 highest-rated movies from the provided dynamic array.
@@ -1528,7 +1528,7 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies){
 
 /*----------------------------------------------------------------------------
  * Function: recommendActorsByRating
- * Author: [Coder - Tevel]
+ * Author: Tevel
  *
  * Description:
  *   Recommends the top 5 highest-rated actors from the provided dynamic array.
