@@ -1,46 +1,49 @@
 /*----------------------------------------------------------------------------
-💻 Class: Dictionary (Dictionary.h)
-Description: A generic hash-based dictionary implementation using separate 
-             chaining for collision handling.
-
-Team Information:
-    - Member 1: [Name], [Student ID], [Group Name]
-    - Member 2: [Name], [Student ID], [Group Name]
-
-Key Features:
-    - Template-based implementation for storing key-value pairs.
-    - Supports hashing for both `int` and `std::string` keys with customizable 
-      hash functions.
-    - Collision handling using linked lists (separate chaining).
-    - Provides essential methods such as add, remove, search, and check existence.
-----------------------------------------------------------------------------*/
-#pragma once
+ * Class: Dictionary (Dictionary.h)
+ *
+ * Description:
+ *   A generic hash-based dictionary implementation using separate chaining 
+ *   for collision handling.
+ *
+ * Team Information:
+ *   Coder 1: Tevel Sho     | S10258591B | Group 4
+ *   Coder 2: Brayden Saga  | S10258659C | Group 4
+ *
+ * Key Features:
+ *   Template-based implementation for storing key-value pairs.
+ *   Supports hashing for both int and std::string keys with customizable hash functions.
+ *   Uses linked lists (separate chaining) to handle hash collisions.
+ *   Provides essential methods such as add, remove, search, and existence check.
+ *----------------------------------------------------------------------------*/
 #pragma once
 #include <string>
 using namespace std;
 
-// Define a prime number for hash table size
-const int MAX_SIZE = 3221; // Prime number for hashing
+// Define a prime number for hash table size.
+const int MAX_SIZE = 3221; // Prime number for hashing.
 
-// Hash Function Helper Struct
-// Template node structure for Dictionary
+// -----------------------------------------------------------------------------
+// Hash Function Helper Struct and Node Definition
+// -----------------------------------------------------------------------------
+
+// Node structure for Dictionary, representing a key-value pair.
 template <typename K, typename V>
 struct Node {
-    K key;       // Search key
-    V value;     // Associated value
-    Node* next;  // Pointer to the next node
+    K key;       // Search key.
+    V value;     // Associated value.
+    Node* next;  // Pointer to the next node in the chain.
 
     Node() : next(nullptr) {}
     Node(K newKey, V newValue) : key(newKey), value(newValue), next(nullptr) {}
 };
 
-// Hash Function Helper
+// Generic Hash Function Helper.
 template <typename K>
 struct Hash {
     static int compute(const K& key);
 };
 
-// Specialization of Hash for int
+// Specialization of Hash for int keys.
 template <>
 struct Hash<int> {
     static int compute(int key) {
@@ -48,20 +51,19 @@ struct Hash<int> {
     }
 };
 
-int charvalue(char c)
-{
-	if (isalpha(c))
-	{
-		if (isupper(c))
-			return (int)c - (int)'A';
-		else
-			return (int)c - (int)'a' + 26;
-	}
-	else
-		return -1;
+// Helper function to compute character value for string hashing.
+int charvalue(char c) {
+    if (isalpha(c)) {
+        if (isupper(c))
+            return (int)c - (int)'A';
+        else
+            return (int)c - (int)'a' + 26;
+    } else {
+        return -1;
+    }
 }
 
-// Specialization of Hash for std::string
+// Specialization of Hash for std::string keys.
 template <>
 struct Hash<std::string> {
     static int compute(const std::string& key) {
@@ -73,39 +75,42 @@ struct Hash<std::string> {
     }
 };
 
-// Template Dictionary Class
+// -----------------------------------------------------------------------------
+// Template Dictionary Class Definition
+// -----------------------------------------------------------------------------
 template <typename K, typename V>
 class Dictionary {
     private:
-        Node<K, V>* items[MAX_SIZE]; // Array of linked lists (chaining for collision handling)
-        int size;                    // Number of items in the Dictionary
+        Node<K, V>* items[MAX_SIZE]; // Array of pointers for linked list chains.
+        int size;                    // Current number of items in the Dictionary.
 
     public:
-        // Constructor
+        // Constructor: Initializes the Dictionary.
         Dictionary();
 
-        // Destructor
+        // Destructor: Releases all allocated memory.
         ~Dictionary();
 
-        // Add a key-value pair to the Dictionary
+        // Adds a key-value pair to the Dictionary.
         bool add(const K& key, const V& value);
 
-        // Remove a key-value pair by key
+        // Removes a key-value pair by key.
         void remove(const K& key);
 
-        // Get the value associated with a key
+        // Retrieves the value associated with a key.
         V get(const K& key) const;
 
-        // Check if the Dictionary contains a specific key
+        // Checks if the Dictionary contains the specified key.
         bool contains(const K& key) const;
 
-        // Check if the Dictionary is empty
+        // Checks if the Dictionary is empty.
         bool isEmpty() const;
 
-        // Get the number of items in the Dictionary
+        // Returns the number of items in the Dictionary.
         int getLength() const;
 
-        // Print all key-value pairs in the Dictionary
+        // Prints all key-value pairs in the Dictionary.
         void print() const;
 };
+
 #include "templates/Dictionary.tpp"

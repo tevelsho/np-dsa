@@ -1,43 +1,45 @@
 /*----------------------------------------------------------------------------
-💻 Class: Movie (Movie.h)
-Description: Represents a movie with its details and the associated cast.
-
-Team Information:
-    - Member 1: [Name], [Student ID], [Group Name]
-    - Member 2: [Name], [Student ID], [Group Name]
-
-Key Features:
-    - Default and parameterized constructors for creating movie objects.
-    - Comprehensive setters and getters for managing `id`, `title`, and `year of release`.
-    - Maintains a list of associated actors (cast) with functionalities to add 
-      and display them.
-    - Includes a rating system for movies with the ability to add, retrieve, 
-      and manage ratings.
-    - Calculates the average rating of the cast associated with the movie.
-----------------------------------------------------------------------------*/
-
+ * Class: Movie (Movie.h)
+ *
+ * Description:
+ *   Represents a movie with its details and associated cast.
+ *
+ * Team Information:
+ *   Coder 1: Tevel Sho     | S10258591B | Group 4
+ *   Coder 2: Brayden Saga  | S10258659C | Group 4
+ *
+ * Key Features:
+ *   Provides both default and parameterized constructors for creating movie objects.
+ *   Offers comprehensive setters and getters for managing movie ID, title, and release year.
+ *   Maintains a list of associated actors (cast) with functionalities to add and display them.
+ *   Integrates a rating system for movies with methods to add, retrieve, and manage ratings.
+ *   Calculates the average rating of the cast associated with the movie.
+ *----------------------------------------------------------------------------*/
 #pragma once
 
 #include <string>
 #include <iostream>
 #include "List.h"
 #include "RatingSystem.h"
+
+// Forward declaration of Actor class.
 class Actor;
 using namespace std;
 
-class Actor;
-
 class Movie {
   private:
-      int id;
-      string name;
-      int year;
-      RatingSystem ratingSystem;
+      int id;                    // Unique identifier for the movie.
+      string name;               // Title of the movie.
+      int year;                  // Release year of the movie.
+      RatingSystem ratingSystem; // Manages the movie's ratings.
 
   public:
-      List<Actor*> cast;
+      List<Actor*> cast;         // List of actors (cast) associated with the movie.
 
-      Movie();
+        // Constructor: Initialize an empty Movie object
+        Movie();
+
+      // Constructor: Creates a Movie object with the specified id, title, and release year.
       Movie(int, string, int);
 
       // Setters and Getters
@@ -50,21 +52,27 @@ class Movie {
       void setYear(int);
       int getYear() const;
 
+      // Retrieves the cast list.
       List<Actor*> getCast() const;
+
+      // Calculates and returns the average rating of the cast.
       double castAverageRating() const;
 
-      // Other functions
+      // Other Member Functions
+      // Adds an actor to the movie's cast.
       void addActor(Actor* actor);
+
+      // Displays the cast of the movie.
       void displayCast() const;
 
+      // Adds a new rating to the movie.
       void addRating(double newRating);
 
-      // Get the actor's overall rating
+      // Retrieves the movie's overall rating.
       double getRating() const;
 
-      // Get the number of ratings for the actor
+      // Retrieves the number of ratings the movie has received.
       int getNumRatings() const;
-
 };
 
 #include "templates/Movie.cpp"

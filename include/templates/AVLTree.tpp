@@ -148,16 +148,22 @@ bool AVLTree<T>::removeItem(int key, T item) {
 
 // BETWEEN X AND Y
 template<class T>
-void AVLTree<T>::DisplayActors(int x, int y) const{
+void AVLTree<T>::DisplayActors(int x, int y) const {
+    cout << "\n==============================\n";
+    cout << "Actors between " << x << " and " << y << ":\n";
+    cout << "------------------------------\n";
     inOrderTraversalRangeAge(root, x, y);
-    cout << endl; // For a clean newline after displaying
+    cout << "\n==============================\n";
 }
 
 // PAST THREE YEARS
 template<class T>
-void AVLTree<T>::DisplayMovies() const{
-    inOrderTraversalRange(root, currentYear-3, currentYear);
-    cout << endl; // For a clean newline after displaying
+void AVLTree<T>::DisplayMovies() const {
+    cout << "\n==============================\n";
+    cout << "Movies released between " << (currentYear - 3) << " and " << currentYear << ":\n";
+    cout << "------------------------------\n";
+    inOrderTraversalRange(root, currentYear - 3, currentYear);
+    cout << "\n==============================\n";
 }
 
 // For ACTORS
