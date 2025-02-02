@@ -10,8 +10,8 @@ Movie::Movie() : id(0), name(""), year(0), cast() {
 }
 
 // Parameterized Constructor
-Movie::Movie(int id, string name, int year) 
-    : id(id), name(name), year(year), cast() {
+Movie::Movie(int id, string name, string plot, int year) 
+    : id(id), name(name), year(year), plot(plot), cast() {
 }
 
 // Sets the ID of the movie
@@ -32,6 +32,16 @@ void Movie::setName(string name) {
 // Gets the name of the movie
 string Movie::getName() const {
     return name;
+}
+
+// Sets the plot of the movie
+void Movie::setPlot(string plot) {
+    this->plot = plot;
+}
+
+// Gets the plot of the movie
+string Movie::getPlot() const {
+    return plot;
 }
 
 // Sets the release year of the movie

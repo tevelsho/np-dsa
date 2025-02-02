@@ -32,7 +32,7 @@ string roundToOneDecimal(double value);
 
 // Function prototypes (Basic)
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
-bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
+bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
 void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor);
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
@@ -331,7 +331,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
             }
             case 2:{
                 int movie_id, movie_year;
-                string movie_name;
+                string movie_name, movie_plot;
 
                 // Prompt user for id, movie, and year for new movie
                 cout << "Enter new movie's ID: ";
@@ -352,10 +352,13 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                     break;
                 }
 
+                cout << "Enter new movie's plot: ";
+                getline(cin, movie_plot);
+
                 cout << "Enter new movie's release year: ";
                 cin >> movie_year;
 
-                addNewMovie(movie_id, movie_year, movie_name, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
+                addNewMovie(movie_id, movie_year, movie_name, movie_plot, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
                 break;
             }
             case 3:{
@@ -482,12 +485,14 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
             getline(s, temp, ',');
             id = stoi(temp);
 
-            getline(s, temp, '"');
-            getline(s, name, '"');
-            s.ignore(1);
+            getline(s, name, ',');
 
             getline(s, temp, ','); 
-            birth = stoi(temp);  
+            if (temp == "") {
+                birth = 0;
+            } else {
+                birth = stoi(temp);
+            }
 
             addNewActor(id, birth, name, actorIdToActorMap, actorNameToIdMap, yearToActor, allActors);
         }
@@ -523,20 +528,34 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
             stringstream s(line);
 
             // Read and parse each column as string and convert to int
-            string title, temp;
+            string title, plot, temp;
             int id, year;
 
             getline(s, temp, ',');
             id = stoi(temp);
 
-            getline(s, temp, '"');
-            getline(s, title, '"');
-            s.ignore(1);
+            // Handle title which may be enclosed in quotes
+            if (s.peek() == '"') {
+                s.get(); // Remove the opening quote
+                getline(s, title, '"'); // Read until the closing quote
+                s.get(); // Remove the comma after the closing quote
+            } else {
+                getline(s, title, ',');
+            }
+
+            // Handle plot which may be enclosed in quotes
+            if (s.peek() == '"') {
+                s.get(); // Remove the opening quote
+                getline(s, plot, '"'); // Read until the closing quote
+                s.get(); // Remove the comma after the closing quote
+            } else {
+                getline(s, plot, ',');
+            }
 
             getline(s, temp, ','); 
             year = stoi(temp);  
 
-            addNewMovie(id, year, title, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
+            addNewMovie(id, year, title, plot, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
         }
 
         fin.close();
@@ -619,9 +638,9 @@ Error Handling:
     - Assumes that the provided `id` and `name` are unique. If duplicates exist, behavior is undefined.
     - Does not validate the input parameters (e.g., invalid release year or empty name). Additional validation should be implemented as needed.
 ----------------------------------------------------------------------------*/
-bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies) {
+bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies) {
     // Create a new movie object
-    Movie* movie = new Movie(id, name, year);
+    Movie* movie = new Movie(id, name, plot, year);
 
     // Map the ID to the Movie pointer
     movieIdToMovieMap.add(id, movie);

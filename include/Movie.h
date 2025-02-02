@@ -31,6 +31,7 @@ class Movie {
   private:
       int id;
       string name;
+      string plot;
       int year;
       RatingSystem ratingSystem;
 
@@ -38,7 +39,7 @@ class Movie {
       List<Actor*> cast;
 
       Movie();
-      Movie(int, string, int);
+      Movie(int, string, string, int);
 
       // Setters and Getters
       void setID(int);
@@ -46,6 +47,9 @@ class Movie {
 
       void setName(string);
       string getName() const;
+
+      void setPlot(string);
+      string getPlot() const;
 
       void setYear(int);
       int getYear() const;
