@@ -1,7 +1,7 @@
 #include "Actor.h"
 
 // Default Constructor: Initializes a Movie object with default values.
-Movie::Movie() : id(0), name(""), year(0), cast() {}
+Movie::Movie() : id(0), name(""), year(0), plot(""), cast() {}
 
 // Parameterized Constructor: Initializes a Movie object with specified values.
 Movie::Movie(int id, string name, string plot, int year) 
@@ -25,16 +25,6 @@ void Movie::setName(string name) {
 // Retrieves the title of the movie.
 string Movie::getName() const {
     return name;
-}
-
-// Sets the plot of the movie
-void Movie::setPlot(string plot) {
-    this->plot = plot;
-}
-
-// Gets the plot of the movie
-string Movie::getPlot() const {
-    return plot;
 }
 
 // Sets the plot of the movie
