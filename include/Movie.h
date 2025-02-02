@@ -30,17 +30,15 @@ class Movie {
   private:
       int id;                    // Unique identifier for the movie.
       string name;               // Title of the movie.
+      string plot;
       int year;                  // Release year of the movie.
       RatingSystem ratingSystem; // Manages the movie's ratings.
 
   public:
       List<Actor*> cast;         // List of actors (cast) associated with the movie.
 
-        // Constructor: Initialize an empty Movie object
-        Movie();
-
-      // Constructor: Creates a Movie object with the specified id, title, and release year.
-      Movie(int, string, int);
+      Movie();
+      Movie(int, string, string, int);
 
       // Setters and Getters
       void setID(int);
@@ -48,6 +46,9 @@ class Movie {
 
       void setName(string);
       string getName() const;
+
+      void setPlot(string);
+      string getPlot() const;
 
       void setYear(int);
       int getYear() const;

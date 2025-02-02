@@ -32,7 +32,7 @@ string roundToOneDecimal(double value);
 
 // Function prototypes (Basic).
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
-bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
+bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
 void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor);
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
@@ -384,7 +384,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 // Add a new movie.
                 cout << "Adding a new movie...\n";
                 int movie_id, movie_year;
-                string movie_name;
+                string movie_name, movie_plot;
 
                 // Prompt for the movie's ID with input validation.
                 cout << "Enter new movie's ID: ";
@@ -413,6 +413,12 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                     break;
                 }
 
+                cout << "Enter new movie's plot: ";
+                getline(cin, movie_plot);
+
+                cout << "Enter new movie's plot: ";
+                getline(cin, movie_plot);
+
                 // Prompt for the movie's release year with input validation.
                 cout << "Enter new movie's release year: ";
                 while (!(cin >> movie_year)) {
@@ -422,7 +428,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 }
 
                 // Attempt to add the new movie.
-                if (addNewMovie(movie_id, movie_year, movie_name, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies)) {
+                if (addNewMovie(movie_id, movie_year, movie_name, movie_plot, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies)) {
                     cout << "Movie successfully added!\n";
                 } else {
                     cout << "Failed to add movie due to an error.\n";
@@ -584,14 +590,16 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
             getline(s, temp, ',');
             id = stoi(temp);
 
-            // Parse actor name, assuming it is enclosed in double quotes.
-            getline(s, temp, '"');
-            getline(s, name, '"');
-            s.ignore(1); // Skip the comma after the closing quote.
+            getline(s, name, ',');
+            s.ignore(1);
 
             // Parse actor birth year.
             getline(s, temp, ','); 
-            birth = stoi(temp);  
+            if (temp == "") {
+                birth = 0;
+            } else {
+                birth = stoi(temp);
+            }
 
             // Add the new actor to the data structures.
             addNewActor(id, birth, name, actorIdToActorMap, actorNameToIdMap, yearToActor, allActors);
@@ -627,29 +635,39 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
         fin.close();
 
     } else if (fileName == "movies.csv") {
-        // Process "movies.csv": Each line contains movie id, title, and release year.
+        // Read data line by line
         while (getline(fin, line)) {
             stringstream s(line);
 
-            // Temporary variables for parsing.
-            string title, temp;
+            // Read and parse each column as string and convert to int
+            string title, plot, temp;
             int id, year;
 
-            // Parse movie ID.
             getline(s, temp, ',');
             id = stoi(temp);
 
-            // Parse movie title, assuming it is enclosed in double quotes.
-            getline(s, temp, '"');
-            getline(s, title, '"');
-            s.ignore(1); // Skip the comma after the closing quote.
+            // Handle title which may be enclosed in quotes
+            if (s.peek() == '"') {
+                s.get(); // Remove the opening quote
+                getline(s, title, '"'); // Read until the closing quote
+                s.get(); // Remove the comma after the closing quote
+            } else {
+                getline(s, title, ',');
+            }
 
-            // Parse movie release year.
+            // Handle plot which may be enclosed in quotes
+            if (s.peek() == '"') {
+                s.get(); // Remove the opening quote
+                getline(s, plot, '"'); // Read until the closing quote
+                s.get(); // Remove the comma after the closing quote
+            } else {
+                getline(s, plot, ',');
+            }
+
             getline(s, temp, ','); 
             year = stoi(temp);  
 
-            // Add the new movie to the data structures.
-            addNewMovie(id, year, title, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
+            addNewMovie(id, year, title, plot, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
         }
 
         fin.close();
@@ -706,62 +724,47 @@ bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorI
 }
 
 /*----------------------------------------------------------------------------
- * Function: addNewMovie
- * Author: Tevel
- *
- * Description:
- *   Adds a new movie to the system and updates the relevant data structures.
- *   This function creates a new Movie object using the provided id, name, and
- *   release year, and then integrates it into several data structures for
- *   efficient lookup and iteration.
- *
- * Parameters:
- *   id                - A unique integer identifier for the movie.
- *   year              - The release year of the movie.
- *   name              - The name or title of the movie.
- *   movieIdToMovieMap - Dictionary mapping movie IDs to their corresponding Movie objects.
- *   movieNameToIdMap  - Dictionary mapping movie names to their corresponding IDs.
- *   yearToMovie       - AVLTree mapping movie release years to Movie objects.
- *   allMovies         - Dynamic array containing all Movie objects.
- *
- * Returns:
- *   bool - Returns true if the movie is successfully added to all data structures;
- *          otherwise, returns false.
- *
- * Error Handling:
- *   Assumes that the provided id and name are unique. Input parameters are not further
- *   validated (e.g., for an invalid release year or empty name). Memory allocation and
- *   insertion operations are wrapped in try-catch blocks to handle exceptions.
- *----------------------------------------------------------------------------*/
-bool addNewMovie(int id, int year, string name, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies) {
-    // Attempt to create a new movie object.
-    Movie* movie = nullptr;
-    try {
-        movie = new Movie(id, name, year);
-    } catch (const std::exception &e) {
-        cerr << "Error: Unable to allocate memory for new movie. " << e.what() << "\n";
-        return false;
-    }
-    
-    // Add the movie to all the data structures with error handling.
-    try {
-        // Map the ID to the Movie pointer.
-        movieIdToMovieMap.add(id, movie);
+[Coder - Tevel]
 
-        // Map the movie's title to its ID.
-        movieNameToIdMap.add(name, id);
+Adds a new movie to the system and updates relevant data structures.
 
-        // Add the movie to the dynamic array for iteration.
-        allMovies.add(movie);
+@param id: A unique integer identifier for the movie.
+@param year: The release year of the movie.
+@param name: The name or title of the movie.
+@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
+@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
+@param yearToMovie: AVLTree mapping movie release years to Movie objects.
+@param allMovies: Dynamic array containing all Movie objects.
+@return bool: Returns true if the movie is successfully added to all data structures.
 
-        // Insert the movie into the AVL tree using the release year as the key.
-        yearToMovie.insertItem(year, movie);
-    } catch (const std::exception &e) {
-        cerr << "Error adding new movie: " << e.what() << "\n";
-        // Clean up allocated memory if any operation fails.
-        delete movie;
-        return false;
-    }
+Description:
+    - Creates a new `Movie` object using the provided `id`, `name`, and `year`.
+    - Adds the newly created `Movie` object to the following data structures:
+        - **`movieIdToMovieMap`**: Maps the movie's unique ID to its `Movie` object.
+        - **`movieNameToIdMap`**: Maps the movie's title to its unique ID.
+        - **`allMovies`**: A dynamic array containing all `Movie` objects for fast iteration.
+        - **`yearToMovie`**: An AVL tree for efficiently grouping and searching movies by their release year.
+    - Ensures the movie is fully integrated into all relevant data structures.
+
+Error Handling:
+    - Assumes that the provided `id` and `name` are unique. If duplicates exist, behavior is undefined.
+    - Does not validate the input parameters (e.g., invalid release year or empty name). Additional validation should be implemented as needed.
+----------------------------------------------------------------------------*/
+bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies) {
+    // Create a new movie object
+    Movie* movie = new Movie(id, name, plot, year);
+
+    // Map the ID to the Movie pointer
+    movieIdToMovieMap.add(id, movie);
+
+    // Map the movie's title to its ID.
+    movieNameToIdMap.add(name, id);
+
+    // Add the movie to the dynamic array for iteration.
+    allMovies.add(movie);
+
+    // Insert the movie into the AVL tree using the release year as the key.
+    yearToMovie.insertItem(year, movie);
     
     return true;
 }

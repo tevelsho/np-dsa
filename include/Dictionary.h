@@ -51,25 +51,27 @@ struct Hash<int> {
     }
 };
 
-// Helper function to compute character value for string hashing.
-int charvalue(char c) {
+int charvalue(char c)
+{
+    if (isdigit(c)) // Check if character is a digit
+        return c - '0'; // Return numeric value of digit
     if (isalpha(c)) {
         if (isupper(c))
-            return (int)c - (int)'A';
+            return (int)c - (int)'A' + 1;
         else
-            return (int)c - (int)'a' + 26;
-    } else {
-        return -1;
+            return (int)c - (int)'a' + 27;
     }
+    return 0; // For non-alphanumeric characters, contribute 0 to hash
 }
 
 // Specialization of Hash for std::string keys.
 template <>
 struct Hash<std::string> {
     static int compute(const std::string& key) {
-        int hashValue = 0;
+        long long hashValue = 0;  // Use long long to avoid overflow during calculation
+        int position = 1;         // Start position weight from 1
         for (char c : key) {
-            hashValue += charvalue(c);
+            hashValue = (hashValue * 37 + charvalue(c)) % MAX_SIZE; // Use 37 as a base to reflect each character's position and value
         }
         return hashValue % MAX_SIZE;
     }
