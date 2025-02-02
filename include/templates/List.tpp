@@ -1,8 +1,8 @@
-// Constructor
+// Initializes an empty list with a null first node and a size of 0.
 template <typename T>
 List<T>::List() : firstNode(nullptr), size(0) {}
 
-// Destructor
+// Destroys the list by deallocating all dynamically allocated nodes.
 template <typename T>
 List<T>::~List() {
     Node* current = firstNode;
@@ -13,6 +13,7 @@ List<T>::~List() {
     }
 }
 
+// Checks if the list contains a specific item by traversing the nodes.
 template <typename T>
 bool List<T>::contains(const T item) const {
     Node* current = firstNode;
@@ -25,27 +26,26 @@ bool List<T>::contains(const T item) const {
     return false;
 }
 
+// Adds a new item to the list in sorted order, maintaining list integrity.
 template <typename T>
 bool List<T>::add(const T newItem) {
     Node* newNode = new Node{newItem, nullptr};
 
-    // If the list is empty, insert the new node as the first node
+    // If the list is empty, insert the new node as the first node.
     if (isEmpty()) {
         firstNode = newNode;
     }
-    // If the new item should be inserted at the beginning of the list
+    // If the new item should be inserted at the beginning of the list.
     else if (newItem < firstNode->item) {
         newNode->next = firstNode;
         firstNode = newNode;
     }
-    // Otherwise, find the correct position to insert the new node
+    // Otherwise, find the correct position to insert the new node.
     else {
         Node* current = firstNode;
-        // Traverse the list to find the insertion point
         while (current->next != nullptr && current->next->item < newItem) {
             current = current->next;
         }
-        // Insert the new node after the current node
         newNode->next = current->next;
         current->next = newNode;
     }
@@ -54,7 +54,7 @@ bool List<T>::add(const T newItem) {
     return true;
 }
 
-// Add item at a specific index
+// Inserts a new item at a specific index, shifting elements accordingly.
 template <typename T>
 bool List<T>::add(int index, const T newItem) {
     if (index < 0 || index > size) {
@@ -79,11 +79,12 @@ bool List<T>::add(int index, const T newItem) {
     return true;
 }
 
-// Remove item at a specific index
+// Removes an item at a specific index, adjusting list pointers.
 template <typename T>
 void List<T>::remove(int index) {
     if (index < 0 || index >= size) {
         cout << "Index out of range" << endl;
+        return;
     }
 
     Node* temp;
@@ -104,6 +105,7 @@ void List<T>::remove(int index) {
     --size;
 }
 
+// Removes a specific item from the list if found.
 template <typename T>
 void List<T>::remove(const T item) {
     Node* current = firstNode;
@@ -117,7 +119,7 @@ void List<T>::remove(const T item) {
                 previous->next = current->next;
             }
             delete current;
-            size--;
+            --size;
             return;
         }
         previous = current;
@@ -125,7 +127,7 @@ void List<T>::remove(const T item) {
     }
 }
 
-// Get item at a specific index
+// Retrieves the item at a specific index, ensuring index validity.
 template <typename T>
 T List<T>::get(int index) const {
     if (index < 0 || index >= size) {
@@ -139,19 +141,19 @@ T List<T>::get(int index) const {
     return current->item;
 }
 
-// Get the length of the list
+// Returns the number of elements in the list.
 template <typename T>
 int List<T>::getLength() const {
     return size;
 }
 
-// Check if the list is empty
+// Checks if the list is empty.
 template <typename T>
 bool List<T>::isEmpty() const {
     return size == 0;
 }
 
-// Print the list
+// Prints the contents of the list in order.
 template <typename T>
 void List<T>::print() const {
     Node* current = firstNode;

@@ -1,34 +1,38 @@
 /*----------------------------------------------------------------------------
-💻 Class: RatingSystem (RatingSystem.h)
-Description: A utility class to manage ratings for actors, movies, or other entities.
-
-Team Information:
-    - Member 1: [Name], [Student ID], [Group Name]
-    - Member 2: [Name], [Student ID], [Group Name]
-
-Key Features:
-    - Allows adding new ratings and calculates the average rating.
-    - Tracks the total number of ratings received.
-    - Provides methods to retrieve the current rating and the total count of ratings.
-----------------------------------------------------------------------------*/
+ * Class: RatingSystem (RatingSystem.h)
+ *
+ * Description:
+ *   A utility class for managing ratings for actors, movies, or other entities.
+ *   Provides functionality to add new ratings, compute the average rating, and track
+ *   the total number of ratings received.
+ *
+ * Team Information:
+ *   Coder 1: Tevel Sho     | S10258591B | Group 4
+ *   Coder 2: Brayden Saga  | S10258659C | Group 4
+ *
+ * Key Features:
+ *   Allows adding new ratings and updates the average rating.
+ *   Tracks the cumulative number of ratings.
+ *   Provides methods to retrieve the current average rating and the rating count.
+ *----------------------------------------------------------------------------*/
 #pragma once
 
 class RatingSystem {
     private:
-        double rating;    // Current rating
-        int numRatings;   // Number of ratings received
+        double rating;   // Current average rating.
+        int numRatings;  // Total number of ratings received.
 
     public:
-        // Constructor
+        // Constructor: Initializes the rating system.
         RatingSystem();
 
-        // Add a new rating
+        // Adds a new rating and updates the average accordingly.
         void addRating(double newRating);
 
-        // Get the current rating
+        // Retrieves the current average rating.
         double getRating() const;
 
-        // Get the number of ratings
+        // Retrieves the total count of ratings received.
         int getNumRatings() const;
 };
 
