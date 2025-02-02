@@ -1204,59 +1204,87 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
  * Author: Brayden
  *
  * Description:
- *   Displays actors within a specified age range by converting the age range
- *   into corresponding birth years based on the current year (2025) and then
- *   using an AVLTree to display actors whose birth years fall within that range.
+ *   Displays a list of actors whose ages fall within the specified range.
+ *   Converts the provided age range into corresponding birth years based on the
+ *   reference year (2025) and utilizes an AVLTree to display actors born within
+ *   that period.
  *
  * Parameters:
- *   x            - The minimum age of actors to display (inclusive).
- *   y            - The maximum age of actors to display (inclusive).
- *   yearToActor  - AVLTree mapping actor birth years to Actor objects.
+ *   x           - The minimum age of actors to display (inclusive).
+ *   y           - The maximum age of actors to display (inclusive).
+ *   yearToActor - AVLTree mapping actor birth years to Actor objects.
  *
  * Returns:
  *   void
  *
  * Error Handling:
- *   Assumes that the input ages are valid integers with y less than or equal to x.
- *   If no actors exist in the specified range, the output depends on the behavior of
- *   the DisplayActors method of the AVLTree.
+ *   - Ensures that x (min age) is greater than or equal to y (max age).
+ *   - If an invalid age range is provided, an error message is displayed and the function exits.
+ *   - If no actors exist within the specified range, the AVLTree method determines the output.
  *----------------------------------------------------------------------------*/
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
-    // Display a header indicating the age range.
-    cout << "Actors between " << x << " and " << y << " years old:\n";
-    int currentYear = 2025;
-    // Convert the age range into corresponding birth years.
-    x = currentYear - x; // Latest birth year to include.
-    y = currentYear - y; // Earliest birth year to include.
-    // Display actors whose birth years are within the calculated range.
-    yearToActor.DisplayActors(y, x);
-}; 
+    // Validate input: Ensure that the age range is logical
+    if (x < y) {
+        cerr << "Error: Invalid age range. The minimum age cannot be greater than the maximum age.\n";
+        return;
+    }
+
+    int currentYear = 2025; // Define the reference year
+
+    // Convert age range to birth years
+    int latestBirthYear = currentYear - x;
+    int earliestBirthYear = currentYear - y;
+
+    // Display section header
+    cout << "\n============================================\n";
+    cout << "Actors Aged Between " << y << " and " << x << " Years\n";
+    cout << "--------------------------------------------\n";
+
+    // Call the AVLTree method to display actors within the birth year range
+    yearToActor.DisplayActors(earliestBirthYear, latestBirthYear);
+
+    // Display section footer
+    cout << "============================================\n\n";
+}
 
 /*----------------------------------------------------------------------------
  * Function: displayRecentMovies
  * Author: Tevel
  *
  * Description:
- *   Displays movies released within the last three years. This function utilizes
- *   an AVLTree to fetch and display movies based on their release years.
+ *   Displays movies that have been released in the last three years.
+ *   The function calls an AVLTree method to fetch and display movies categorized
+ *   by their release years.
  *
  * Parameters:
- *   yearToMovie  - AVLTree mapping movie release years to Movie objects.
+ *   yearToMovie - AVLTree mapping movie release years to Movie objects.
  *
  * Returns:
  *   void
  *
  * Error Handling:
- *   Assumes that the DisplayMovies method of the AVLTree correctly filters and
- *   displays movies from the last three years. If no movies exist in the range,
- *   the behavior depends on the AVLTree's implementation.
+ *   - If the AVLTree is empty, a message is displayed instead of an empty list.
+ *   - Assumes that the AVLTree correctly filters and displays movies from the last three years.
  *----------------------------------------------------------------------------*/
 void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
-    // Display a header for recent movies.
-    cout << "Movies from the last 3 years:\n";
-    // Use the AVLTree method to display the movies.
-    yearToMovie.DisplayMovies();
-};
+    int currentYear = 2025; // Define the reference year
+
+    // Display section header
+    cout << "\n============================================\n";
+    cout << "Movies Released in the Last 3 Years\n";
+    cout << "--------------------------------------------\n";
+
+    // Check if there are any movies available
+    if (yearToMovie.isEmpty()) {
+        cout << "No recent movies found.\n";
+    } else {
+        // Call the AVLTree method to display movies within the last 3 years
+        yearToMovie.DisplayMovies();
+    }
+
+    // Display section footer
+    cout << "============================================\n\n";
+}
 
 /*----------------------------------------------------------------------------
  * Function: displayMoviesByActor
@@ -1264,41 +1292,45 @@ void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
  *
  * Description:
  *   Displays all movies that a specific actor has starred in, sorted alphabetically.
- *   The function iterates through the actor's movies list, showing each movie's title
- *   and release year.
+ *   The function retrieves and iterates through the actor's movie list, displaying
+ *   each movie's title along with its release year.
  *
  * Parameters:
- *   actor  - Pointer to the Actor object whose movies are to be displayed.
+ *   actor - Pointer to the Actor object whose movies are to be displayed.
  *
  * Returns:
  *   void
  *
  * Error Handling:
- *   Assumes the actor pointer is valid and that the actor's movies list is properly
- *   initialized and sorted alphabetically. If the actor has no movies, an appropriate
- *   message is displayed.
+ *   - If the actor pointer is null, an error message is displayed and the function exits.
+ *   - If the actor has no associated movies, a message is displayed instead of an empty list.
  *----------------------------------------------------------------------------*/
-void displayMoviesByActor(Actor* actor){
-    // Display a decorative header indicating which actor's movies are being shown.
+void displayMoviesByActor(Actor* actor) {
+    // Validate input parameters
+    if (actor == nullptr) {
+        cerr << "Error: Null pointer provided for actor. Cannot display movies.\n";
+        return;
+    }
+
+    List<Movie*>* movies = &actor->movies;
+
+    // Display section header
     cout << "\n============================================\n";
-    cout << "Movies " << actor->getName() << " Starred In:\n";
+    cout << "Movies Starring: " << actor->getName() << "\n";
     cout << "--------------------------------------------\n";
-    
-    // Retrieve the list of movies associated with the actor.
-    List<Movie*> *movies = &actor->movies;
-    
-    // Check if the actor has any movies.
+
+    // Check if the actor has any movies
     if (movies->getLength() == 0) {
         cout << "No movies found for this actor.\n";
     } else {
-        // Iterate over each movie in the actor's movie list and display its details.
-        for (int i = 0; i < movies->getLength(); i++){
-            cout << movies->get(i)->getName() << " (" 
+        // Iterate over the actor's movie list and display each movie's details
+        for (int i = 0; i < movies->getLength(); i++) {
+            cout << "- " << movies->get(i)->getName() << " (" 
                  << movies->get(i)->getYear() << ")\n";
         }
     }
-    
-    // Display a decorative footer to close the section.
+
+    // Display section footer
     cout << "============================================\n\n";
 }
 
@@ -1308,7 +1340,8 @@ void displayMoviesByActor(Actor* actor){
  *
  * Description:
  *   Displays all actors who starred in a specific movie, sorted alphabetically.
- *   The function outputs a list of actor names retrieved from the movie's cast list.
+ *   The function retrieves and iterates through the movie's cast list, displaying
+ *   each actor's name.
  *
  * Parameters:
  *   movie - Pointer to the Movie object whose cast (actors) are to be displayed.
@@ -1317,26 +1350,32 @@ void displayMoviesByActor(Actor* actor){
  *   void
  *
  * Error Handling:
- *   Assumes that the movie pointer is valid and properly initialized. If the movie
- *   has no associated actors in its cast list, an appropriate message is displayed.
+ *   - If the movie pointer is null, an error message is displayed and the function exits.
+ *   - If the movie has no associated actors, a message is displayed instead of an empty list.
  *----------------------------------------------------------------------------*/
-void displayActorsByMovie(Movie* movie){
-    // Display the header with the movie's title.
+void displayActorsByMovie(Movie* movie) {
+    // Validate input parameters
+    if (movie == nullptr) {
+        cerr << "Error: Null pointer provided for movie. Cannot display actors.\n";
+        return;
+    }
+
+    // Display section header
     cout << "\n============================================\n";
-    cout << "Actors in \"" << movie->getName() << "\":\n";
+    cout << "Actors in \"" << movie->getName() << "\"\n";
     cout << "--------------------------------------------\n";
-    
-    // Check if the movie has any associated actors.
+
+    // Check if the movie has any associated actors
     if (movie->cast.getLength() == 0) {
         cout << "No actors found for this movie.\n";
     } else {
-        // Iterate through the cast list and display each actor's name.
-        for (int i = 0; i < movie->cast.getLength(); i++){
-            cout << movie->cast.get(i)->getName() << "\n";
+        // Iterate through the cast list and display each actor's name
+        for (int i = 0; i < movie->cast.getLength(); i++) {
+            cout << "- " << movie->cast.get(i)->getName() << "\n";
         }
     }
-    
-    // Display the footer.
+
+    // Display section footer
     cout << "============================================\n\n";
 }
 
@@ -1346,41 +1385,51 @@ void displayActorsByMovie(Movie* movie){
  *
  * Description:
  *   Identifies and adds actors known by a specific target actor through shared movies.
- *   The function traverses each movie in which the target actor has appeared and, for
- *   each movie, iterates through the cast list to add every actor (except the target
- *   actor and the original actor) to the dynamic array of known actors.
+ *   The function scans each movie that the target actor has appeared in and iterates 
+ *   through the movie's cast list to find actors who have worked with them. Any actor
+ *   found (except the target and original actor) is added to the known actors list.
  *
  * Parameters:
- *   targetActor   - Pointer to the Actor object whose connections are being explored.
+ *   targetActor   - Pointer to the Actor object whose known connections are being identified.
  *   actors_known  - Reference to a dynamic array that stores the list of actors known by the target actor.
- *   originalActor - Pointer to the original Actor object initiating the search (to avoid self-references).
+ *   originalActor - Pointer to the original Actor object initiating the search (to prevent self-references).
  *
  * Returns:
  *   void
  *
  * Error Handling:
- *   If targetActor is nullptr, an error message is displayed and the function exits without performing any operations.
- *   It is assumed that all pointers and references provided are valid and properly initialized.
+ *   - If targetActor is nullptr, an error message is displayed, and the function exits.
+ *   - If targetActor has no associated movies, a message is displayed, and no actors are added.
  *----------------------------------------------------------------------------*/
-void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors_known, Actor* originalActor){
-    if (targetActor == nullptr){
-        cout << "Actor not found.\n";
+void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors_known, Actor* originalActor) {
+    // Validate input parameters
+    if (targetActor == nullptr) {
+        cerr << "Error: Null pointer provided for target actor. Cannot retrieve known actors.\n";
         return;
     }
-    // Obtain the list of movies associated with the target actor.
-    List<Movie*> *movies = &targetActor->movies;
-    // Iterate through each movie in the target actor's movies list.
-    for (int i = 0; i < movies->getLength(); i++){
-        Movie* movie = movies->get(i); // Get the movie at index i.
+
+    List<Movie*>* movies = &targetActor->movies;
+
+    if (movies->isEmpty()) {
+        cout << "No movies associated with " << targetActor->getName() << ". No known actors found.\n";
+        return;
+    }
+
+    // Iterate through each movie the target actor has appeared in.
+    for (int i = 0; i < movies->getLength(); i++) {
+        Movie* movie = movies->get(i);
+
         // Iterate through each actor in the movie's cast.
-        for (int j = 0; j < movie->cast.getLength(); j++){
-            // Add the actor to the known list if they are neither the target actor nor the original actor.
-            if (movie->cast.get(j) != targetActor && movie->cast.get(j) != originalActor){
-                actors_known.add(movie->cast.get(j));
+        for (int j = 0; j < movie->cast.getLength(); j++) {
+            Actor* knownActor = movie->cast.get(j);
+
+            // Ensure the actor is not the target actor or the original actor.
+            if (knownActor != targetActor && knownActor != originalActor) {
+                actors_known.add(knownActor);
             }
         }
     }
-};
+}
 
 /*----------------------------------------------------------------------------
  * Function: displayActorsKnownBy
@@ -1388,10 +1437,10 @@ void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors
  *
  * Description:
  *   Displays all actors directly and indirectly known by a specific target actor.
- *   First, direct connections (actors who starred with the target actor) are added to
- *   a dynamic array using the helper function. Then, for each direct connection, their
- *   known actors are added as indirect connections. The combined list is displayed along
- *   with the total count.
+ *   First, the function gathers direct connections (actors who co-starred with 
+ *   the target actor). Then, for each direct connection, their known actors are 
+ *   added as indirect connections. The final list of known actors is displayed 
+ *   in a structured format along with the total count.
  *
  * Parameters:
  *   targetActor - Pointer to the Actor object whose network of known actors is to be displayed.
@@ -1400,32 +1449,50 @@ void displayActorsKnownByHelper(Actor* targetActor, DynamicArray<Actor*>& actors
  *   void
  *
  * Error Handling:
- *   Assumes the targetActor pointer is valid and properly initialized.
- *   No duplicate checks are performed; duplicate handling relies on the helper function.
+ *   - If targetActor is nullptr, an error message is displayed, and the function exits.
+ *   - If no known actors are found, a message is displayed instead of an empty list.
  *----------------------------------------------------------------------------*/
-void displayActorsKnownBy(Actor* targetActor){
-    DynamicArray<Actor*> actors_known; // Array to store direct connections.
-    // Step 1: Add direct connections.
+void displayActorsKnownBy(Actor* targetActor) {
+    // Validate input parameters
+    if (targetActor == nullptr) {
+        cerr << "Error: Null pointer provided for target actor. Cannot display known actors.\n";
+        return;
+    }
+
+    DynamicArray<Actor*> actors_known; // Array for direct connections.
+
+    // Add direct connections.
     displayActorsKnownByHelper(targetActor, actors_known, targetActor);
 
-    DynamicArray<Actor*> actors_known_indirect; // Array to store indirect connections.
-    // Step 2: For each direct connection, add their known actors (indirect connections).
-    for (int i = 0; i < actors_known.getSize(); i++){
+    DynamicArray<Actor*> actors_known_indirect; // Array for indirect connections.
+
+    // For each direct connection, add their known actors (indirect connections).
+    for (int i = 0; i < actors_known.getSize(); i++) {
         displayActorsKnownByHelper(actors_known.get(i), actors_known_indirect, targetActor);
     }
-    
+
     // Combine direct and indirect connections.
-    for (int i = 0; i < actors_known_indirect.getSize(); i++){
+    for (int i = 0; i < actors_known_indirect.getSize(); i++) {
         actors_known.add(actors_known_indirect.get(i));
     }
 
-    // Display the combined list of known actors.
+    // Display the results in a structured format.
+    cout << "\n============================================\n";
     cout << "Actors known by " << targetActor->getName() << ":\n";
-    for (int i = 0; i < actors_known.getSize(); i++){
-        cout << actors_known.get(i)->getName() << "\n";
+    cout << "--------------------------------------------\n";
+
+    if (actors_known.getSize() == 0) {
+        cout << "No known actors found for " << targetActor->getName() << ".\n";
+    } else {
+        for (int i = 0; i < actors_known.getSize(); i++) {
+            cout << actors_known.get(i)->getName() << "\n";
+        }
     }
-    cout << "Total: " << actors_known.getSize() << "\n";
-};
+
+    cout << "--------------------------------------------\n";
+    cout << "Total Known Actors: " << actors_known.getSize() << "\n";
+    cout << "============================================\n\n";
+}
 
 /*----------------------------------------------------------------------------
  * Function: roundToOneDecimal
@@ -1445,7 +1512,9 @@ string roundToOneDecimal(double value) {
     if (value == 0) {
         return "nul";
     }
+
     ostringstream oss;
+
     // Round the value to one decimal place and format as a fixed-point string.
     oss << fixed << setprecision(1) << floor(value * 10 + 0.5) / 10;
     return oss.str();
@@ -1456,19 +1525,44 @@ string roundToOneDecimal(double value) {
  * Author: Brayden
  *
  * Description:
- *   Sets the rating for a specific actor by updating the actor's cumulative rating.
- *   This function calls the addRating method on the Actor object with the provided rating.
+ *   Sets the rating for a specific actor while ensuring input validity.
+ *   This function validates the rating range (0 to 5) and ensures that the
+ *   actor pointer is valid before calling the addRating method.
+ *   After updating, a confirmation message is displayed with the new rating.
  *
  * Parameters:
  *   actor  - Pointer to the Actor object whose rating is to be updated.
- *   rating - The new rating to be added (typically a double value between 0 and 5).
+ *   rating - The new rating to be added (expected between 0.0 and 5.0).
  *
  * Returns:
  *   void
+ *
+ * Error Handling:
+ *   - If actor is a null pointer, an error message is displayed, and the function exits.
+ *   - If rating is out of the valid range (0-5), an error message is displayed.
  *----------------------------------------------------------------------------*/
-void setActorRating(Actor* actor, double rating){
-    // Update the actor's rating.
+void setActorRating(Actor* actor, double rating) {
+    // Validate input parameters
+    if (actor == nullptr) {
+        cerr << "Error: Null Actor pointer provided. Cannot update rating.\n";
+        return;
+    }
+
+    if (rating < 0.0 || rating > 5.0) {
+        cerr << "Error: Invalid rating value (" << rating 
+             << "). Please enter a value between 0 and 5.\n";
+        return;
+    }
+
+    // Update the actor's rating
     actor->addRating(rating);
+
+    // Display confirmation message
+    cout << "\n============================================\n";
+    cout << "Successfully updated rating for Actor: " << actor->getName() << "\n";
+    cout << "New Rating: " << roundToOneDecimal(actor->getRating()) << "⭐  (Total Ratings: " 
+         << actor->getNumRatings() << ")\n";
+    cout << "============================================\n\n";
 };
 
 /*----------------------------------------------------------------------------
@@ -1476,19 +1570,45 @@ void setActorRating(Actor* actor, double rating){
  * Author: Brayden
  *
  * Description:
- *   Sets the rating for a specific movie by updating the movie's cumulative rating.
- *   This function calls the addRating method on the Movie object with the provided rating.
+ *   Sets the rating for a specific movie while ensuring input validity.
+ *   This function validates the rating range (0 to 5) and ensures that the
+ *   movie pointer is valid before calling the addRating method.
+ *   After updating, a confirmation message is displayed with the new rating.
  *
  * Parameters:
  *   movie  - Pointer to the Movie object whose rating is to be updated.
- *   rating - The new rating to be added (typically a double value between 0 and 5).
+ *   rating - The new rating to be added (expected between 0.0 and 5.0).
  *
  * Returns:
  *   void
+ *
+ * Error Handling:
+ *   - If movie is a null pointer, an error message is displayed, and the function exits.
+ *   - If rating is out of the valid range (0-5), an error message is displayed.
  *----------------------------------------------------------------------------*/
-void setMovieRating(Movie* movie, double rating){
-    // Update the movie's rating.
+void setMovieRating(Movie* movie, double rating) {
+    // Validate input parameters
+    if (movie == nullptr) {
+        cerr << "Error: Null Movie pointer provided. Cannot update rating.\n";
+        return;
+    }
+
+    if (rating < 0.0 || rating > 5.0) {
+        cerr << "Error: Invalid rating value (" << rating 
+             << "). Please enter a value between 0 and 5.\n";
+        return;
+    }
+
+    // Update the movie's rating
     movie->addRating(rating);
+
+    // Display confirmation message
+    cout << "\n============================================\n";
+    cout << "Successfully updated rating for Movie: " << movie->getName() << " (" 
+         << movie->getYear() << ")\n";
+    cout << "New Rating: " << roundToOneDecimal(movie->getRating()) << "⭐  (Total Ratings: " 
+         << movie->getNumRatings() << ")\n";
+    cout << "============================================\n\n";
 };
 
 /*----------------------------------------------------------------------------
@@ -1513,17 +1633,38 @@ void setMovieRating(Movie* movie, double rating){
  *   Assumes that the allMovies array contains at least 5 movies. If fewer than 5
  *   movies are present, the behavior depends on the dynamic array's implementation.
  *----------------------------------------------------------------------------*/
-void recommendMoviesByRating(DynamicArray<Movie*>& allMovies){
-    allMovies.sortByRating(); // Sort the movies by rating in descending order.
-    cout << "Top highest rated movies:\n";
-    cout << "Rating - Cast Rating - Movie Name\n";
-    for (int i = 0; i < 5; i++){
+void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
+    // Ensure there are movies available to recommend
+    if (allMovies.getSize() == 0) {
+        cout << "\n============================================\n";
+        cout << "No movies available for recommendation.\n";
+        cout << "============================================\n\n";
+        return;
+    }
+
+    // Sort movies by rating in descending order
+    allMovies.sortByRating();
+
+    // Determine the number of movies to display (up to 5)
+    int moviesToDisplay = (allMovies.getSize() < 5) ? allMovies.getSize() : 5;
+
+    // Display the header
+    cout << "\n============================================\n";
+    cout << "        Top " << moviesToDisplay << " Highest Rated Movies\n";
+    cout << "--------------------------------------------\n";
+    cout << "Rating  | Cast Rating | Movie Name\n";
+    cout << "--------------------------------------------\n";
+
+    // Iterate through the top movies and display their details
+    for (int i = 0; i < moviesToDisplay; i++) {
         Movie* movie = allMovies.get(i);
-        // Display the movie's rating, cast's average rating, and details (name and year).
-        cout << roundToOneDecimal(movie->getRating()) << "⭐  - " 
-             << roundToOneDecimal(movie->castAverageRating()) << "⭐       - " 
+        cout << setw(6) << roundToOneDecimal(movie->getRating()) << "⭐  | "
+             << setw(6) << roundToOneDecimal(movie->castAverageRating()) << "⭐  | "
              << movie->getName() << " (" << movie->getYear() << ")\n";
-    };
+    }
+
+    // Display the footer
+    cout << "============================================\n\n";
 }
 
 /*----------------------------------------------------------------------------
@@ -1546,13 +1687,34 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies){
  *   Assumes that the allActors array contains at least 5 actors. If fewer than 5
  *   actors are present, the behavior depends on the dynamic array's implementation.
  *----------------------------------------------------------------------------*/
-void recommendActorsByRating(DynamicArray<Actor*>& allActors){
-    allActors.sortByRating(); // Sort the actors by rating in descending order.
-    cout << "Top 5 Actors recommended by rating:\n";
-    cout << "Rating - Actor Name\n";
-    for (int i = 0; i < 5; i++){
-        // Display the actor's rating and name.
-        cout << roundToOneDecimal(allActors.get(i)->getRating()) << "⭐  - " 
-             << allActors.get(i)->getName() <<  "\n";
-    };
-};
+void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
+    // Ensure there are actors available to recommend
+    if (allActors.getSize() == 0) {
+        cout << "\n============================================\n";
+        cout << "No actors available for recommendation.\n";
+        cout << "============================================\n\n";
+        return;
+    }
+
+    // Sort actors by rating in descending order
+    allActors.sortByRating();
+
+    // Determine the number of actors to display (up to 5)
+    int actorsToDisplay = (allActors.getSize() < 5) ? allActors.getSize() : 5;
+
+    // Display the header
+    cout << "\n============================================\n";
+    cout << "        Top " << actorsToDisplay << " Highest Rated Actors\n";
+    cout << "--------------------------------------------\n";
+    cout << "Rating  | Actor Name\n";
+    cout << "--------------------------------------------\n";
+
+    // Iterate through the top actors and display their details
+    for (int i = 0; i < actorsToDisplay; i++) {
+        cout << setw(6) << roundToOneDecimal(allActors.get(i)->getRating()) << "⭐  | "
+             << allActors.get(i)->getName() << "\n";
+    }
+
+    // Display the footer
+    cout << "============================================\n\n";
+}

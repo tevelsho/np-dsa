@@ -73,6 +73,9 @@ class AVLTree {
         
         // Inserts an item with the specified key into the AVL tree.
         void insertItem(int key, T item);
+
+        // Checks if the AVL tree is empty
+        bool isEmpty() const;
         
         // Displays actors whose birth years are within the specified range.
         void DisplayActors(int x, int y) const;

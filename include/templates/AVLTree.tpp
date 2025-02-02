@@ -148,6 +148,12 @@ bool AVLTree<T>::removeItem(int key, T item) {
     return false;
 }
 
+// Checks if the AVL Tree is empty.
+template<class T>
+bool AVLTree<T>::isEmpty() const {
+    return root == nullptr;
+}
+
 // Displays actors within the specified age range.
 template<class T>
 void AVLTree<T>::DisplayActors(int x, int y) const {
