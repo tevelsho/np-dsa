@@ -34,6 +34,16 @@ class List {
         Node* firstNode; // Pointer to the first node in the list.
         int size;        // Number of elements in the list.
 
+        // Recursively sorts the linked list and returns the head of the sorted list.
+        Node* mergeSortList(Node* head);
+        
+        // Merges two sorted sub-lists; returns the head of the merged sorted list.
+        Node* merge(Node* left, Node* right);
+        
+        // Helper function to split the list into two halves using fast-slow pointers.
+        // Returns the "mid" node—i.e., the end of the first half.
+        Node* getMid(Node* head);
+
     public:
         // Constructor: Initializes an empty list.
         List();
@@ -67,6 +77,9 @@ class List {
 
         // Prints the contents of the list.
         void print() const;
+        
+        // Sorts the list in ascending order.   
+        void sortByAlphabetical(); 
 };
 
 #include "templates/List.tpp"
