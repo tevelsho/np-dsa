@@ -107,14 +107,14 @@ int main() {
             movieIdToMovieMap, movieNameToIdMap, yearToActor, yearToMovie,
             allActors, allMovies);
 
-    char isAdmin;
+    string isAdmin;
 
     // Main loop: Continuously prompt the user until they choose to quit.
     while (true) {
         cout << "Are you an administrator? (y/n, q to quit): ";
         cin >> isAdmin;
 
-        if (isAdmin == 'y' || isAdmin == 'Y') {
+        if (isAdmin == "y" || isAdmin == "Y") {
             // Administrator flow: Allow up to three attempts for authentication.
             bool isAdminAuthenticated = false;
             for (int attempts = 0; attempts < 3; attempts++) {
@@ -139,13 +139,13 @@ int main() {
                          movieIdToMovieMap, movieNameToIdMap, yearToMovie,
                          allActors, allMovies);
             }
-        } else if (isAdmin == 'n' || isAdmin == 'N') {
+        } else if (isAdmin == "n" || isAdmin == "N") {
             // Normal user flow.
             cout << "Welcome, User!\n";
             userMenu(actorIdToActorMap, actorNameToIdMap, yearToActor,
                      movieIdToMovieMap, movieNameToIdMap, yearToMovie,
                      allActors, allMovies);
-        } else if (isAdmin == 'q' || isAdmin == 'Q') {
+        } else if (isAdmin == "q" || isAdmin == "Q") {
             // Quit the application.
             cout << "Thank you for visiting Silver Village! Hope to see you next time!\n";
             break;
@@ -391,8 +391,8 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 cin >> actor_id;
 
                 // Check for duplicate actor ID.
-                if (actorIdToActorMap.contains(actor_id)) {
-                    cout << "Error: Actor ID already exists. Please choose a different ID.\n";
+                if (actor_id < 0 || actorIdToActorMap.contains(actor_id)) {
+                    cout << "Error: Actor ID already exists or is invalid. Please choose a different ID.\n";
                     break;
                 }
 
@@ -411,7 +411,11 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
                 // Prompt for the actor's year of birth.
                 cout << "Enter new actor's year of birth: ";
-                cin >> actor_birth;
+                while (!(cin >> actor_birth) || actor_birth < 0) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Invalid input. Please enter a valid number for actor year of birth: ";
+                }
                 
                 // Add the new actor.
                 addNewActor(actor_id, actor_birth, actor_name, actorIdToActorMap, actorNameToIdMap, yearToActor, allActors);
@@ -433,7 +437,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 }
 
                 // Check for duplicate movie ID.
-                if (movieIdToMovieMap.contains(movie_id)) {
+                if (movie_id < 0 || movieIdToMovieMap.contains(movie_id)) {
                     cout << "Error: Movie ID already exists. Please choose a different ID.\n";
                     break;
                 }
