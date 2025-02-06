@@ -388,7 +388,11 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
                 // Prompt for the actor's ID.
                 cout << "Enter new actor's ID: ";
-                cin >> actor_id;
+                while (!(cin >> actor_id) || actor_id < 0) {
+                    cin.clear();
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Invalid input. Please enter a valid number for movie ID: ";
+                }
 
                 // Check for duplicate actor ID.
                 if (actor_id < 0 || actorIdToActorMap.contains(actor_id)) {
@@ -430,7 +434,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
                 // Prompt for the movie's ID with input validation.
                 cout << "Enter new movie's ID: ";
-                while (!(cin >> movie_id)) {
+                while (!(cin >> movie_id) || movie_id < 0) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
                     cout << "Invalid input. Please enter a valid number for movie ID: ";
@@ -460,10 +464,10 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
 
                 // Prompt for the movie's release year with input validation.
                 cout << "Enter new movie's release year: ";
-                while (!(cin >> movie_year)) {
+                while (!(cin >> movie_year) || movie_year < 0) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cout << "Invalid input. Please enter a valid number for the release year: ";
+                    cout << "Invalid input. Please enter a valid number for movie year of birth: ";
                 }
 
                 // Attempt to add the new movie.
@@ -1072,7 +1076,11 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     getline(cin, newPlot);
 
     cout << "Enter the new year of release (leave blank to keep current): ";
-    getline(cin, newYear);
+    while (!(cin >> newYear) || stoi(newYear) < 0) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid input. Please enter a valid number for movie year of birth: ";
+    }
     
     // Check if the input for the year was valid.
     if (!newYear.empty()) {
