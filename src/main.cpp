@@ -220,52 +220,90 @@ bool authenticateAdmin() {
  * Author: Brayden
  *
  * Description:
- *   Finds an actor by their name. The function first retrieves the actor's ID
- *   from a dictionary mapping actor names to IDs, and then uses that ID to obtain
- *   the corresponding Actor object from another dictionary mapping IDs to Actor pointers.
+ *   Searches for an actor by their name. The function first checks if the 
+ *   actor's name exists in the `actorNameToIdMap` dictionary, retrieving their 
+ *   associated ID. If the ID is found, it then searches for the corresponding 
+ *   `Actor` object in the `actorIdToActorMap` dictionary.
  *
  * Parameters:
  *   actorNameToIdMap - Dictionary mapping actor names to their corresponding IDs.
  *   actorName        - The name of the actor to search for.
- *   actorIdToActorMap- Dictionary mapping actor IDs to their corresponding Actor objects.
+ *   actorIdToActorMap- Dictionary mapping actor IDs to their corresponding 
+ *                      Actor objects.
  *
  * Returns:
  *   Actor* - A pointer to the Actor object if found; otherwise, returns nullptr.
+ *
+ * Error Handling:
+ *   - Ensures that the actor name exists in `actorNameToIdMap` before retrieving the ID.
+ *   - Ensures that the retrieved actor ID exists in `actorIdToActorMap` before returning 
+ *     the Actor object.
+ *   - Returns `nullptr` if the actor name is not found or if the actor ID does not exist.
  *----------------------------------------------------------------------------*/
-Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, string actorName, Dictionary<int, Actor*>& actorIdToActorMap) {
-    // Retrieve the actor's ID using their name.
+Actor* findActorByName(Dictionary<string, int>& actorNameToIdMap, 
+                       string actorName, 
+                       Dictionary<int, Actor*>& actorIdToActorMap) {
+    // Validate input: check if the actor name exists in the map
+    if (!actorNameToIdMap.contains(actorName)) {
+        return nullptr;  // Actor name not found
+    }
+
+    // Retrieve the actor's ID using their name
     int actorID = actorNameToIdMap.get(actorName);
-    
-    // Return the Actor object corresponding to the retrieved ID.
+
+    // Validate that the actor ID exists in the actorIdToActorMap
+    if (!actorIdToActorMap.contains(actorID)) {
+        return nullptr;  // Actor ID not found in map
+    }
+
+    // Return the Actor object corresponding to the retrieved ID
     return actorIdToActorMap.get(actorID);
 }
-
 
 /*----------------------------------------------------------------------------
  * Function: findMovieByName
  * Author: Brayden
  *
  * Description:
- *   Finds a movie by its name. The function first looks up the movie's ID in a 
- *   dictionary mapping movie names to IDs, and then uses that ID to retrieve the 
- *   corresponding Movie object from another dictionary mapping IDs to Movie pointers.
+ *   Searches for a movie by its name. The function first checks if the movie's
+ *   name exists in the `movieNameToIdMap` dictionary, retrieving its associated
+ *   ID. If the ID is found, it then searches for the corresponding `Movie` 
+ *   object in the `movieIdToMovieMap` dictionary.
  *
  * Parameters:
  *   movieNameToIdMap - Dictionary mapping movie names to their corresponding IDs.
  *   movieName        - The name of the movie to search for.
- *   movieIdToMovieMap- Dictionary mapping movie IDs to their corresponding Movie objects.
+ *   movieIdToMovieMap- Dictionary mapping movie IDs to their corresponding 
+ *                      Movie objects.
  *
  * Returns:
  *   Movie* - A pointer to the Movie object if found; otherwise, returns nullptr.
+ *
+ * Error Handling:
+ *   - Ensures that the movie name exists in `movieNameToIdMap` before retrieving the ID.
+ *   - Ensures that the retrieved movie ID exists in `movieIdToMovieMap` before returning 
+ *     the Movie object.
+ *   - Returns `nullptr` if the movie name is not found or if the movie ID does not exist.
  *----------------------------------------------------------------------------*/
-Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, string movieName, Dictionary<int, Movie*>& movieIdToMovieMap) {
-    // Retrieve the movie's ID using its name.
+Movie* findMovieByName(Dictionary<string, int>& movieNameToIdMap, 
+                       string movieName, 
+                       Dictionary<int, Movie*>& movieIdToMovieMap) {
+    // Validate input: check if the movie name exists in the map
+    if (!movieNameToIdMap.contains(movieName)) {
+        return nullptr;  // Movie name not found
+    }
+
+    // Retrieve the movie's ID using its name
     int movieID = movieNameToIdMap.get(movieName);
-    
-    // Return the Movie object corresponding to the retrieved ID.
+
+    // Validate that the movie ID exists in the movieIdToMovieMap
+    if (!movieIdToMovieMap.contains(movieID)) {
+        return nullptr;  // Movie ID not found in map
+    }
+
+    // Return the Movie object corresponding to the retrieved ID
     return movieIdToMovieMap.get(movieID);
 }
-
 
 /*----------------------------------------------------------------------------
  * Function: adminMenu
@@ -684,89 +722,144 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
  *
  * Description:
  *   Adds a new actor to the system and updates the relevant data structures.
- *   This function creates a new Actor object using the provided id, name, and
- *   birth year, then integrates it into several data structures for efficient
- *   lookup and iteration.
+ *   This function creates a new Actor object using the provided `id`, `name`, 
+ *   and `birth` year, then integrates it into multiple data structures for 
+ *   efficient retrieval and organization.
  *
  * Parameters:
- *   id                - A unique integer identifier for the actor.
- *   birth             - The year of birth of the actor.
- *   name              - The full name of the actor.
- *   actorIdToActorMap - Dictionary mapping actor IDs to their corresponding Actor objects.
- *   actorNameToIdMap  - Dictionary mapping actor names to their corresponding IDs.
- *   yearToActor       - AVLTree mapping actor birth years to Actor objects.
- *   allActors         - Dynamic array containing all Actor objects.
+ *   id                - Unique integer identifier for the actor.
+ *   birth             - Birth year of the actor.
+ *   name              - Full name of the actor.
+ *   actorIdToActorMap - Dictionary mapping actor IDs to their corresponding 
+ *                       Actor objects.
+ *   actorNameToIdMap  - Dictionary mapping actor names to their corresponding 
+ *                       unique IDs.
+ *   yearToActor       - AVLTree that organizes actors by their birth year.
+ *   allActors         - Dynamic array containing all Actor objects for easy iteration.
  *
  * Returns:
- *   bool - Returns true if the actor is successfully added to all data structures.
+ *   bool - Returns true if the actor is successfully added to all data structures; 
+ *          returns false if any insertion fails due to invalid input.
  *
  * Error Handling:
- *   Assumes that the provided id and name are unique. No additional input
- *   validation is performed for negative birth years or empty names.
+ *   - Checks for duplicate actor ID and name before insertion.
+ *   - Ensures input parameters are valid (non-empty name, valid birth year).
+ *   - Handles memory allocation failures.
+ *   - Assumes that `add`, `insertItem`, and `addActor` methods handle internal duplicates.
  *----------------------------------------------------------------------------*/
-bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors) {
-    // Create a new actor object.
-    Actor* actor = new Actor(id, name, birth);
+bool addNewActor(int id, int birth, string name, 
+                 Dictionary<int, Actor*>& actorIdToActorMap, 
+                 Dictionary<string, int>& actorNameToIdMap, 
+                 AVLTree<Actor*>& yearToActor, 
+                 DynamicArray<Actor*>& allActors) {
+    
+    // Validate input parameters
+    if (name.empty() || birth <= 0) {
+        return false;  // Invalid actor name or birth year
+    }
 
-    // Map the ID to the Actor pointer.
+    // Check if the actor ID already exists
+    if (actorIdToActorMap.contains(id)) {
+        return false;  // Prevent duplicate actor IDs
+    }
+
+    // Check if the actor name already exists
+    if (actorNameToIdMap.contains(name)) {
+        return false;  // Prevent duplicate actor names
+    }
+
+    // Attempt to create a new actor object
+    Actor* actor = new (std::nothrow) Actor(id, name, birth);
+    if (!actor) {
+        return false;  // Memory allocation failure
+    }
+
+    // Insert into actorIdToActorMap
     actorIdToActorMap.add(id, actor);
 
-    // Map the actor's name to their ID.
+    // Insert into actorNameToIdMap
     actorNameToIdMap.add(name, id);
 
-    // Add the actor to the dynamic array for iteration.
+    // Add the actor to the dynamic array for iteration
     allActors.add(actor);
 
-    // Insert the actor into the AVL tree using the birth year as the key.
+    // Insert the actor into the AVL tree using the birth year as the key
     yearToActor.insertItem(birth, actor);
 
-    return true;
+    return true;  // Actor successfully added to all data structures
 }
 
 /*----------------------------------------------------------------------------
-[Coder - Tevel]
+ * Function: addNewMovie
+ * Author: Tevel
+ *
+ * Description:
+ *   Adds a new movie to the system and updates all relevant data structures.
+ *   This function creates a new Movie object and integrates it into multiple 
+ *   mappings and data structures to allow efficient retrieval and organization.
+ *
+ * Parameters:
+ *   id                  - Unique integer identifier for the movie.
+ *   year                - Release year of the movie.
+ *   name                - Name or title of the movie.
+ *   plot                - Plot summary of the movie.
+ *   movieIdToMovieMap   - Dictionary mapping movie IDs to their corresponding 
+ *                         Movie objects.
+ *   movieNameToIdMap    - Dictionary mapping movie names to their corresponding 
+ *                         unique IDs.
+ *   yearToMovie         - AVLTree that organizes movies by their release year.
+ *   allMovies           - Dynamic array containing all Movie objects for easy iteration.
+ *
+ * Returns:
+ *   bool - Returns true if the movie is successfully added to all data structures; 
+ *          returns false if any insertion fails due to invalid input.
+ *
+ * Error Handling:
+ *   - Checks for duplicate movie ID and title before insertion.
+ *   - Ensures input parameters are valid (non-empty name, valid year).
+ *   - Handles memory allocation failures.
+ *   - Assumes that `add`, `insertItem`, and `addMovie` methods handle internal duplicates.
+ *----------------------------------------------------------------------------*/
+bool addNewMovie(int id, int year, string name, string plot, 
+                 Dictionary<int, Movie*>& movieIdToMovieMap, 
+                 Dictionary<string, int>& movieNameToIdMap, 
+                 AVLTree<Movie*>& yearToMovie, 
+                 DynamicArray<Movie*>& allMovies) {
 
-Adds a new movie to the system and updates relevant data structures.
+    // Validate input parameters
+    if (name.empty() || year <= 0) {
+        return false;  // Invalid movie name or year
+    }
 
-@param id: A unique integer identifier for the movie.
-@param year: The release year of the movie.
-@param name: The name or title of the movie.
-@param movieIdToMovieMap: Dictionary mapping movie IDs to their corresponding Movie objects.
-@param movieNameToIdMap: Dictionary mapping movie names to their corresponding IDs.
-@param yearToMovie: AVLTree mapping movie release years to Movie objects.
-@param allMovies: Dynamic array containing all Movie objects.
-@return bool: Returns true if the movie is successfully added to all data structures.
+    // Check if the movie ID already exists
+    if (movieIdToMovieMap.contains(id)) {
+        return false;  // Prevent duplicate movie IDs
+    }
 
-Description:
-    - Creates a new `Movie` object using the provided `id`, `name`, and `year`.
-    - Adds the newly created `Movie` object to the following data structures:
-        - **`movieIdToMovieMap`**: Maps the movie's unique ID to its `Movie` object.
-        - **`movieNameToIdMap`**: Maps the movie's title to its unique ID.
-        - **`allMovies`**: A dynamic array containing all `Movie` objects for fast iteration.
-        - **`yearToMovie`**: An AVL tree for efficiently grouping and searching movies by their release year.
-    - Ensures the movie is fully integrated into all relevant data structures.
+    // Check if the movie name already exists
+    if (movieNameToIdMap.contains(name)) {
+        return false;  // Prevent duplicate movie names
+    }
 
-Error Handling:
-    - Assumes that the provided `id` and `name` are unique. If duplicates exist, behavior is undefined.
-    - Does not validate the input parameters (e.g., invalid release year or empty name). Additional validation should be implemented as needed.
-----------------------------------------------------------------------------*/
-bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies) {
-    // Create a new movie object
-    Movie* movie = new Movie(id, name, plot, year);
+    // Attempt to create a new movie object
+    Movie* movie = new (std::nothrow) Movie(id, name, plot, year);
+    if (!movie) {
+        return false;  // Memory allocation failure
+    }
 
-    // Map the ID to the Movie pointer
+    // Insert into movieIdToMovieMap
     movieIdToMovieMap.add(id, movie);
 
-    // Map the movie's title to its ID.
+    // Insert into movieNameToIdMap
     movieNameToIdMap.add(name, id);
 
-    // Add the movie to the dynamic array for iteration.
+    // Add the movie to the dynamic array for iteration
     allMovies.add(movie);
 
-    // Insert the movie into the AVL tree using the release year as the key.
+    // Insert the movie into the AVL tree using the release year as the key
     yearToMovie.insertItem(year, movie);
-    
-    return true;
+
+    return true;  // Movie successfully added to all data structures
 }
 
 /*----------------------------------------------------------------------------
@@ -774,10 +867,9 @@ bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Mov
  * Author: Brayden
  *
  * Description:
- *   Assigns an actor to a specific movie and establishes a bidirectional relationship.
+ *   Establishes a bidirectional relationship between an actor and a movie.
  *   This function updates the Actor object by adding the Movie to its list of associated
- *   movies, and it updates the Movie object by adding the Actor to its list of associated
- *   actors.
+ *   movies and updates the Movie object by adding the Actor to its list of associated actors.
  *
  * Parameters:
  *   actor - Pointer to the Actor object to be assigned to the movie.
@@ -787,16 +879,27 @@ bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Mov
  *   bool - Returns true if the actor is successfully added to the movie and vice versa.
  *
  * Error Handling:
- *   This function assumes that both the actor and movie pointers are valid and properly
- *   initialized. It also assumes that the addMovie and addActor methods internally handle
- *   duplicate entries.
+ *   - Checks if the actor and movie pointers are valid before proceeding.
+ *   - Ensures that addMovie and addActor methods are called only when both objects are valid.
+ *   - Assumes that the addMovie and addActor methods internally handle duplicate entries.
  *----------------------------------------------------------------------------*/
 bool addActorToMovie(Actor* actor, Movie* movie) {
-    // Add the movie to the actor's list.
+    // Validate input parameters
+    if (actor == nullptr) {
+        cerr << "Error: Actor pointer is null." << std::endl;
+        return false;
+    }
+
+    if (movie == nullptr) {
+        cerr << "Error: Movie pointer is null." << std::endl;
+        return false;
+    }
+
+    // Establish bidirectional relationship
     actor->addMovie(movie);
-    // Add the actor to the movie's list.
     movie->addActor(actor);
-    // Return true indicating a successful bidirectional association.
+
+    // Return true indicating success
     return true;
 }
 

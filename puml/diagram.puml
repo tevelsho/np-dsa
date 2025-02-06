@@ -1,127 +1,65 @@
-@startuml Movie Application
+@startuml
 
-' Title of the Diagram
-title Movie Application Class Diagram
+' ==============================
+' Core Entities
+' ==============================
+class Actor { }
+class Movie { }
+class RatingSystem { }
 
-' Force top-down layout
-top to bottom direction
+' ==============================
+' Lists and Dynamic Arrays
+' ==============================
+class ActorList { }
+class MovieList { }
+class DynamicActorArray { }
+class DynamicMovieArray { }
 
-' Define the Actor class
-class Actor {
-  - int id                
-  - string name         
-  - int year             
-  - RatingSystem ratingSystem 
-  - List<Movie*> movies 
+' ==============================
+' AVL Trees
+' ==============================
+class AVLActorTree { }
+class AVLMovieTree { }
 
-  + Actor()               
-  + Actor(int id, string name, int year)
-
-  + setID(id: int): void
-  + getID(): int
-  + setName(name: string): void
-  + getName(): string
-  + setYearOfBirth(year: int): void
-  + getYearOfBirth(): int
-
-  + getMovies(): List<Movie*>
-  + addMovie(movie: Movie*): void
-  + displayMovies(): void
-
-  + addRating(newRating: double): void
-  + getRating(): double
-  + getNumRatings(): int
+' ==============================
+' Dictionary Mappings
+' ==============================
+class actorIdToActorMap<K, V> {
+    + K int
+    + V Actor
+}
+class actorNameToIdMap<K, V> {
+    + K string
+    + V int
+}
+class movieIdToMovieMap<K, V> {
+    + K int
+    + V Movie
+}
+class movieNameToIdMap<K, V> {
+    + K string
+    + V int
 }
 
-' Define the Movie class
-class Movie {
-  - int id                     
-  - string name            
-  - int year                   
-  - RatingSystem ratingSystem   
-  - List<Actor*> cast           
+' ==============================
+' Relationships
+' ==============================
+Actor --> "1..*" Movie : has acted in
+Movie --> "1..*" Actor : stars in
 
-  + Movie()                     
-  + Movie(int id, string name, int year) 
+Actor --> RatingSystem : uses
+Movie --> RatingSystem : uses
 
-  + setID(id: int): void
-  + getID(): int
-  + setName(name: string): void
-  + getName(): string
-  + setYear(year: int): void
-  + getYear(): int
+DynamicActorArray --> "1..*" Actor : contains
+DynamicMovieArray --> "1..*" Movie : contains
 
-  + getCast(): List<Actor*>
-  + castAverageRating(): double
-  + addActor(actor: Actor*): void
-  + displayCast(): void
+actorIdToActorMap --> "1..*" Actor : contains
+movieIdToMovieMap --> "1..*" Movie : contains
 
-  + addRating(newRating: double): void
-  + getRating(): double
-  + getNumRatings(): int
-}
+actorNameToIdMap --> actorIdToActorMap : maps
+movieNameToIdMap --> movieIdToMovieMap : maps
 
-' Define other classes
-class Dictionary<K, V> {
-    - Node<K, V>* items[MAX_SIZE]
-    - int size
-    --
-    + Dictionary()
-    + ~Dictionary()
-    + bool add(const K& key, const V& value)
-    + void remove(const K& key)
-    + V get(const K& key) const
-    + bool contains(const K& key) const
-    + bool isEmpty() const
-    + int getLength() const
-    + void print() const
-}
-
-class List<T> {
-    - Node* firstNode
-    - int size
-    --
-    + List()
-    + ~List()
-    + bool add(const T newItem)
-    + bool add(int index, const T newItem)
-    + void remove(int index)
-    + void remove(const T item)
-    + bool contains(const T item) const
-    + T get(int index) const
-    + int getLength() const
-    + bool isEmpty() const
-    + void print() const
-}
-
-class RatingSystem {
-    - double rating
-    - int numRatings
-    --
-    + RatingSystem()
-    + void addRating(double newRating)
-    + double getRating() const
-    + int getNumRatings() const
-}
-
-class AVLTree<T> {
-    - AVLNode<T>* root
-    - int currentYear = 2025
-    --
-    + AVLTree()
-    + ~AVLTree()
-    + void insertItem(int key, T item)
-    + bool removeItem(int key, T item)
-    + void DisplayActors(int x, int y) const
-    + void DisplayMovies() const
-}
-
-' Define relationships
-Actor --> RatingSystem
-Actor --> List
-Movie --> RatingSystem
-Movie --> List
-AVLTree --> List
-Dictionary --> List
+AVLActorTree --> ActorList : uses
+AVLMovieTree --> MovieList : uses
 
 @enduml
