@@ -940,15 +940,19 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     cout << "--------------------------------\n";
     cout << "ID: " << movieToUpdate->getID() << "\n";
     cout << "Title: " << movieToUpdate->getName() << "\n";
+    cout << "Plot: " << movieToUpdate->getPlot() << "\n";
     cout << "Year of Release: " << movieToUpdate->getYear() << "\n";
     cout << "--------------------------------\n";
 
     // Prompt the user for new details.
-    string newTitle;
+    string newTitle, newPlot;
     int newYear;
 
     cout << "Enter the new title (leave blank to keep current): ";
     getline(cin, newTitle);
+
+    cout << "Enter the new plot (leave blank to keep current): ";
+    getline(cin, newPlot);
 
     cout << "Enter the new year of release (enter -1 to keep current): ";
     cin >> newYear;
@@ -978,6 +982,15 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
             cerr << "Error updating title: " << e.what() << "\n";
         }
     }
+    if (!newPlot.empty() && newPlot != movieToUpdate->getPlot()) {
+        try {
+            movieToUpdate->setPlot(newPlot);
+            updated = true;
+        } catch (const exception& e) {
+            cerr << "Error updating plot: " << e.what() << "\n";
+        }
+        
+    }
     // If a new year is provided and it differs from the current year, update it.
     if (newYear != -1 && newYear != movieToUpdate->getYear()) {
         try {
@@ -1000,6 +1013,7 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
         cout << "Updated Details:\n";
         cout << "ID: " << movieToUpdate->getID() << "\n";
         cout << "Title: " << movieToUpdate->getName() << "\n";
+        cout << "Plot: " << movieToUpdate->getPlot() << "\n";
         cout << "Year of Release: " << movieToUpdate->getYear() << "\n";
         cout << "--------------------------------\n";
     } else {
@@ -1328,6 +1342,7 @@ void displayMoviesByActor(Actor* actor) {
     } else {
         // Iterate over the actor's movie list and display each movie's details
         for (int i = 0; i < movies->getLength(); i++) {
+            movies->sortByAlphabetical();
             cout << "- " << movies->get(i)->getName() << " (" 
                  << movies->get(i)->getYear() << ")\n";
         }
@@ -1373,6 +1388,7 @@ void displayActorsByMovie(Movie* movie) {
         cout << "No actors found for this movie.\n";
     } else {
         // Iterate through the cast list and display each actor's name
+        movie->cast.sortByAlphabetical();
         for (int i = 0; i < movie->cast.getLength(); i++) {
             cout << "- " << movie->cast.get(i)->getName() << "\n";
         }

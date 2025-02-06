@@ -26,33 +26,15 @@ bool List<T>::contains(const T item) const {
     return false;
 }
 
-// Adds a new item to the list in sorted order, maintaining list integrity.
+// Adds a new item to the list
 template <typename T>
 bool List<T>::add(const T newItem) {
-    Node* newNode = new Node{newItem, nullptr};
-
-    // If the list is empty, insert the new node as the first node.
-    if (isEmpty()) {
-        firstNode = newNode;
-    }
-    // If the new item should be inserted at the beginning of the list.
-    else if (newItem < firstNode->item) {
-        newNode->next = firstNode;
-        firstNode = newNode;
-    }
-    // Otherwise, find the correct position to insert the new node.
-    else {
-        Node* current = firstNode;
-        while (current->next != nullptr && current->next->item < newItem) {
-            current = current->next;
-        }
-        newNode->next = current->next;
-        current->next = newNode;
-    }
-
-    ++size;
+    Node* newNode = new Node{newItem, firstNode}; // New node points to current first node
+    firstNode = newNode; // Update firstNode to the new node
+    ++size; // Increase size count
     return true;
 }
+
 
 // Inserts a new item at a specific index, shifting elements accordingly.
 template <typename T>
@@ -168,4 +150,68 @@ void List<T>::print() const {
         current = current->next;
     }
     cout << "nullptr" << endl;
+}
+
+// Recursively sorts the linked list using merge sort.
+template <typename T>
+typename List<T>::Node* List<T>::mergeSortList(Node* head) {
+    if (head == nullptr || head->next == nullptr) {
+        return head;
+    }
+
+    Node* mid = getMid(head);
+    Node* left = head;
+    Node* right = mid->next;
+    mid->next = nullptr;
+
+    left = mergeSortList(left);
+    right = mergeSortList(right);
+
+    return merge(left, right);
+}
+
+// Merges two sorted sub-lists into a single sorted list.
+template <typename T>
+typename List<T>::Node* List<T>::merge(Node* left, Node* right) {
+    Node dummy;
+    Node* tail = &dummy;
+    dummy.next = nullptr;
+
+    while (left != nullptr && right != nullptr) {
+        if (left->item <= right->item) {
+            tail->next = left;
+            left = left->next;
+        } else {
+            tail->next = right;
+            right = right->next;
+        }
+        tail = tail->next;
+    }
+
+    tail->next = (left != nullptr) ? left : right;
+    return dummy.next;
+}
+
+// Helper function to find the middle node of the list.
+template <typename T>
+typename List<T>::Node* List<T>::getMid(Node* head) {
+    if (head == nullptr) {
+        return head;
+    }
+
+    Node* slow = head;
+    Node* fast = head;
+
+    while (fast->next != nullptr && fast->next->next != nullptr) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+
+    return slow;
+}
+
+// Sorts the list in ascending order using merge sort.
+template <typename T>
+void List<T>::sortByAlphabetical() {
+    firstNode = mergeSortList(firstNode);
 }
