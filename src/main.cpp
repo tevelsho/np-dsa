@@ -1655,13 +1655,7 @@ void displayActorsKnownBy(Actor* targetActor) {
  *   string - The rounded value as a string with one decimal place, or "nul" if the value is 0.
  *----------------------------------------------------------------------------*/
 string roundToOneDecimal(double value) {
-    if (value == 0) {
-        return "nul";
-    }
-
     ostringstream oss;
-
-    // Round the value to one decimal place and format as a fixed-point string.
     oss << fixed << setprecision(1) << floor(value * 10 + 0.5) / 10;
     return oss.str();
 }
@@ -1780,7 +1774,6 @@ void setMovieRating(Movie* movie, double rating) {
  *   movies are present, the behavior depends on the dynamic array's implementation.
  *----------------------------------------------------------------------------*/
 void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
-    // Ensure there are movies available to recommend
     if (allMovies.getSize() == 0) {
         cout << "\n============================================\n";
         cout << "No movies available for recommendation.\n";
@@ -1790,26 +1783,22 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
 
     // Sort movies by rating in descending order
     allMovies.sortByRating();
-
-    // Determine the number of movies to display (up to 5)
     int moviesToDisplay = (allMovies.getSize() < 5) ? allMovies.getSize() : 5;
 
-    // Display the header
+    // Display header
     cout << "\n============================================\n";
     cout << "        Top " << moviesToDisplay << " Highest Rated Movies\n";
     cout << "--------------------------------------------\n";
     cout << "Rating  | Cast Rating | Movie Name\n";
     cout << "--------------------------------------------\n";
 
-    // Iterate through the top movies and display their details
     for (int i = 0; i < moviesToDisplay; i++) {
         Movie* movie = allMovies.get(i);
         cout << setw(6) << roundToOneDecimal(movie->getRating()) << "⭐  | "
              << setw(6) << roundToOneDecimal(movie->castAverageRating()) << "⭐  | "
-             << movie->getName() << " (" << movie->getYear() << ")\n";
+             << setw(30) << left << movie->getName() << " (" << movie->getYear() << ")\n";
     }
 
-    // Display the footer
     cout << "============================================\n\n";
 }
 
@@ -1834,7 +1823,6 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
  *   actors are present, the behavior depends on the dynamic array's implementation.
  *----------------------------------------------------------------------------*/
 void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
-    // Ensure there are actors available to recommend
     if (allActors.getSize() == 0) {
         cout << "\n============================================\n";
         cout << "No actors available for recommendation.\n";
@@ -1844,23 +1832,19 @@ void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
 
     // Sort actors by rating in descending order
     allActors.sortByRating();
-
-    // Determine the number of actors to display (up to 5)
     int actorsToDisplay = (allActors.getSize() < 5) ? allActors.getSize() : 5;
 
-    // Display the header
+    // Display header
     cout << "\n============================================\n";
     cout << "        Top " << actorsToDisplay << " Highest Rated Actors\n";
     cout << "--------------------------------------------\n";
     cout << "Rating  | Actor Name\n";
     cout << "--------------------------------------------\n";
 
-    // Iterate through the top actors and display their details
     for (int i = 0; i < actorsToDisplay; i++) {
         cout << setw(6) << roundToOneDecimal(allActors.get(i)->getRating()) << "⭐  | "
-             << allActors.get(i)->getName() << "\n";
+             << setw(20) << left << allActors.get(i)->getName() << "\n";
     }
 
-    // Display the footer
     cout << "============================================\n\n";
 }
