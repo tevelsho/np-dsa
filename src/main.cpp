@@ -416,9 +416,6 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 cout << "Enter new movie's plot: ";
                 getline(cin, movie_plot);
 
-                cout << "Enter new movie's plot: ";
-                getline(cin, movie_plot);
-
                 // Prompt for the movie's release year with input validation.
                 cout << "Enter new movie's release year: ";
                 while (!(cin >> movie_year)) {
@@ -840,21 +837,22 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
     cout << "--------------------------------\n";
 
     // Prompt the user for new details.
-    string newName;
-    int newYear;
+    string newName, newYear;
 
     cout << "Enter the new name (leave blank to keep current): ";
     getline(cin, newName);
 
-    cout << "Enter the new year of birth (enter -1 to keep current): ";
-    cin >> newYear;
+    cout << "Enter the new year of birth (leave blank to keep current): ";
+    getline(cin, newYear);
     
     // Validate the input for the new year.
-    if (cin.fail()) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Error: Invalid input for year of birth. No changes were made.\n";
-        return;
+    if (!newYear.empty()) {
+        try {
+            stoi(newYear);  // Attempt to convert the input to an integer.
+        } catch (const exception& e) {
+            cerr << "Error: Invalid input for year of birth. No changes were made.\n";
+            return;
+        }
     }
 
     // Flag to indicate if any changes have been made.
@@ -874,21 +872,22 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
             cerr << "Error updating actor name: " << e.what() << "\n";
         }
     }
-    
+
     // Update the actor's year of birth if a new value is provided.
-    if (newYear != -1 && newYear != actorToUpdate->getYearOfBirth()) {
+    if (!newYear.empty() && newYear != to_string(actorToUpdate->getYearOfBirth())) {
         try {
-            // Remove the actor from the AVL tree using the current birth year.
+            // Remove the actor from the AVL tree using the current year as the key.
             yearToActor.removeItem(actorToUpdate->getYearOfBirth(), actorToUpdate);
-            // Update the actor's birth year.
-            actorToUpdate->setYearOfBirth(newYear);
-            // Insert the actor back into the AVL tree with the new birth year.
-            yearToActor.insertItem(newYear, actorToUpdate);
+            // Update the actor's year of birth.
+            actorToUpdate->setYearOfBirth(stoi(newYear));
+            // Insert the actor into the AVL tree with the new year of birth.
+            yearToActor.insertItem(stoi(newYear), actorToUpdate);
             updated = true;
         } catch (const exception& e) {
-            cerr << "Error updating actor year of birth: " << e.what() << "\n";
+            cerr << "Error updating year of birth: " << e.what() << "\n";
         }
     }
+    
 
     // Display updated details if any changes were made; otherwise, indicate no changes.
     if (updated) {
@@ -945,8 +944,7 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     cout << "--------------------------------\n";
 
     // Prompt the user for new details.
-    string newTitle, newPlot;
-    int newYear;
+    string newTitle, newPlot, newYear;
 
     cout << "Enter the new title (leave blank to keep current): ";
     getline(cin, newTitle);
@@ -954,15 +952,17 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     cout << "Enter the new plot (leave blank to keep current): ";
     getline(cin, newPlot);
 
-    cout << "Enter the new year of release (enter -1 to keep current): ";
-    cin >> newYear;
+    cout << "Enter the new year of release (leave blank to keep current): ";
+    getline(cin, newYear);
     
     // Check if the input for the year was valid.
-    if (cin.fail()) {
-        cin.clear();  // Clear the error state.
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Discard invalid input.
-        cout << "Error: Invalid input for year of release. No changes were made.\n";
-        return;
+    if (!newYear.empty()) {
+        try {
+            stoi(newYear);  // Attempt to convert the input to an integer.
+        } catch (const exception& e) {
+            cerr << "Error: Invalid input for year of birth. No changes were made.\n";
+            return;
+        }
     }
 
     // Flag to track if any updates have been made.
@@ -992,14 +992,14 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
         
     }
     // If a new year is provided and it differs from the current year, update it.
-    if (newYear != -1 && newYear != movieToUpdate->getYear()) {
+    if (!newYear.empty() && newYear != to_string(movieToUpdate->getYear())) {
         try {
             // Remove the movie from the AVL tree using the current year as the key.
             yearToMovie.removeItem(movieToUpdate->getYear(), movieToUpdate);
             // Update the movie's release year.
-            movieToUpdate->setYear(newYear);
-            // Insert the movie into the AVL tree with the new release year.
-            yearToMovie.insertItem(newYear, movieToUpdate);
+            movieToUpdate->setYear(stoi(newYear));
+            // Insert the movie into the AVL tree with the new year.
+            yearToMovie.insertItem(stoi(newYear), movieToUpdate);
             updated = true;
         } catch (const exception& e) {
             cerr << "Error updating year of release: " << e.what() << "\n";
