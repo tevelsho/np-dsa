@@ -626,7 +626,11 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
             id = stoi(temp);
 
             getline(s, name, ',');
-            s.ignore(1);
+            
+            // Remove quotes from actor name if present.
+            if (name.size() > 1 && name.front() == '"' && name.back() == '"') {
+                name = name.substr(1, name.size() - 2);
+            }
 
             // Parse actor birth year.
             getline(s, temp, ','); 
@@ -672,35 +676,43 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
     } else if (fileName == "movies.csv") {
         // Read data line by line
         while (getline(fin, line)) {
-            stringstream s(line);
+            std::stringstream s(line);
 
-            // Read and parse each column as string and convert to int
-            string title, plot, temp;
+            std::string temp, title, plot;
             int id, year;
 
+            // Read and parse each column
             getline(s, temp, ',');
-            id = stoi(temp);
+            id = std::stoi(temp);
 
-            // Handle title which may be enclosed in quotes
+            // Read title
             if (s.peek() == '"') {
-                s.get(); // Remove the opening quote
-                getline(s, title, '"'); // Read until the closing quote
-                s.get(); // Remove the comma after the closing quote
+                std::getline(s, temp, '"'); // Skip the initial quote
+                std::getline(s, title, '"'); // Read until the next quote
+                s.get(); // Skip the comma
             } else {
-                getline(s, title, ',');
+                std::getline(s, title, ',');
             }
 
-            // Handle plot which may be enclosed in quotes
+            // Read plot
             if (s.peek() == '"') {
-                s.get(); // Remove the opening quote
-                getline(s, plot, '"'); // Read until the closing quote
-                s.get(); // Remove the comma after the closing quote
+                std::getline(s, temp, '"'); // Skip the initial quote
+                while (std::getline(s, temp, '"')) {
+                    plot += temp;
+                    if (s.peek() == '"') {
+                        plot += '"'; // Add escaped quote
+                        s.get(); // Skip the escape quote
+                    } else {
+                        break;
+                    }
+                }
+                s.get(); // Skip the comma
             } else {
-                getline(s, plot, ',');
+                std::getline(s, plot, ',');
             }
 
-            getline(s, temp, ','); 
-            year = stoi(temp);  
+            getline(s, temp);
+            year = std::stoi(temp);
 
             addNewMovie(id, year, title, plot, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies);
         }
@@ -1344,7 +1356,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
  *----------------------------------------------------------------------------*/
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
     // Validate input: Ensure that the age range is logical
-    if (x < y) {
+    if (y < x) {
         cerr << "Error: Invalid age range. The minimum age cannot be greater than the maximum age.\n";
         return;
     }
@@ -1357,7 +1369,7 @@ void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
 
     // Display section header
     cout << "\n============================================\n";
-    cout << "Actors Aged Between " << y << " and " << x << " Years\n";
+    cout << "Actors Aged Between " << x << " and " << y << " Years\n";
     cout << "--------------------------------------------\n";
 
     // Call the AVLTree method to display actors within the birth year range
