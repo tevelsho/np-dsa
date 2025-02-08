@@ -38,8 +38,8 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor);
 void displayRecentMovies(AVLTree<Movie*>& yearToMovie);
-void displayMoviesByActor(Actor* actor); 
 void displayActorsByMovie(Movie* movie); 
+void displayMoviesByActor(Actor* actor); 
 void displayActorsKnownBy(Actor* actor);
 void displayActorsKnownByHelper(Actor* actor, DynamicArray<Actor*>& actors_known);
 
@@ -1203,8 +1203,8 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
         cout << "=============================================\n";
         cout << " [1] Display Actors by Age Range\n";
         cout << " [2] Show Movies from the Last 3 Years\n";
-        cout << " [3] List Movies an Actor Starred In\n";
-        cout << " [4] List Actors in a Specific Movie\n";
+        cout << " [3] List Actors in a Specific Movie\n";
+        cout << " [4] List Movies an Actor Starred In\n";
         cout << " [5] Find All Actors an Actor Knows\n";
         cout << " [6] Rate an Actor\n";
         cout << " [7] Rate a Movie\n";
@@ -1261,25 +1261,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                 break;
             }
             case 3: {
-                // Option 3: List movies an actor starred in (alphabetically).
-                string actor_name;
-                while (true) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
-                    cout << "Enter the actor's name: ";
-                    getline(cin, actor_name);
-
-                    Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
-                    if (actor != nullptr) {
-                        displayMoviesByActor(actor);
-                        break;
-                    } else {
-                        cout << "Actor not found. Please try again.\n";
-                    }
-                }
-                break;
-            }
-            case 4: {
-                // Option 4: List actors in a specific movie (alphabetically).
+                // Option 3: List actors in a specific movie (alphabetically).
                 string movie_name;
                 while (true) {
                     cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
@@ -1292,6 +1274,24 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                         break;
                     } else {
                         cout << "Movie not found. Please try again.\n";
+                    }
+                }
+                break;
+            }
+            case 4: {
+                // Option 4: List movies an actor starred in (alphabetically).
+                string actor_name;
+                while (true) {
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
+                    cout << "Enter the actor's name: ";
+                    getline(cin, actor_name);
+
+                    Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                    if (actor != nullptr) {
+                        displayMoviesByActor(actor);
+                        break;
+                    } else {
+                        cout << "Actor not found. Please try again.\n";
                     }
                 }
                 break;
@@ -1511,52 +1511,6 @@ void displayMoviesByActor(Actor* actor) {
 }
 
 /*----------------------------------------------------------------------------
- * Function: displayActorsByMovie
- * Author: Tevel
- *
- * Description:
- *   Displays all actors who starred in a specific movie, sorted alphabetically.
- *   The function retrieves and iterates through the movie's cast list, displaying
- *   each actor's name.
- *
- * Parameters:
- *   movie - Pointer to the Movie object whose cast (actors) are to be displayed.
- *
- * Returns:
- *   void
- *
- * Error Handling:
- *   - If the movie pointer is null, an error message is displayed and the function exits.
- *   - If the movie has no associated actors, a message is displayed instead of an empty list.
- *----------------------------------------------------------------------------*/
-void displayActorsByMovie(Movie* movie) {
-    // Validate input parameters
-    if (movie == nullptr) {
-        cerr << "Error: Null pointer provided for movie. Cannot display actors.\n";
-        return;
-    }
-
-    // Display section header
-    cout << "\n============================================\n";
-    cout << "Actors in \"" << movie->getName() << "\"\n";
-    cout << "--------------------------------------------\n";
-
-    // Check if the movie has any associated actors
-    if (movie->cast.getLength() == 0) {
-        cout << "No actors found for this movie.\n";
-    } else {
-        // Iterate through the cast list and display each actor's name
-        movie->cast.sortByAlphabetical();
-        for (int i = 0; i < movie->cast.getLength(); i++) {
-            cout << "- " << movie->cast.get(i)->getName() << "\n";
-        }
-    }
-
-    // Display section footer
-    cout << "============================================\n\n";
-}
-
-/*----------------------------------------------------------------------------
  * Function: displayActorsKnownByHelper
  * Author: Brayden
  *
@@ -1668,6 +1622,52 @@ void displayActorsKnownBy(Actor* targetActor) {
 
     cout << "--------------------------------------------\n";
     cout << "Total Known Actors: " << actors_known.getSize() << "\n";
+    cout << "============================================\n\n";
+}
+
+/*----------------------------------------------------------------------------
+ * Function: displayActorsByMovie
+ * Author: Tevel
+ *
+ * Description:
+ *   Displays all actors who starred in a specific movie, sorted alphabetically.
+ *   The function retrieves and iterates through the movie's cast list, displaying
+ *   each actor's name.
+ *
+ * Parameters:
+ *   movie - Pointer to the Movie object whose cast (actors) are to be displayed.
+ *
+ * Returns:
+ *   void
+ *
+ * Error Handling:
+ *   - If the movie pointer is null, an error message is displayed and the function exits.
+ *   - If the movie has no associated actors, a message is displayed instead of an empty list.
+ *----------------------------------------------------------------------------*/
+void displayActorsByMovie(Movie* movie) {
+    // Validate input parameters
+    if (movie == nullptr) {
+        cerr << "Error: Null pointer provided for movie. Cannot display actors.\n";
+        return;
+    }
+
+    // Display section header
+    cout << "\n============================================\n";
+    cout << "Actors in \"" << movie->getName() << "\"\n";
+    cout << "--------------------------------------------\n";
+
+    // Check if the movie has any associated actors
+    if (movie->cast.getLength() == 0) {
+        cout << "No actors found for this movie.\n";
+    } else {
+        // Iterate through the cast list and display each actor's name
+        movie->cast.sortByAlphabetical();
+        for (int i = 0; i < movie->cast.getLength(); i++) {
+            cout << "- " << movie->cast.get(i)->getName() << "\n";
+        }
+    }
+
+    // Display section footer
     cout << "============================================\n\n";
 }
 
