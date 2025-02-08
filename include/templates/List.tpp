@@ -178,7 +178,7 @@ typename List<T>::Node* List<T>::merge(Node* left, Node* right) {
     dummy.next = nullptr;
 
     while (left != nullptr && right != nullptr) {
-        if (left->item <= right->item) {
+        if (left->item->getName() <= right->item->getName()) {
             tail->next = left;
             left = left->next;
         } else {

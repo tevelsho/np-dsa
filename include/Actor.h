@@ -59,6 +59,9 @@ class Actor {
         // Other Member Functions
         // Adds a movie to the actor's list.
         void addMovie(Movie* movie);
+
+        // Removes a movie from the actor's list.
+        bool removeMovie(Movie* movie);
         
         // Displays the movies the actor has starred in.
         void displayMovies() const;

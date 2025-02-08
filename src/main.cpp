@@ -34,6 +34,7 @@ string roundToOneDecimal(double value);
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
 bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
+bool removeActorFromMovie(Actor* actor, Movie* movie);
 void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor);
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie);
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor);
@@ -358,8 +359,9 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
         cout << " [1] Add a New Actor\n";
         cout << " [2] Add a New Movie\n";
         cout << " [3] Assign an Actor to a Movie\n";
-        cout << " [4] Update Actor Details\n";
-        cout << " [5] Update Movie Details\n";
+        cout << " [4] Remove an Actor from a Movie\n";
+        cout << " [5] Update Actor Details\n";
+        cout << " [6] Update Movie Details\n";
         cout << " [0] Log Out of Admin\n";
         cout << "=============================================\n";
         cout << "Please select an option by entering the number: ";
@@ -554,7 +556,60 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 break;
             }
             case 4: {
-                // Option 4: Update actor details.
+                // Option 4: Remove an actor from a movie.
+                cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                string actorName, movieName;
+                while (true) {
+                    // Prompt for the movie's name.
+                    cout << "Enter the movie's name: ";
+                    getline(cin, movieName);
+
+                    if (movieName.empty()) {
+                        cout << "Error: Movie name cannot be empty. Please enter a valid name.\n";
+                        continue;
+                    }
+
+                    // Retrieve the Movie object.
+                    Movie* movie = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+                    if (movie == nullptr) {
+                        cout << "Error: Movie not found. Please check the name and try again.\n";
+                        continue;
+                    }
+
+                    // Display actors in this movie.
+                    displayActorsByMovie(movie);
+
+                    while (true) {
+                        // Prompt for the actor's name.
+                        cout << "Enter the actor's name: ";
+                        getline(cin, actorName);
+
+                        if (actorName.empty()) {
+                            break;
+                        }
+
+                        // Retrieve the Actor object.
+                        Actor* actor = findActorByName(actorNameToIdMap, actorName, actorIdToActorMap);
+                        if (actor == nullptr) {
+                            cout << "Error: Actor not found. Please check the name and try again.\n";
+                            continue;
+                        }
+
+                        // Remove the actor from the movie.
+                        if (removeActorFromMovie(actor, movie)) {
+                            cout << "Success: " << actorName << " has been successfully removed from \"" << movieName << "\".\n";
+                        } else {
+                            cout << "Error: " << actorName << " is not part of \"" << movieName << "\".\n";
+                        }
+                        break; // Exit actor loop.
+                    }
+                    break; // Exit movie loop.
+                }
+
+                break;
+            }
+            case 5: {
+                // Option 5: Update actor details.
                 string actorName;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 while (true) {
@@ -577,8 +632,8 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 }
                 break;
             }
-            case 5: {
-                // Option 5: Update movie details.
+            case 6: {
+                // Option 6: Update movie details.
                 string movieName;
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
                 while (true) {
@@ -954,6 +1009,53 @@ bool addActorToMovie(Actor* actor, Movie* movie) {
     movie->addActor(actor);
 
     return true;  // Relationship successfully established.
+}
+
+/*----------------------------------------------------------------------------
+ * Function: removeActorFromMovie
+ * Author: Brayden
+ *
+ * Description:
+ *   Deletes a bidirectional relationship between an actor and a movie.
+ *   This function updates the Actor object by removing the Movie from its list of associated
+ *   movies and updates the Movie object by removing the Actor from its list of associated actors.
+ *
+ * Parameters:
+ *   actor - Pointer to the Actor object to be removed from the movie.
+ *   movie - Pointer to the Movie object from which the actor will be removed.
+ *
+ * Returns:
+ *   bool - Returns true if the actor is successfully removed from the movie and vice versa.
+ *
+ * Error Handling:
+ *   - Checks if the actor and movie pointers are valid before proceeding.
+ *   - Ensures that addMovie and addActor methods are called only when both objects are valid.
+ *   - Assumes that the addMovie and addActor methods internally handle duplicate entries.
+ *----------------------------------------------------------------------------*/
+bool removeActorFromMovie(Actor* actor, Movie* movie) {
+    // Validate input: Check that both the actor and movie pointers are not null.
+    if (actor == nullptr) {
+        cerr << "Error: Actor pointer is null." << std::endl;
+        return false;
+    }
+    if (movie == nullptr) {
+        cerr << "Error: Movie pointer is null." << std::endl;
+        return false;
+    }
+
+    // Remove the actor from the movie's list of actors.
+    if (!movie->removeActor(actor)) {
+        cerr << "Error: Actor not found in movie." << std::endl;
+        return false;
+    }
+
+    // Remove the movie from the actor's list of movies.
+    if (!actor->removeMovie(movie)) {
+        cerr << "Error: Movie not found in actor." << std::endl;
+        return false;
+    }
+
+    return true;  // Actor successfully removed from the movie.
 }
 
 /*----------------------------------------------------------------------------
@@ -1688,7 +1790,7 @@ void displayActorsByMovie(Movie* movie) {
         movie->cast.sortByAlphabetical();
         // Iterate through the sorted cast list and display each actor's name.
         for (int i = 0; i < movie->cast.getLength(); i++) {
-            cout << "- " << movie->cast.get(i)->getName() << "\n";
+            cout << "[" << i+1 << "] " << movie->cast.get(i)->getName() << "\n";
         }
     }
 

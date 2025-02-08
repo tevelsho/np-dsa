@@ -57,6 +57,19 @@ void Movie::addActor(Actor* actor) {
     cast.add(actor);
 }
 
+// Removes an actor from the movie's cast list, ensuring the actor pointer is valid.
+bool Movie::removeActor(Actor* actor) {
+    if (actor == nullptr) {
+        cerr << "Error: Attempted to remove a null Actor pointer from the cast of movie ID " 
+             << id << "." << endl;
+        return false;
+    } else if (!cast.contains(actor)){
+        return false;
+    }
+    cast.remove(actor);
+    return true;
+}
+
 // Retrieves the list of actors in the movie's cast.
 List<Actor*> Movie::getCast() const {
     return cast;

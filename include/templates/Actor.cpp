@@ -47,6 +47,19 @@ void Actor::addMovie(Movie* movie) {
     movies.add(movie);
 }
 
+// Removes a movie from the actor's list of associated movies.
+bool Actor::removeMovie(Movie* movie) {
+    if (movie == nullptr) {
+        cerr << "Error: Attempted to remove a null Actor pointer from the cast of movie ID " 
+             << id << "." << endl;
+        return false;
+    } else if (!movies.contains(movie)){
+        return false;
+    }
+    movies.remove(movie);
+    return true;
+}
+
 // Displays all movies associated with the actor.
 void Actor::displayMovies() const {
     cout << "Movies associated with " << name << ":\n";
@@ -75,55 +88,3 @@ double Actor::getRating() const {
 int Actor::getNumRatings() const {
     return ratingSystem.getNumRatings();
 }
-
-// ------------------- COMMENTED CODE -------------------
-// This function (actorsKnownBy) was commented out in the provided code.
-// It appears to find actors an actor has worked with directly and indirectly.
-/*
-void Actor::actorsKnownBy(List<Actor*>& actors_known) {
-    try {
-        cout << "RUNNING?";
-        // Iterate through the movies the actor has been in.
-        for (int i = 0; i < movies.getLength(); i++) {
-            Movie* movie = movies.get(i);
-            List<Actor*> cast = movie->getCast();
-
-            // Add all actors in the same movie to the known actors list.
-            for (int j = 0; j < cast.getLength(); j++) {
-                Actor* actor = cast.get(j);
-                if (actor != this && !actors_known.contains(actor)) {
-                    actors_known.add(actor);
-                }
-            }
-        }
-
-        // Find indirect connections through actors already known.
-        List<Actor*> actors_known_indirect;
-        for (int i = 0; i < actors_known.getLength(); i++) {
-            Actor* directActor = actors_known.get(i);
-            for (int j = 0; j < directActor->getMovies().getLength(); j++) {
-                Movie* movie = directActor->getMovies().get(j);
-                List<Actor*> cast = movie->getCast();
-
-                // Add all indirect connections to the list.
-                for (int k = 0; k < cast.getLength(); k++) {
-                    Actor* actor = cast.get(k);
-                    if (actor != this && !actors_known.contains(actor) && !actors_known_indirect.contains(actor)) {
-                        actors_known_indirect.add(actor);
-                    }
-                }
-            }
-        }
-
-        // Merge indirect connections into the main known actors list.
-        for (int i = 0; i < actors_known_indirect.getLength(); i++) {
-            actors_known.add(actors_known_indirect.get(i));
-        }
-
-    } catch (const std::exception& e) {
-        std::cerr << "An error occurred: " << e.what() << std::endl;
-    } catch (...) {
-        std::cerr << "An unknown error occurred while processing actorsKnownBy." << std::endl;
-    }
-}
-*/

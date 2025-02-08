@@ -63,6 +63,8 @@ class Movie {
       // Adds an actor to the movie's cast.
       void addActor(Actor* actor);
 
+      bool removeActor(Actor* actor);
+
       // Displays the cast of the movie.
       void displayCast() const;
 
