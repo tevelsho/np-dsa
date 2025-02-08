@@ -371,13 +371,13 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
         if (cin.fail()) {
             cin.clear(); // Clear the error flag.
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input.
-            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+            cout << "\nInvalid choice! Please enter a number between 0 and 6.\n";
             continue;
         }
 
         // Validate that the option is within the allowed range.
-        if (option < 0 || option > 5) {
-            cout << "\nInvalid choice! Please enter a number between 0 and 5.\n";
+        if (option < 0 || option > 6) {
+            cout << "\nInvalid choice! Please enter a number between 0 and 6.\n";
             continue;
         }
 
@@ -497,7 +497,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                             Actor* actor = findActorByName(actorNameToIdMap, movieActor, actorIdToActorMap);
                             Movie* movie = movieIdToMovieMap.get(movieId);
                             if (addActorToMovie(actor, movie)){
-                                cout << "Success: " << movieActor << " has been successfully assigned to \"" << movieName << "\".";
+                                cout << "Success: " << movieActor << " has been successfully assigned to \"" << movieName << "\". Add another actor: ";
                             } else {
                                 cout << "Please try again: ";
                             }
