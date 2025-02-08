@@ -5,7 +5,7 @@
 ' ==============================
 class Actor { }
 class Movie { }
-class RatingSystem { }
+class Rating { }
 
 ' ==============================
 ' Lists and Dynamic Arrays
@@ -22,44 +22,47 @@ class AVLActorTree { }
 class AVLMovieTree { }
 
 ' ==============================
-' Dictionary Mappings
+' HashMap Mappings
 ' ==============================
-class actorIdToActorMap<K, V> {
+class ActorNameToIdHashMap<K, V> {
+    + K string
+    + V int
+}
+class ActorIdToActorHashMap<K, V> {
     + K int
     + V Actor
 }
-class actorNameToIdMap<K, V> {
+class MovieNameToIdHashMap<K, V> {
     + K string
     + V int
 }
-class movieIdToMovieMap<K, V> {
+class MovieIdToMovieHashMap<K, V> {
     + K int
     + V Movie
-}
-class movieNameToIdMap<K, V> {
-    + K string
-    + V int
 }
 
 ' ==============================
 ' Relationships
 ' ==============================
-Actor --> "1..*" Movie : has acted in
-Movie --> "1..*" Actor : stars in
+Movie --> "1" ActorList : hasActorList
+ActorList --> "1..*" Actor : containsActors
 
-Actor --> RatingSystem : uses
-Movie --> RatingSystem : uses
+Actor --> "1" MovieList : hasMovieList
+MovieList --> "1..*" Movie : containsMovies
 
-DynamicActorArray --> "1..*" Actor : contains
-DynamicMovieArray --> "1..*" Movie : contains
+Actor --> "0..1" Rating : usesRating
+Movie --> "0..1" Rating : usesRating
 
-actorIdToActorMap --> "1..*" Actor : contains
-movieIdToMovieMap --> "1..*" Movie : contains
+DynamicActorArray --> "0..*" Actor : containsActors
+DynamicMovieArray --> "0..*" Movie : containsMovies
 
-actorNameToIdMap --> actorIdToActorMap : maps
-movieNameToIdMap --> movieIdToMovieMap : maps
+ActorNameToIdHashMap --> "1" ActorIdToActorHashMap : mapsActorNamesToIds
+MovieNameToIdHashMap --> "1" MovieIdToMovieHashMap : mapsMovieNamesToIds
 
-AVLActorTree --> ActorList : uses
-AVLMovieTree --> MovieList : uses
+ActorIdToActorHashMap --> "1..*" Actor : mapsToActors
+MovieIdToMovieHashMap --> "1..*" Movie : mapsToMovies
+
+AVLActorTree --> "1" ActorList : usesActorList
+AVLMovieTree --> "1" MovieList : usesMovieList
 
 @enduml

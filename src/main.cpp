@@ -46,8 +46,8 @@ void displayActorsKnownByHelper(Actor* actor, DynamicArray<Actor*>& actors_known
 // Function prototypes (Advanced).
 void setActorRating(Actor* actor, double rating);
 void setMovieRating(Movie* movie, double rating);  
-void recommendMoviesByRating(DynamicArray<Movie*>& allMovies);
 void recommendActorsByRating(DynamicArray<Actor*>& allActors);
+void recommendMoviesByRating(DynamicArray<Movie*>& allMovies);
 
 // Maximum number of Admin accounts.
 const int MAX_ADMINS = 1;
@@ -426,7 +426,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 cout << "Actor successfully added!\n";
                 break;
             }
-            case 2:{
+            case 2: {
                 // Add a new movie.
                 cout << "Adding a new movie...\n";
                 int movie_id, movie_year;
@@ -437,16 +437,16 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 while (!(cin >> movie_id) || movie_id < 0) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cout << "Invalid input. Please enter a valid number for movie ID: ";
+                    cout << "Invalid input. Please enter a valid non-negative number for movie ID: ";
                 }
 
                 // Check for duplicate movie ID.
-                if (movie_id < 0 || movieIdToMovieMap.contains(movie_id)) {
+                if (movieIdToMovieMap.contains(movie_id)) {
                     cout << "Error: Movie ID already exists. Please choose a different ID.\n";
                     break;
                 }
 
-                // Clear the input buffer before reading a string.
+                // Clear the input buffer before reading strings.
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 // Prompt for the movie's name.
@@ -459,6 +459,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                     break;
                 }
 
+                // Prompt for the movie's plot.
                 cout << "Enter new movie's plot: ";
                 getline(cin, movie_plot);
 
@@ -467,7 +468,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 while (!(cin >> movie_year) || movie_year < 0) {
                     cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
-                    cout << "Invalid input. Please enter a valid number for movie year of birth: ";
+                    cout << "Invalid input. Please enter a valid non-negative number for movie release year: ";
                 }
 
                 // Attempt to add the new movie.
@@ -478,29 +479,56 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, in
                 }
                 break;
             }
-            case 3:{
+            case 3: {
                 // Assign an actor to a movie.
                 cin.ignore(numeric_limits<streamsize>::max(), '\n');
 
                 string actor_name, movie_name;
-                // Prompt for the actor's name.
-                cout << "Enter the actor's name: ";
-                getline(cin, actor_name);
 
-                // Prompt for the movie's name.
-                cout << "Enter the movie's name: ";
-                getline(cin, movie_name);
+                while (true) {
+                    // Prompt for the actor's name
+                    cout << "Enter the actor's name: ";
+                    getline(cin, actor_name);
 
-                // Retrieve the corresponding Actor and Movie objects.
-                Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
-                Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
+                    // Validate the actor's name is not empty
+                    if (actor_name.empty()) {
+                        cout << "Error: Actor name cannot be empty. Please enter a valid name.\n";
+                        continue;
+                    }
 
-                // Check if both actor and movie exist.
-                if (actor != nullptr && movie != nullptr) {
-                    addActorToMovie(actor, movie);
-                    cout << "Success: " << actor_name << " has been successfully assigned to \"" << movie_name << "\".\n";
-                } else {
-                    cout << "Error: Actor or Movie not found. Please ensure the Name is correct.\n";
+                    // Retrieve the Actor object
+                    Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+
+                    if (actor == nullptr) {
+                        cout << "Error: Actor not found. Please check the name and try again.\n";
+                        continue;
+                    }
+
+                    while (true) {
+                        // Prompt for the movie's name
+                        cout << "Enter the movie's name: ";
+                        getline(cin, movie_name);
+
+                        // Validate the movie's name is not empty
+                        if (movie_name.empty()) {
+                            cout << "Error: Movie name cannot be empty. Please enter a valid name.\n";
+                            continue;
+                        }
+
+                        // Retrieve the Movie object
+                        Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
+
+                        if (movie == nullptr) {
+                            cout << "Error: Movie not found. Please check the name and try again.\n";
+                            continue;
+                        }
+
+                        // Both actor and movie are valid; add the actor to the movie
+                        addActorToMovie(actor, movie);
+                        cout << "Success: " << actor_name << " has been successfully assigned to \"" << movie_name << "\".\n";
+                        break; // Exit movie loop
+                    }
+                    break; // Exit actor loop
                 }
                 break;
             }
@@ -945,13 +973,12 @@ bool addActorToMovie(Actor* actor, Movie* movie) {
  *   - Catches exceptions during updates to maintain data consistency.
  *----------------------------------------------------------------------------*/
 void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor) {
-    // Check if the actor pointer is valid.
     if (actorToUpdate == nullptr) {
         cerr << "Error: Null pointer provided for actor update.\n";
         return;
     }
 
-    // Display the current details of the actor.
+    // Display current details
     cout << "\nCurrent Details:\n";
     cout << "--------------------------------\n";
     cout << "ID: " << actorToUpdate->getID() << "\n";
@@ -959,60 +986,53 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
     cout << "Year of Birth: " << actorToUpdate->getYearOfBirth() << "\n";
     cout << "--------------------------------\n";
 
-    // Prompt the user for new details.
-    string newName, newYear;
+    string newName;
+    int newYear;
 
+    // Prompt for a new name
     cout << "Enter the new name (leave blank to keep current): ";
     getline(cin, newName);
 
-    cout << "Enter the new year of birth (leave blank to keep current): ";
-    getline(cin, newYear);
-    
-    // Validate the input for the new year.
-    if (!newYear.empty()) {
+    // Prompt for a new year of birth
+    while (true) {
+        cout << "Enter the new year of birth (leave blank to keep current): ";
+        string yearInput;
+        getline(cin, yearInput);
+
+        if (yearInput.empty()) {
+            newYear = actorToUpdate->getYearOfBirth(); // Keep current year
+            break;
+        }
+
         try {
-            stoi(newYear);  // Attempt to convert the input to an integer.
-        } catch (const exception& e) {
-            cerr << "Error: Invalid input for year of birth. No changes were made.\n";
-            return;
+            newYear = stoi(yearInput);
+            if (newYear < 0) {
+                throw invalid_argument("Year cannot be negative.");
+            }
+            break; // Valid input
+        } catch (...) {
+            cout << "Invalid input. Please enter a valid non-negative year.\n";
         }
     }
 
-    // Flag to indicate if any changes have been made.
     bool updated = false;
 
-    // Update the actor's name if a new, non-empty name is provided.
+    // Update the actor's name if provided and valid
     if (!newName.empty() && newName != actorToUpdate->getName()) {
-        try {
-            // Remove the current name mapping.
-            actorNameToIdMap.remove(actorToUpdate->getName());
-            // Update the actor's name.
-            actorToUpdate->setName(newName);
-            // Add the new name mapping.
-            actorNameToIdMap.add(newName, actorToUpdate->getID());
-            updated = true;
-        } catch (const exception& e) {
-            cerr << "Error updating actor name: " << e.what() << "\n";
-        }
+        actorNameToIdMap.remove(actorToUpdate->getName());
+        actorToUpdate->setName(newName);
+        actorNameToIdMap.add(newName, actorToUpdate->getID());
+        updated = true;
     }
 
-    // Update the actor's year of birth if a new value is provided.
-    if (!newYear.empty() && newYear != to_string(actorToUpdate->getYearOfBirth())) {
-        try {
-            // Remove the actor from the AVL tree using the current year as the key.
-            yearToActor.removeItem(actorToUpdate->getYearOfBirth(), actorToUpdate);
-            // Update the actor's year of birth.
-            actorToUpdate->setYearOfBirth(stoi(newYear));
-            // Insert the actor into the AVL tree with the new year of birth.
-            yearToActor.insertItem(stoi(newYear), actorToUpdate);
-            updated = true;
-        } catch (const exception& e) {
-            cerr << "Error updating year of birth: " << e.what() << "\n";
-        }
+    // Update the actor's year of birth if changed
+    if (newYear != actorToUpdate->getYearOfBirth()) {
+        yearToActor.removeItem(actorToUpdate->getYearOfBirth(), actorToUpdate);
+        actorToUpdate->setYearOfBirth(newYear);
+        yearToActor.insertItem(newYear, actorToUpdate);
+        updated = true;
     }
-    
 
-    // Display updated details if any changes were made; otherwise, indicate no changes.
     if (updated) {
         cout << "\nActor details updated successfully!\n";
         cout << "--------------------------------\n";
@@ -1051,13 +1071,12 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
  *   for the year of release, an error message is displayed and no changes are made.
  *----------------------------------------------------------------------------*/
 void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie) {
-    // Check if the provided movie pointer is valid.
     if (movieToUpdate == nullptr) {
         cerr << "Error: Null pointer provided for movie update.\n";
         return;
     }
 
-    // Display the current details of the movie.
+    // Display current details
     cout << "\nCurrent Details:\n";
     cout << "--------------------------------\n";
     cout << "ID: " << movieToUpdate->getID() << "\n";
@@ -1066,74 +1085,63 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     cout << "Year of Release: " << movieToUpdate->getYear() << "\n";
     cout << "--------------------------------\n";
 
-    // Prompt the user for new details.
-    string newTitle, newPlot, newYear;
+    string newTitle, newPlot;
+    int newYear;
 
+    // Prompt for a new title
     cout << "Enter the new title (leave blank to keep current): ";
     getline(cin, newTitle);
 
+    // Prompt for a new plot
     cout << "Enter the new plot (leave blank to keep current): ";
     getline(cin, newPlot);
 
-    cout << "Enter the new year of release (leave blank to keep current): ";
-    while (!(cin >> newYear) || stoi(newYear) < 0) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Invalid input. Please enter a valid number for movie year of birth: ";
-    }
-    
-    // Check if the input for the year was valid.
-    if (!newYear.empty()) {
+    // Prompt for a new year of release
+    while (true) {
+        cout << "Enter the new year of release (leave blank to keep current): ";
+        string yearInput;
+        getline(cin, yearInput);
+
+        if (yearInput.empty()) {
+            newYear = movieToUpdate->getYear(); // Keep current year
+            break;
+        }
+
         try {
-            stoi(newYear);  // Attempt to convert the input to an integer.
-        } catch (const exception& e) {
-            cerr << "Error: Invalid input for year of birth. No changes were made.\n";
-            return;
+            newYear = stoi(yearInput);
+            if (newYear < 0) {
+                throw invalid_argument("Year cannot be negative.");
+            }
+            break; // Valid input
+        } catch (...) {
+            cout << "Invalid input. Please enter a valid non-negative year.\n";
         }
     }
 
-    // Flag to track if any updates have been made.
     bool updated = false;
 
-    // If a new title was entered and it differs from the current title, update it.
+    // Update the movie's title if provided and valid
     if (!newTitle.empty() && newTitle != movieToUpdate->getName()) {
-        try {
-            // Remove the old title mapping.
-            movieNameToIdMap.remove(movieToUpdate->getName());
-            // Update the movie's title.
-            movieToUpdate->setName(newTitle);
-            // Add the new title mapping.
-            movieNameToIdMap.add(newTitle, movieToUpdate->getID());
-            updated = true;
-        } catch (const exception& e) {
-            cerr << "Error updating title: " << e.what() << "\n";
-        }
-    }
-    if (!newPlot.empty() && newPlot != movieToUpdate->getPlot()) {
-        try {
-            movieToUpdate->setPlot(newPlot);
-            updated = true;
-        } catch (const exception& e) {
-            cerr << "Error updating plot: " << e.what() << "\n";
-        }
-        
-    }
-    // If a new year is provided and it differs from the current year, update it.
-    if (!newYear.empty() && newYear != to_string(movieToUpdate->getYear())) {
-        try {
-            // Remove the movie from the AVL tree using the current year as the key.
-            yearToMovie.removeItem(movieToUpdate->getYear(), movieToUpdate);
-            // Update the movie's release year.
-            movieToUpdate->setYear(stoi(newYear));
-            // Insert the movie into the AVL tree with the new year.
-            yearToMovie.insertItem(stoi(newYear), movieToUpdate);
-            updated = true;
-        } catch (const exception& e) {
-            cerr << "Error updating year of release: " << e.what() << "\n";
-        }
+        movieNameToIdMap.remove(movieToUpdate->getName());
+        movieToUpdate->setName(newTitle);
+        movieNameToIdMap.add(newTitle, movieToUpdate->getID());
+        updated = true;
     }
 
-    // Display a success message with updated details if any changes were made.
+    // Update the movie's plot if provided and valid
+    if (!newPlot.empty() && newPlot != movieToUpdate->getPlot()) {
+        movieToUpdate->setPlot(newPlot);
+        updated = true;
+    }
+
+    // Update the movie's year of release if changed
+    if (newYear != movieToUpdate->getYear()) {
+        yearToMovie.removeItem(movieToUpdate->getYear(), movieToUpdate);
+        movieToUpdate->setYear(newYear);
+        yearToMovie.insertItem(newYear, movieToUpdate);
+        updated = true;
+    }
+
     if (updated) {
         cout << "\nMovie details updated successfully!\n";
         cout << "--------------------------------\n";
@@ -1200,8 +1208,8 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
         cout << " [5] Find All Actors an Actor Knows\n";
         cout << " [6] Rate an Actor\n";
         cout << " [7] Rate a Movie\n";
-        cout << " [8] Recommend Movies by Rating\n";
-        cout << " [9] Recommend Actors by Rating\n";
+        cout << " [8] Recommend Actors by Rating\n";
+        cout << " [9] Recommend Movies by Rating\n";
         cout << " [0] Log Out of User\n";
         cout << "=============================================\n";
         cout << "Please select an option by entering the number: ";
@@ -1217,8 +1225,33 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
             case 1: {
                 // Option 1: Display actors by age range.
                 int x, y;
-                cout << "Enter the age range (x, y): ";
-                cin >> x >> y;
+
+                while (true) {
+                    cout << "Enter the age range (x, y): ";
+                    cin >> x >> y;
+
+                    // Check for invalid input
+                    if (cin.fail()) {
+                        cin.clear(); // Clear the error flag
+                        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input
+                        cout << "Invalid input. Please enter numeric values for the age range.\n";
+                        continue;
+                    }
+
+                    // Ensure valid age range
+                    if (x < 0 || y < 0) {
+                        cout << "Ages cannot be negative. Please enter a valid age range.\n";
+                        continue;
+                    }
+
+                    if (y < x) {
+                        cout << "Error: Minimum age (x) cannot be greater than maximum age (y). Please try again.\n";
+                        continue;
+                    }
+
+                    break; // Valid input received
+                }
+
                 displayActorsByAgeRange(x, y, yearToActor);
                 break;
             }
@@ -1230,42 +1263,54 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
             case 3: {
                 // Option 3: List movies an actor starred in (alphabetically).
                 string actor_name;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
-                cout << "Enter the actor's name: ";
-                getline(cin, actor_name);
-                Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
-                if (actor != nullptr) {
-                    displayMoviesByActor(actor);
-                } else {
-                    cout << "Actor not found.\n";
+                while (true) {
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
+                    cout << "Enter the actor's name: ";
+                    getline(cin, actor_name);
+
+                    Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                    if (actor != nullptr) {
+                        displayMoviesByActor(actor);
+                        break;
+                    } else {
+                        cout << "Actor not found. Please try again.\n";
+                    }
                 }
                 break;
             }
             case 4: {
                 // Option 4: List actors in a specific movie (alphabetically).
                 string movie_name;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
-                cout << "Enter the movie's name: ";
-                getline(cin, movie_name);
-                Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
-                if (movie != nullptr) {
-                    displayActorsByMovie(movie);
-                } else {
-                    cout << "Movie not found.\n";
+                while (true) {
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
+                    cout << "Enter the movie's name: ";
+                    getline(cin, movie_name);
+
+                    Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
+                    if (movie != nullptr) {
+                        displayActorsByMovie(movie);
+                        break;
+                    } else {
+                        cout << "Movie not found. Please try again.\n";
+                    }
                 }
                 break;
             }
             case 5: {
                 // Option 5: Find all actors an actor knows.
                 string actor_name;
-                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
-                cout << "Enter the actor's name: ";
-                getline(cin, actor_name);
-                Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
-                if (actor != nullptr) {
-                    displayActorsKnownBy(actor);
-                } else {
-                    cout << "Actor not found.\n";
+                while (true) {
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
+                    cout << "Enter the actor's name: ";
+                    getline(cin, actor_name);
+
+                    Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
+                    if (actor != nullptr) {
+                        displayActorsKnownBy(actor);
+                        break;
+                    } else {
+                        cout << "Actor not found. Please try again.\n";
+                    }
                 }
                 break;
             }
@@ -1276,24 +1321,28 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                 cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
                 cout << "Enter the actor's name: ";
                 getline(cin, actor_name);
+
                 Actor* actor = findActorByName(actorNameToIdMap, actor_name, actorIdToActorMap);
                 if (actor == nullptr) {
-                    cout << "Actor not found.\n";
+                    cout << "Actor not found. Please try again.\n";
                     break;
                 }
+
                 // Prompt for rating with validation.
                 while (true) {
                     cout << "Actor's current rating: " << roundToOneDecimal(actor->getRating()) << endl;
                     cout << "Enter a rating (e.g., 1.5, 4.9): ";
                     cin >> rating;
+
                     if (cin.fail() || rating < 0 || rating > 5) {
                         cin.clear(); // Clear the error flag.
                         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input.
-                        cout << "Invalid input. Please enter a number between 1 and 5." << endl;
+                        cout << "Invalid input. Please enter a number between 0 and 5." << endl;
                     } else {
                         break; // Valid rating entered.
                     }
                 }
+
                 setActorRating(actor, rating);
                 break;
             }
@@ -1306,33 +1355,36 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
                 getline(cin, movie_name);
                 Movie* movie = findMovieByName(movieNameToIdMap, movie_name, movieIdToMovieMap);
                 if (movie == nullptr) {
-                    cout << "Movie not found.\n";
+                    cout << "Movie not found. Please try again.\n";
                     break;
                 }
+
                 // Prompt for rating with validation.
                 while (true) {
                     cout << "Movie's current rating: " << roundToOneDecimal(movie->getRating()) << endl;
                     cout << "Enter a rating (e.g., 1.5, 4.9): ";
                     cin >> rating;
+
                     if (cin.fail() || rating < 0 || rating > 5) {
                         cin.clear(); // Clear the error flag.
                         cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Discard invalid input.
-                        cout << "Invalid input. Please enter a number between 1 and 5." << endl;
+                        cout << "Invalid input. Please enter a number between 0 and 5." << endl;
                     } else {
                         break; // Valid rating entered.
                     }
                 }
+
                 setMovieRating(movie, rating);
                 break;
             }
             case 8: {
-                // Option 8: Recommend movies by rating.
-                recommendMoviesByRating(allMovies);
+                // Option 8: Recommend actors by rating.
+                recommendActorsByRating(allActors);
                 break;
             }
             case 9: {
-                // Option 9: Recommend actors by rating.
-                recommendActorsByRating(allActors);
+                // Option 9: Recommend movies by rating.
+                recommendMoviesByRating(allMovies);
                 break;
             }
             default:
@@ -1367,33 +1419,20 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int
  *   - If no actors exist within the specified range, the AVLTree method determines the output.
  *----------------------------------------------------------------------------*/
 void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
-    // Validate input: Ensure that the age range is logical
-    if (y < x) {
-        cerr << "Error: Invalid age range. The minimum age cannot be greater than the maximum age.\n";
-        return;
-    }
-
     int currentYear = 2025; // Define the reference year
 
     // Convert age range to birth years
     int latestBirthYear = currentYear - x;
     int earliestBirthYear = currentYear - y;
 
-    // Display section header
-    cout << "\n============================================\n";
-    cout << "Actors Aged Between " << x << " and " << y << " Years\n";
-    cout << "--------------------------------------------\n";
-
-    // Call the AVLTree method to display actors within the birth year range
+    // Display actors in the age range
     yearToActor.DisplayActors(earliestBirthYear, latestBirthYear);
-
-    // Display section footer
-    cout << "============================================\n\n";
 }
+
 
 /*----------------------------------------------------------------------------
  * Function: displayRecentMovies
- * Author: Tevel
+ * Author: Tevel1
  *
  * Description:
  *   Displays movies that have been released in the last three years.
@@ -1407,27 +1446,19 @@ void displayActorsByAgeRange(int x, int y, AVLTree<Actor*>& yearToActor) {
  *   void
  *
  * Error Handling:
- *   - If the AVLTree is empty, a message is displayed instead of an empty list.
- *   - Assumes that the AVLTree correctly filters and displays movies from the last three years.
+ *   - If the AVLTree is empty or contains no movies for the last three years,
+ *     a clear and professional message is displayed.
  *----------------------------------------------------------------------------*/
 void displayRecentMovies(AVLTree<Movie*>& yearToMovie) {
     int currentYear = 2025; // Define the reference year
 
-    // Display section header
-    cout << "\n============================================\n";
-    cout << "Movies Released in the Last 3 Years\n";
-    cout << "--------------------------------------------\n";
-
     // Check if there are any movies available
     if (yearToMovie.isEmpty()) {
-        cout << "No recent movies found.\n";
+        cout << "No movies found for the last three years.\n";
     } else {
         // Call the AVLTree method to display movies within the last 3 years
         yearToMovie.DisplayMovies();
     }
-
-    // Display section footer
-    cout << "============================================\n\n";
 }
 
 /*----------------------------------------------------------------------------
@@ -1646,15 +1677,18 @@ void displayActorsKnownBy(Actor* targetActor) {
  *
  * Description:
  *   Rounds a double value to one decimal place and converts it to a string.
- *   If the value is 0, the function returns the string "nul".
+ *   If the value is 0, the function returns "No Rating".
  *
  * Parameters:
  *   value - The double value to be rounded and converted.
  *
  * Returns:
- *   string - The rounded value as a string with one decimal place, or "nul" if the value is 0.
+ *   string - The rounded value as a string with one decimal place, or "No Rating" if the value is 0.
  *----------------------------------------------------------------------------*/
 string roundToOneDecimal(double value) {
+    if (value == 0) {
+        return "No Rating";
+    }
     ostringstream oss;
     oss << fixed << setprecision(1) << floor(value * 10 + 0.5) / 10;
     return oss.str();
@@ -1698,12 +1732,12 @@ void setActorRating(Actor* actor, double rating) {
     actor->addRating(rating);
 
     // Display confirmation message
-    cout << "\n============================================\n";
-    cout << "Successfully updated rating for Actor: " << actor->getName() << "\n";
-    cout << "New Rating: " << roundToOneDecimal(actor->getRating()) << "⭐  (Total Ratings: " 
-         << actor->getNumRatings() << ")\n";
-    cout << "============================================\n\n";
-};
+    cout << "\n--------------------------------------------\n";
+    cout << "Rating successfully updated for Actor: " << actor->getName() << "\n";
+    cout << "New Average Rating: " << roundToOneDecimal(actor->getRating()) 
+         << " (Total Ratings: " << actor->getNumRatings() << ")\n";
+    cout << "--------------------------------------------\n\n";
+}
 
 /*----------------------------------------------------------------------------
  * Function: setMovieRating
@@ -1724,7 +1758,7 @@ void setActorRating(Actor* actor, double rating) {
  *
  * Error Handling:
  *   - If movie is a null pointer, an error message is displayed, and the function exits.
- *   - If rating is out of the valid range (0-5), an error message is displayed.
+ *   - If rating is out of the valid range (0-5), the function ensures a valid input.
  *----------------------------------------------------------------------------*/
 void setMovieRating(Movie* movie, double rating) {
     // Validate input parameters
@@ -1744,12 +1778,63 @@ void setMovieRating(Movie* movie, double rating) {
 
     // Display confirmation message
     cout << "\n============================================\n";
-    cout << "Successfully updated rating for Movie: " << movie->getName() << " (" 
-         << movie->getYear() << ")\n";
-    cout << "New Rating: " << roundToOneDecimal(movie->getRating()) << "⭐  (Total Ratings: " 
-         << movie->getNumRatings() << ")\n";
+    cout << "Successfully updated rating for Movie: " << movie->getName() 
+         << " (" << movie->getYear() << ")\n";
+    cout << "New Average Rating: " << roundToOneDecimal(movie->getRating()) 
+         << " (Total Ratings: " << movie->getNumRatings() << ")\n";
     cout << "============================================\n\n";
 };
+
+/*----------------------------------------------------------------------------
+ * Function: recommendActorsByRating
+ * Author: Tevel
+ *
+ * Description:
+ *   Recommends the top 5 highest-rated actors from the provided dynamic array.
+ *   The function sorts the actors by their ratings in descending order and then
+ *   displays the top 5 actors along with their ratings. Each rating is formatted to
+ *   one decimal place.
+ *
+ * Parameters:
+ *   allActors - Dynamic array containing all Actor objects.
+ *
+ * Returns:
+ *   void
+ *
+ * Error Handling:
+ *   Assumes that the allActors array contains at least 5 actors. If fewer than 5
+ *   actors are present, the behavior depends on the dynamic array's implementation.
+ *----------------------------------------------------------------------------*/
+void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
+    if (allActors.getSize() == 0) {
+        cout << "\n============================================\n";
+        cout << "        No actors available for recommendation.\n";
+        cout << "============================================\n\n";
+        return;
+    }
+
+    // Sort actors by rating in descending order
+    allActors.sortByRating();
+    int actorsToDisplay = (allActors.getSize() < 5) ? allActors.getSize() : 5;
+
+    // Display header
+    cout << "\n============================================\n";
+    cout << "           Top " << actorsToDisplay << " Highest Rated Actors\n";
+    cout << "============================================\n";
+    cout << setw(8) << "Rating" << " | "
+         << "Actor Name\n";
+    cout << "--------------------------------------------\n";
+
+    for (int i = 0; i < actorsToDisplay; i++) {
+        Actor* actor = allActors.get(i);
+        string ratingDisplay = (actor->getRating() > 0) ? roundToOneDecimal(actor->getRating()) : "No Rating";
+
+        cout << setw(8) << left << ratingDisplay << "  | "
+             << setw(30) << left << actor->getName() << "\n";
+    }
+
+    cout << "============================================\n\n";
+}
 
 /*----------------------------------------------------------------------------
  * Function: recommendMoviesByRating
@@ -1776,7 +1861,7 @@ void setMovieRating(Movie* movie, double rating) {
 void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
     if (allMovies.getSize() == 0) {
         cout << "\n============================================\n";
-        cout << "No movies available for recommendation.\n";
+        cout << "        No movies available for recommendation.\n";
         cout << "============================================\n\n";
         return;
     }
@@ -1787,63 +1872,24 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
 
     // Display header
     cout << "\n============================================\n";
-    cout << "        Top " << moviesToDisplay << " Highest Rated Movies\n";
-    cout << "--------------------------------------------\n";
-    cout << "Rating  | Cast Rating | Movie Name\n";
+    cout << "           Top " << moviesToDisplay << " Highest Rated Movies\n";
+    cout << "============================================\n";
+    cout << setw(8) << "Rating" << " | "
+         << setw(12) << "Cast Rating" << " | "
+         << "Movie Name (Release Year)\n";
     cout << "--------------------------------------------\n";
 
     for (int i = 0; i < moviesToDisplay; i++) {
         Movie* movie = allMovies.get(i);
-        cout << setw(6) << roundToOneDecimal(movie->getRating()) << "⭐  | "
-             << setw(6) << roundToOneDecimal(movie->castAverageRating()) << "⭐  | "
+
+        // Handle cases where ratings might be unavailable
+        string movieRating = (movie->getRating() > 0) ? roundToOneDecimal(movie->getRating()) : "No Rating";
+        string castRating = (movie->castAverageRating() > 0) ? roundToOneDecimal(movie->castAverageRating()) : "No Rating";
+
+        // Output movie details
+        cout << setw(8) << left << movieRating << "  | "
+             << setw(12) << left << castRating << "  | "
              << setw(30) << left << movie->getName() << " (" << movie->getYear() << ")\n";
-    }
-
-    cout << "============================================\n\n";
-}
-
-/*----------------------------------------------------------------------------
- * Function: recommendActorsByRating
- * Author: Tevel
- *
- * Description:
- *   Recommends the top 5 highest-rated actors from the provided dynamic array.
- *   The function sorts the actors by their ratings in descending order and then
- *   displays the top 5 actors along with their ratings. Each rating is formatted to
- *   one decimal place.
- *
- * Parameters:
- *   allActors - Dynamic array containing all Actor objects.
- *
- * Returns:
- *   void
- *
- * Error Handling:
- *   Assumes that the allActors array contains at least 5 actors. If fewer than 5
- *   actors are present, the behavior depends on the dynamic array's implementation.
- *----------------------------------------------------------------------------*/
-void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
-    if (allActors.getSize() == 0) {
-        cout << "\n============================================\n";
-        cout << "No actors available for recommendation.\n";
-        cout << "============================================\n\n";
-        return;
-    }
-
-    // Sort actors by rating in descending order
-    allActors.sortByRating();
-    int actorsToDisplay = (allActors.getSize() < 5) ? allActors.getSize() : 5;
-
-    // Display header
-    cout << "\n============================================\n";
-    cout << "        Top " << actorsToDisplay << " Highest Rated Actors\n";
-    cout << "--------------------------------------------\n";
-    cout << "Rating  | Actor Name\n";
-    cout << "--------------------------------------------\n";
-
-    for (int i = 0; i < actorsToDisplay; i++) {
-        cout << setw(6) << roundToOneDecimal(allActors.get(i)->getRating()) << "⭐  | "
-             << setw(20) << left << allActors.get(i)->getName() << "\n";
     }
 
     cout << "============================================\n\n";
