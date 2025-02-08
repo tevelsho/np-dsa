@@ -1226,7 +1226,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 // Option 1: Display actors by age range.
                 int minAge, maxAge;
                 while (true) {
-                    cout << "Enter the age range (minAge, maxAge): ";
+                    cout << "Enter the age range (minAge maxAge): ";
                     cin >> minAge >> maxAge;
 
                     // Validate that numeric input was provided.
@@ -1261,8 +1261,9 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
             case 3: {
                 // Option 3: List actors in a specific movie (sorted alphabetically).
                 string movieName;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
+
                 while (true) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
                     cout << "Enter the movie's name: ";
                     getline(cin, movieName);
 
@@ -1279,8 +1280,8 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
             case 4: {
                 // Option 4: List movies an actor starred in (sorted alphabetically).
                 string actorName;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
                 while (true) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
                     cout << "Enter the actor's name: ";
                     getline(cin, actorName);
 
@@ -1297,8 +1298,8 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
             case 5: {
                 // Option 5: Find all actors that a given actor knows.
                 string actorName;
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
                 while (true) {
-                    cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Clear leftover newline.
                     cout << "Enter the actor's name: ";
                     getline(cin, actorName);
 
@@ -1831,9 +1832,9 @@ void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
 
     // Display header for the recommendation list
     cout << "\n============================================\n";
-    cout << "           Top " << numActorsToDisplay << " Highest Rated Actors\n";
+    cout << "        Top " << numActorsToDisplay << " Highest Rated Actors\n";
     cout << "============================================\n";
-    cout << setw(8) << "Rating" << " | Actor Name\n";
+    cout << "Rating    " << " | Actor Name\n";
     cout << "--------------------------------------------\n";
 
     // Loop through the top actors and display their rating and name
@@ -1844,7 +1845,7 @@ void recommendActorsByRating(DynamicArray<Actor*>& allActors) {
                                      ? roundToOneDecimal(currentActor->getRating())
                                      : "No Rating";
 
-        cout << setw(8) << left << formattedRating << "  | "
+        cout << setw(9) << left << formattedRating << "  | "
              << setw(30) << left << currentActor->getName() << "\n";
     }
 
@@ -1889,13 +1890,13 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
     int numMoviesToDisplay = (allMovies.getSize() < 5) ? allMovies.getSize() : 5;
 
     // Display header for the recommendation list
-    cout << "\n============================================\n";
+    cout << "\n==================================================================\n";
     cout << "           Top " << numMoviesToDisplay << " Highest Rated Movies\n";
-    cout << "============================================\n";
-    cout << setw(8) << "Rating" << " | " 
-         << setw(12) << "Cast Rating" << " | "
+    cout << "==================================================================\n";
+    cout << setw(10) << "Rating" << " | " 
+         << setw(13) << "Cast Rating" << " | "
          << "Movie Name (Release Year)\n";
-    cout << "--------------------------------------------\n";
+    cout << "------------------------------------------------------------------\n";
 
     // Loop through the top movies and display their details
     for (int i = 0; i < numMoviesToDisplay; i++) {
@@ -1910,11 +1911,11 @@ void recommendMoviesByRating(DynamicArray<Movie*>& allMovies) {
                                          ? roundToOneDecimal(currentMovie->castAverageRating())
                                          : "No Rating";
 
-        cout << setw(8) << left << formattedMovieRating << "  | "
+        cout << setw(9) << left << formattedMovieRating << "  | "
              << setw(12) << left << formattedCastRating << "  | "
              << setw(30) << left << currentMovie->getName() << " ("
              << currentMovie->getYear() << ")\n";
     }
 
-    cout << "============================================\n\n";
+    cout << "==================================================================\n\n";
 }

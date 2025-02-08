@@ -157,11 +157,11 @@ bool AVLTree<T>::isEmpty() const {
 // Displays actors within the specified age range.
 template<class T>
 void AVLTree<T>::DisplayActors(int x, int y) const {
-    cout << "\n==============================\n";
-    cout << "Actors between " << x << " and " << y << ":\n";
-    cout << "------------------------------\n";
+    cout << "\n===============================\n";
+    cout << "Actors aged between " << (currentYear - y) << " and " << (currentYear - x) << ":\n";
+    cout << "-------------------------------\n";
     inOrderTraversalRangeAge(root, x, y);
-    cout << "\n==============================\n";
+    cout << "\n===============================\n";
 }
 
 // Displays movies released in the last three years.
