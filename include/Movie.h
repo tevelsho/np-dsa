@@ -61,6 +61,9 @@ class Movie {
 
       // Other Member Functions
       // Adds an actor to the movie's cast.
+      
+      bool hasActor(Actor* actor) const;
+
       void addActor(Actor* actor);
 
       bool removeActor(Actor* actor);

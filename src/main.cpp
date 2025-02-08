@@ -496,9 +496,11 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                         } else {
                             Actor* actor = findActorByName(actorNameToIdMap, movieActor, actorIdToActorMap);
                             Movie* movie = movieIdToMovieMap.get(movieId);
-                            addActorToMovie(actor, movie);
-                            cout << "Success: " << movieActor << " has been successfully assigned to \"" << movieName << "\".\n";
-                            cout << "Enter another actor to add to movie (blank to quit): ";
+                            if (addActorToMovie(actor, movie)){
+                                cout << "Success: " << movieActor << " has been successfully assigned to \"" << movieName << "\".";
+                            } else {
+                                cout << "Please try again: ";
+                            }
                             continue;
                         }
                     }
@@ -999,6 +1001,10 @@ bool addActorToMovie(Actor* actor, Movie* movie) {
     }
     if (movie == nullptr) {
         cerr << "Error: Movie pointer is null." << std::endl;
+        return false;
+    }
+    if (movie->hasActor(actor)) {
+        cerr << "Error: Actor already assigned to movie." << std::endl;
         return false;
     }
 

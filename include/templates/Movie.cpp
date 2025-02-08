@@ -47,6 +47,10 @@ int Movie::getYear() const {
     return year;
 }
 
+bool Movie::hasActor(Actor* actor) const {
+    return cast.contains(actor);
+}
+
 // Adds an actor to the movie's cast list, ensuring the actor pointer is valid.
 void Movie::addActor(Actor* actor) {
     if (actor == nullptr) {
