@@ -6,8 +6,7 @@
  *   organized by a key (e.g., year of actor birth or movie release year).
  *
  * Team Information:
- *   - Member 1: [Name], [Student ID], [Group Name]
- *   - Member 2: [Name], [Student ID], [Group Name]
+ *   Coder 1: Brayden Saga  | S10258659C | Group 4
  *
  * Key Features:
  *   Default constructor for creating an empty AVL tree.
