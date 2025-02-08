@@ -436,7 +436,7 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 // Option 2: Add a new movie.
                 cout << "Adding a new movie...\n";
                 int movieId, movieReleaseYear;
-                string movieName, moviePlot;
+                string movieName, moviePlot, movieActor;
 
                 // Prompt for the movie's ID.
                 cout << "Enter new movie's ID: ";
@@ -472,14 +472,35 @@ void adminMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 // Prompt for the movie's release year.
                 cout << "Enter new movie's release year: ";
                 while (!(cin >> movieReleaseYear) || movieReleaseYear < 0) {
-                    cin.clear();
                     cin.ignore(numeric_limits<streamsize>::max(), '\n');
+
+                    cin.clear();
                     cout << "Invalid input. Please enter a valid non-negative number for movie release year: ";
                 }
 
                 // Attempt to add the new movie.
                 if (addNewMovie(movieId, movieReleaseYear, movieName, moviePlot, movieIdToMovieMap, movieNameToIdMap, yearToMovie, allMovies)) {
                     cout << "Movie successfully added!\n";
+                    // Prompt for the movie's cast.
+                    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+                    cout << "Enter name of actor to add to movie (blank to quit): ";
+                    while (true) {
+                        getline(cin, movieActor);
+                        if (movieActor.empty()) {
+                            break;
+                        } else if (!actorNameToIdMap.contains(movieActor)) {
+                            cout << "Error: Actor not found. Please check the name and try again: ";
+                            continue;
+                        } else {
+                            Actor* actor = findActorByName(actorNameToIdMap, movieActor, actorIdToActorMap);
+                            Movie* movie = movieIdToMovieMap.get(movieId);
+                            addActorToMovie(actor, movie);
+                            cout << "Success: " << movieActor << " has been successfully assigned to \"" << movieName << "\".\n";
+                            cout << "Enter another actor to add to movie (blank to quit): ";
+                            continue;
+                        }
+                    }
+                    
                 } else {
                     cout << "Failed to add movie due to an error.\n";
                 }
