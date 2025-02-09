@@ -31,6 +31,7 @@ void readCSV(string fileName, Dictionary<int, Actor*>& actorIdToActorMap, Dictio
 string roundToOneDecimal(double value);
 
 // Function prototypes (Basic).
+Movie* duplicateMovieViewer(Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, string movieName);
 bool addNewActor(int id, int birth, string name, Dictionary<int, Actor*>& actorIdToActorMap, Dictionary<string, int>& actorNameToIdMap, AVLTree<Actor*>& yearToActor, DynamicArray<Actor*>& allActors);
 bool addNewMovie(int id, int year, string name, string plot, Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, AVLTree<Movie*>& yearToMovie, DynamicArray<Movie*>& allMovies);
 bool addActorToMovie(Actor* actor, Movie* movie);
@@ -951,7 +952,6 @@ bool addNewMovie(int movieId, int releaseYear, string movieTitle, string plot,
         for (int i = 2; i < 100; i++) {
             if (!(movieNameToIdMap.contains(movieTitle + " " + to_string(i)))) {
                 movieTitle = movieTitle + " " + to_string(i);
-                cout << "Warning: Movie title already exists. Renaming to \"" << movieTitle << "\".\n";
                 break;
             }
         }
@@ -1412,7 +1412,8 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                     cout << "Enter the movie's name: ";
                     getline(cin, movieName);
 
-                    Movie* movie = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+                    Movie* movie = duplicateMovieViewer(movieIdToMovieMap, movieNameToIdMap, movieName);
+
                     if (movie != nullptr) {
                         displayActorsByMovie(movie);
                         break;
@@ -1447,7 +1448,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 while (true) {
                     cout << "Enter the actor's name: ";
                     getline(cin, actorName);
-
+                    
                     Actor* actor = findActorByName(actorNameToIdMap, actorName, actorIdToActorMap);
                     if (actor != nullptr) {
                         displayActorsKnownBy(actor);
@@ -1497,7 +1498,7 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 cout << "Enter the movie's name: ";
                 getline(cin, movieName);
 
-                Movie* movie = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+                Movie* movie = duplicateMovieViewer(movieIdToMovieMap, movieNameToIdMap, movieName);
                 if (movie == nullptr) {
                     cout << "Movie not found. Please try again.\n";
                     break;
@@ -1535,6 +1536,48 @@ void userMenu(Dictionary<int, Actor*>& actorIdToActorMap,
                 cout << "Invalid choice! Try again.\n";
         }
     } while (userChoice != 0);
+}
+/*----------------------------------------------------------------------------
+ * Function: duplicateMovieViewer
+ * Author: Brayden
+ *
+ * Description:
+ *   Given a movie name, either directly finds the movie or prompts the user to
+ *   select the correct movie if multiple movies with the same name exist.
+ *
+ * Parameters:
+ *   movieIdToMovieMap - Dictionary mapping movie IDs to their corresponding Movie objects.
+ *   movieNameToIdMap  - Dictionary mapping movie names to their corresponding IDs.
+ *   movieName         - Name of the movie to find.
+ *
+ * Returns:
+ *   Movie* - Pointer to the Movie object with the specified name.
+ *
+ * Error Handling:
+ *   - Ensures that movie name is entered correctly.
+ *----------------------------------------------------------------------------*/
+Movie* duplicateMovieViewer(Dictionary<int, Movie*>& movieIdToMovieMap, Dictionary<string, int>& movieNameToIdMap, string movieName) {
+    if (!(movieNameToIdMap.contains(movieName + " 2"))) {
+        return findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+    }
+    Movie* movie = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+    cout << "Movie Name: " << movie->getName() << " Movie Year: " << movie->getYear() << endl;
+    for (int i = 2; i < 100; i++) {
+        if ((movieNameToIdMap.contains(movieName + " " + to_string(i)))) {
+            movie = findMovieByName(movieNameToIdMap, movieName + " " + to_string(i), movieIdToMovieMap);
+            cout << "Movie Name: " << movie->getName() << " Movie Year: " << movie->getYear() << endl;
+        } else {
+            break;
+        }
+    }
+    cout << "Confirm the movie's name: ";
+    getline(cin, movieName);
+    while (!(movieNameToIdMap.contains(movieName))) {
+        cout << "Invalid movie name. Please try again: ";
+        getline(cin, movieName);
+    }
+    movie = findMovieByName(movieNameToIdMap, movieName, movieIdToMovieMap);
+    return movie;
 }
 
 /*----------------------------------------------------------------------------
