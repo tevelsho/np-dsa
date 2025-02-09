@@ -948,7 +948,13 @@ bool addNewMovie(int movieId, int releaseYear, string movieTitle, string plot,
 
     // Check for duplicate movie title.
     if (movieNameToIdMap.contains(movieTitle)) {
-        return false;  // Duplicate movie title detected.
+        for (int i = 2; i < 100; i++) {
+            if (!(movieNameToIdMap.contains(movieTitle + " " + to_string(i)))) {
+                movieTitle = movieTitle + " " + to_string(i);
+                cout << "Warning: Movie title already exists. Renaming to \"" << movieTitle << "\".\n";
+                break;
+            }
+        }
     }
 
     // Create a new Movie object using nothrow to handle memory allocation failure.
@@ -1110,6 +1116,11 @@ void updateActorDetails(Actor* actorToUpdate, Dictionary<string, int>& actorName
     cout << "Enter the new name (leave blank to keep current): ";
     getline(cin, newName);
 
+    if (actorNameToIdMap.contains(newName)) {
+        cout << "Error: Actor name already exists. \n";
+        return;
+    }
+
     // Prompt the user for a new year of birth. An empty input retains the current year.
     while (true) {
         cout << "Enter the new year of birth (leave blank to keep current): ";
@@ -1211,6 +1222,11 @@ void updateMovieDetails(Movie* movieToUpdate, Dictionary<string, int>& movieName
     // Prompt the user for a new title. An empty input retains the current title.
     cout << "Enter the new title (leave blank to keep current): ";
     getline(cin, newTitle);
+
+    if (movieNameToIdMap.contains(newTitle)) {
+        cout << "Error: Movie title already exists. \n";
+        return;
+    }
 
     // Prompt the user for a new plot. An empty input retains the current plot.
     cout << "Enter the new plot (leave blank to keep current): ";
