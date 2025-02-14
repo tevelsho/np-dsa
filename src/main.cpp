@@ -1616,7 +1616,7 @@ void displayActorsByAgeRange(int minAge, int maxAge, AVLTree<Actor*>& yearToActo
 
 /*----------------------------------------------------------------------------
  * Function: displayRecentMovies
- * Author: Tevel1
+ * Author: Tevel
  *
  * Description:
  *   Displays movies that have been released in the last three years.
